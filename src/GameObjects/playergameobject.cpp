@@ -10,6 +10,8 @@ PlayerGameObject::PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, std::sh
 
 void PlayerGameObject::moveRight(float deltaTime)
 {
+	if(offset.x == 0)
+		frameCounter = 1.f;
 	offset.x += accelaration.x * deltaTime * 60;
 	if(offset.x > maxAccelaration.x)
 		offset.x = maxAccelaration.x;
@@ -20,6 +22,8 @@ void PlayerGameObject::moveRight(float deltaTime)
  
 void PlayerGameObject::moveLeft(float deltaTime)
 {
+	if(offset.x == 0)
+		frameCounter = 1.f;
 	offset.x -= accelaration.x * deltaTime * 60;
 	if(abs(offset.x) > maxAccelaration.x)
 		offset.x = -maxAccelaration.x;
@@ -41,19 +45,25 @@ void PlayerGameObject::jump(float deltaTime)
 void PlayerGameObject::stay(float deltaTime)
 {
 	isStaying = true;
-	if(int(frameCounter) == 0)
-		return;
-	else if(int(frameCounter) > 24)
+
+	if(offset.x == 0 || frameCounter == 0.f || int(frameCounter) >= 24) {
 		frameCounter = 0.f;
-	else
-		frameCounter += deltaTime * maxAccelaration.x * ANIMATION_SPEED;
-	
-	std::cout << frameCounter << std::endl;
+		return;
+	}
+	if(int(frameCounter) < 19 && int(frameCounter) > 0)
+		frameCounter = 19.f;
+
+	frameCounter += deltaTime * abs(offset.x) * ANIMATION_SPEED;;
 }
 
 void PlayerGameObject::setOffset(sf::Vector2f newOffset)
 {
 	offset = newOffset;
+}
+
+void PlayerGameObject::move()
+{
+	sprite.move(offset);
 }
 
 void PlayerGameObject::updateMovement(float deltaTime) // override
@@ -64,7 +74,6 @@ void PlayerGameObject::updateMovement(float deltaTime) // override
 		sprite.setTextureRect(sf::IntRect((64 + 32) * int(frameCounter), 0, 64, 117));
 	
 	sprite.setScale(1, 1);
-
 	auto deceleration = this->deceleration;
 	if(!isOnGround)
 		deceleration.x /= 2; 
@@ -87,7 +96,8 @@ void PlayerGameObject::updateMovement(float deltaTime) // override
 	else if(abs(offset.y) > maxAccelaration.y)
 		offset.y = -maxAccelaration.y;
 
-	// std::cout << offset.x << std::endl;
+	// if the player is falling too low - than he should die
+
 }
 
 void PlayerGameObject::drawAnimation(sf::RenderWindow &window, float deltaTime)
@@ -105,16 +115,19 @@ void PlayerGameObject::drawAnimation(sf::RenderWindow &window, float deltaTime)
 		if(frameCounter >= 20.f)
 			frameCounter = 4;
 	}
-	else
-		frameCounter = 1;
-	// std::cout << frameCounter << std::endl;
 	GameObject::draw(window);
 }
 
 // if the player on ground - he can jump
-void PlayerGameObject::setOnGround(bool isOnGround)
+void PlayerGameObject::setStayingOnBlocks(std::list<BlockObject_ptr> stayingOnBlocks)
 {
-	this->isOnGround = isOnGround;
+	this->stayingOnBlocks = stayingOnBlocks;
+	isOnGround = stayingOnBlocks.size() > 0;
 	if(isOnGround)
 		isAlowedToJump = true;
+}
+
+void PlayerGameObject::die()
+{
+
 }

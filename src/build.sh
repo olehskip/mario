@@ -1,0 +1,1 @@
+g++ main.cpp gamelogic.cpp textures.cpp GameObjects/gameobject.cpp GameObjects/playergameobject.cpp GameObjects/blockgameobject.cpp -o ./output -lsfml-graphics -lsfml-window -lsfml-system

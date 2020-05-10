@@ -1,5 +1,6 @@
 #pragma once
-#include "gameobject.h"
+#include "blockgameobject.h"
+#include <list>
 
 enum class Direction
 {
@@ -16,20 +17,26 @@ public:
 	void jump(float deltaTime);
 	void stay(float deltaTime);
 	void setOffset(sf::Vector2f newOffset);
-	void move(sf::Vector2f offset){sprite.move(offset);}
+	void move();
 	void updateMovement(float deltaTime) override;
 	void drawAnimation(sf::RenderWindow &window, float deltaTime);
 
-	void setOnGround(bool isOnGround);
-	bool isStaying = true;
-	bool isStacked = false;
+	void setStayingOnBlocks(std::list<BlockObject_ptr> stayingOnBlocks);
+	bool isStacked = false; // stacked means stacked of the left side of screen (when the player is running back)
+	bool getIsStaying() const;
 
 	const float ANIMATION_SPEED;
 
 private:
+	std::list<BlockObject_ptr> stayingOnBlocks;
+	bool isStaying = true;
 	bool isAlowedToJump = true;
 	bool isOnGround = false;
 	float frameCounter = 0.f;
+	unsigned int animationRow = 0;
 	Direction direction = Direction::RIGHT;
+
+	void die();
+	bool isAlive;
 };
 typedef std::shared_ptr<PlayerGameObject> PlayerObject_ptr;

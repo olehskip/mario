@@ -7,6 +7,7 @@ namespace config
 {
 	const int WINDOW_WIDTH = 800;
 	const int WINDOW_HEIGHT = 800;
+	const int DYING_Y = 200;
 
 	const sf::Vector2i VISIBLE_CELLS_COUNT = sf::Vector2i(120, 120);
 	const int CELL_SIZE = 32;

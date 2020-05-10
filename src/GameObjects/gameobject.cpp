@@ -10,14 +10,14 @@ GameObject::GameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf:
 	sprite.scale(scale.x, scale.y);
 }
 
-sf::Texture GameObject::getTextureCopy() const
+sf::Vector2f GameObject::getPosition() const
 {
-	return *texture;
+	return sprite.getPosition();
 }
 
-sf::Sprite GameObject::getSpriteCopy() const
+sf::FloatRect GameObject::getGlobalBounds() const
 {
-	return sprite;
+	return sprite.getGlobalBounds();
 }
 
 void GameObject::setPosition(sf::Vector2f newPos)
@@ -35,9 +35,9 @@ sf::Vector2f GameObject::getGlobalOffset() const
 	return globalOffset;
 }
 
-void GameObject::update(sf::RenderWindow &window, float time)
+void GameObject::update(sf::RenderWindow &window, float deltaTime)
 {
-	updateMovement(time);
+	updateMovement(deltaTime);
 	draw(window);
 }
 
