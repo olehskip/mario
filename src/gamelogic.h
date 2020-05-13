@@ -16,14 +16,17 @@ public:
 	int getStopwatchTime() const;
 
 	void restart();
-	void update(sf::RenderWindow &window);
+	void update();
+	void draw(sf::RenderWindow &window); 
 	void stay(){player->stay(deltaTime);} // temponary?? not finished
 
 	// player functions
 	void playerMoveLeft();
 	void playerMoveRight();
 	void playerJump();
-	sf::Vector2f getCameraPosition();
+	float getPlayerXCenter();
+
+	sf::Vector2f cameraController(const sf::Vector2f &cameraCenter);
 
 	size_t getRandomNumber(size_t min, size_t max) {
 		static std::mt19937 rng;

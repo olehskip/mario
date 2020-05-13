@@ -1,13 +1,15 @@
 #include "gameobject.h"
 
 // ---GameObject---
-GameObject::GameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf::Texture> _texture)
+GameObject::GameObject(sf::Vector2f pos, sf::Vector2f _scale, std::shared_ptr<sf::Texture> _texture):
+	scale(_scale)
 {
 	texture = _texture;
 	
 	sprite.setTexture(*texture);
 	sprite.setPosition(pos.x, pos.y);
 	sprite.scale(scale.x, scale.y);
+	spawnGlobalBounds = sprite.getGlobalBounds();
 }
 
 sf::Vector2f GameObject::getPosition() const
@@ -18,6 +20,11 @@ sf::Vector2f GameObject::getPosition() const
 sf::FloatRect GameObject::getGlobalBounds() const
 {
 	return sprite.getGlobalBounds();
+}
+
+sf::FloatRect GameObject::getSpawnGlobalBounds() const
+{
+	return spawnGlobalBounds;
 }
 
 void GameObject::setPosition(sf::Vector2f newPos)

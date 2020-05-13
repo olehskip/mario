@@ -2,15 +2,16 @@
 #include <iostream>
 #include "gamelogic.h"
 
-// g++ main.cpp gamelogic.cpp textures.cpp GameObjects/gameobject.cpp GameObjects/playergameobject.cpp GameObjects/blockgameobject.cpp -o ./output -lsfml-graphics -lsfml-window -lsfml-system
+// g++ main.cpp gamelogic.cpp textures.cpp GameObjects/animationcontroller.cpp GameObjects/gameobject.cpp GameObjects/playergameobject.cpp GameObjects/blockgameobject.cpp -o ./output -lsfml-graphics -lsfml-window -lsfml-system
 
 int main()
 {
 	std::cout << "started biatch" << std::endl;
 	GameLogic gameLogic = GameLogic();
 	sf::RenderWindow window(sf::VideoMode(config::WINDOW_WIDTH, config::WINDOW_HEIGHT), "test");
-	sf::View view(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(window.getSize().x, window.getSize().y));
-	view.zoom(1.3);
+	sf::View view(sf::Vector2f(0, config::WINDOW_HEIGHT / 2), sf::Vector2f(config::WINDOW_WIDTH, config::WINDOW_HEIGHT));
+	view.zoom(config::WINDOW_SCALE);
+	
 	
 	window.setFramerateLimit(60);
 
@@ -24,7 +25,7 @@ int main()
 		label.setFont(labelsFont);
 		label.setCharacterSize(40);
 		label.setFillColor(sf::Color::White);
-		label.setPosition(25, 0);
+		label.setPosition(-config::WINDOW_WIDTH / 2, 0);
 	}
 	while(window.isOpen()) {
 		sf::Event event;
@@ -45,12 +46,19 @@ int main()
 
 		window.clear(config::BACKGROUND_COLOR);
 
-		gameLogic.update(window);
-		view.setCenter(gameLogic.getCameraPosition());
-		window.setView(view);
-
+		gameLogic.update();
 		labels[0].setString(std::to_string(gameLogic.getStopwatchTime()));
-		labels[0].setPosition(0, 0);
+
+		const auto cameraPosition = gameLogic.cameraController(view.getCenter());
+
+		view.move(cameraPosition);
+		for(auto &label: labels)
+			label.move(cameraPosition);
+		
+		window.setView(view);
+		gameLogic.draw(window);
+
+		
 		window.draw(labels[0]);
 
 		window.display();
