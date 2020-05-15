@@ -22,11 +22,11 @@ namespace config
 	
 	// ---run animation---
 	const float RUN_ANIMATION_SPEED = 4.6f;
-	const unsigned int START_RUNNING_FRAME = 4, STOP_RUNNING_FRAME = 20;
+	const unsigned int RUN_ANIMATION_FRAMES_COUNT = 26, START_RUNNING_FRAME = 4, STOP_RUNNING_FRAME = 20;
 
 	// ---jump animation---
 	const float JUMP_ANIMATION_SPEED = 3.f;
-	const unsigned int JUMPING_FRAME = 3, START_FALLING_FRAME = 4;
+	const unsigned int JUMP_ANIMATION_FRAMES_COUNT = 4, JUMPING_FRAME = 3;
 
 	// ---animations---
 }

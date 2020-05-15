@@ -43,6 +43,5 @@ private:
 	std::shared_ptr<AnimationController> currentAnimation;
 	std::shared_ptr<AnimationController> runAnimation;
 	std::shared_ptr<AnimationController> jumpAnimation;
-
 };
 typedef std::shared_ptr<PlayerGameObject> PlayerObject_ptr;
