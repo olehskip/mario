@@ -3,8 +3,8 @@
 #include "GameObjects/blockgameobject.h"
 #include "config.h"
 #include "textures.h"
-#include <random>
 
+#include <random>
 #include "time.h"
 
 class GameLogic
@@ -18,7 +18,7 @@ public:
 	void restart();
 	void update();
 	void draw(sf::RenderWindow &window); 
-	void stay(){player->stay(deltaTime);} // temponary?? not finished
+	void stay() { player->stay(deltaTime); } // temponary?? not finished
 
 	// player functions
 	void playerMoveLeft();
@@ -28,7 +28,7 @@ public:
 
 	sf::Vector2f cameraController(const sf::Vector2f &cameraCenter);
 
-	size_t getRandomNumber(size_t min, size_t max) {
+	int getRandomNumber(int min, int max) {
 		static std::mt19937 rng;
 		rng.seed(std::random_device()());
 		std::uniform_int_distribution<std::mt19937::result_type> dist(min, max);
@@ -41,7 +41,6 @@ private:
 	std::vector<BlockObject_ptr> blocks;
 	std::vector<BlockObject_ptr> scenery;
 	PlayerObject_ptr player;
-	Textures textures;
 	sf::Clock clock, stopwatch;
 	float deltaTime = 0.f;
 };

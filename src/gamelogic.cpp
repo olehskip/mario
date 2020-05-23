@@ -4,9 +4,8 @@ GameLogic::GameLogic()
 {
 	// change in the future
 	srand(time(NULL));
-
-	player = std::make_unique<PlayerGameObject>(sf::Vector2f(0, 4 * 64), sf::Vector2f(1, 1), textures.getTexture(TexturesID::MARIO_PLAYER), sf::Vector2f(0.8, 7), sf::Vector2f(0.5, 1), sf::Vector2f(10, 22));
-
+	
+	player = std::make_unique<PlayerGameObject>(sf::Vector2f(0, 4 * 64), sf::Vector2f(1, 1), textures.getTexture(TexturesID::MARIO_PLAYER));
 	// spawn for testing
 
 	// for(int i = 0; i < 10; ++i) {
@@ -20,12 +19,12 @@ GameLogic::GameLogic()
 		scenery.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(randomX, randomY), sf::Vector2f(1, 1), textures.getTexture(TexturesID::CLOUD), false));
 	}
 
-	for(int i = 0; i < 150; ++i) {
-		if((rand() % 5) - 1 < 0) continue;
-		float randomX = getRandomNumber(150 * i - 20, 150 * i + 20);
-		int randomTexture = getRandomNumber(int(TexturesID::BUSH1), int(TexturesID::SMALL_TREE1));
-		scenery.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(randomX, 7 * 64 - textures.getTexture(static_cast<TexturesID>(randomTexture))->getSize().y), sf::Vector2f(1, 1), textures.getTexture(static_cast<TexturesID>(randomTexture)), false));
-	}
+	// for(int i = 0; i < 150; ++i) {
+	// 	if((rand() % 5) - 1 < 0) continue;
+	// 	float randomX = getRandomNumber(150 * i - 20, 150 * i + 20);
+	// 	int randomTexture = getRandomNumber(int(TexturesID::BUSH1), int(TexturesID::SMALL_TREE1));
+	// 	scenery.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(randomX, 7 * 64 - textures.getTexture(static_cast<TexturesID>(randomTexture))->getSize().y), sf::Vector2f(1, 1), textures.getTexture(static_cast<TexturesID>(randomTexture)), false));
+	// }
 
 	// for(int i = 0; i < 4; ++i) {
 	// 	if(i % 2 == 0) continue;
@@ -35,16 +34,16 @@ GameLogic::GameLogic()
 	// for(int i = -20; i < 0; ++i) {
 	// 	blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * i, 7 * 64), sf::Vector2f(1, 1), textures.getTexture(TexturesID::LUCKY_BOX), true));
 	// }
-	for(int i = 0; i < 100; ++i) {
+	for(int i = -10; i < 10; ++i) {
 		blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * i, 7 * 64), sf::Vector2f(1, 1), textures.getTexture(TexturesID::BOTTOM_BRICK), true));
 	}
-	for(int i = 50; i < 100; ++i) {
-		blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * i, 7 * 64), sf::Vector2f(1, 1), textures.getTexture(TexturesID::GRASS_BRICK), true));
+	for(int i = 10; i < 100; ++i) {
+		blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * i, 7 * 64), sf::Vector2f(1, 1), textures.getTexture(TexturesID::ICE_BLOCK), true, BlockType::ICE));
 	}
 	for(int i = 100; i < 150; ++i) {
 		blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * i, 7 * 64), sf::Vector2f(1, 1), textures.getTexture(TexturesID::SIMLE_BRICK), true));
 	}
-	for(int i = 150; i < 200; ++i) {
+	for(int i = 150; i < 2000; ++i) {
 		blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * i, 7 * 64), sf::Vector2f(1, 1), textures.getTexture(TexturesID::SOLID_BRICK), true));
 	}
 }
@@ -118,12 +117,10 @@ sf::Vector2f GameLogic::cameraController(const sf::Vector2f &cameraCenter)
 	else 
 		player->isStacked = false;
 
-	if(bool(player->getOffset().x > 0) && bool(player->getPosition().x >= cameraCenter.x)) {
+	if(bool(player->getOffset().x > 0) && bool(player->getPosition().x >= cameraCenter.x))
 		return player->getOffset();
-	}
-	else {
+	else
 		return sf::Vector2f(0, player->getOffset().y);
-	}
 }
 
 void GameLogic::checkForCollision()

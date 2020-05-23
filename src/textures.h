@@ -3,9 +3,17 @@
 #include <memory>
 #include <SFML/Graphics/Texture.hpp>
 
+#include "config.h"
+
 enum class TexturesID
 {
+	// ---backgrounds---
+	GRASSY_BACKGROUND,
+
+	// ---player sprite---
 	MARIO_PLAYER,
+
+	// ---blocks---
 	SIMLE_BRICK,
 	BOTTOM_BRICK,
 	GRASS_BRICK,
@@ -15,8 +23,12 @@ enum class TexturesID
 	SOLID_GRASS_BRICK3,
 	SOLID_GRASS_BRICK4,
 	SOLID_GRASS_BRICK5,
+
+	// ---special blocks---
 	ICE_BLOCK,
 	LUCKY_BOX,
+
+	// ---scenery---
 	CLOUD,
 	BUSH1,
 	BUSH2,
@@ -24,7 +36,7 @@ enum class TexturesID
 	BUSH4,
 	MUSHROOMS,
 	STUMP,
-	SMALL_TREE1
+	SMALL_TREE1,
 };
 
 class GameTexture
@@ -37,10 +49,12 @@ public:
 class Textures
 {
 public:
+	static Textures &getInstance();
+	std::shared_ptr<sf::Texture> getTexture(TexturesID textureID);
+
+private:
 	Textures();
 
-	std::shared_ptr<sf::Texture> getTexture(TexturesID textureID);
-private:
 	std::vector<GameTexture> allTextures;
-
 };
+static Textures &textures = Textures::getInstance();

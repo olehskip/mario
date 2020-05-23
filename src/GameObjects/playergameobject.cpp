@@ -1,8 +1,8 @@
 #include "playergameobject.h"
 
 
-PlayerGameObject::PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf::Texture> _texture, sf::Vector2f _accelaration, sf::Vector2f _deceleration, sf::Vector2f _maxAccelaration): 
-	LiveGameObject(pos, scale, _texture, _accelaration, _deceleration, _maxAccelaration)
+PlayerGameObject::PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf::Texture> _texture): 
+	GameObject(pos, scale, _texture)
 {
 	runAnimation = std::make_shared<AnimationController>(0, config::RUN_ANIMATION_FRAMES_COUNT, config::RUN_ANIMATION_SPEED);
 	jumpAnimation = std::make_shared<AnimationController>(1, config::JUMP_ANIMATION_FRAMES_COUNT, config::JUMP_ANIMATION_SPEED);
@@ -14,6 +14,7 @@ PlayerGameObject::PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, std::sh
 
 void PlayerGameObject::moveRight(float deltaTime)
 {
+	isStaying = false;
 	if(isOnGround) {
 		if(offset.x == 0)
 			currentAnimation->setCurrentFrame(1.f);
@@ -22,16 +23,24 @@ void PlayerGameObject::moveRight(float deltaTime)
 			currentAnimation = runAnimation;
 		}
 	}
-	offset.x += accelaration.x * deltaTime * 60;
-	if(offset.x > maxAccelaration.x)
-		offset.x = maxAccelaration.x;
+	offset.x += config::PLAYER_RUNNING_ACCELARATION * deltaTime * 60;
+	if(offset.x > config::PLAYER_RUNNING_MAX_SPEED) {
+		offset.x = config::PLAYER_RUNNING_MAX_SPEED;
+	}
+		
+	if(isOnGround)
+		direction = Direction::RIGHT;
 
-	isStaying = false;
-	direction = Direction::RIGHT;
+	// if(!isOnGround && direction == Direction::LEFT && offset.x > 0)
+	// 	offset.x = 0.f;
 }
  
 void PlayerGameObject::moveLeft(float deltaTime)
 {
+	isStaying = false;
+	const float maxSpeed = [](){
+		return config::PLAYER_RUNNING_MAX_SPEED;
+	}();
 	if(isOnGround) {
 		if(offset.x == 0)
 			currentAnimation->setCurrentFrame(1.f);
@@ -40,24 +49,26 @@ void PlayerGameObject::moveLeft(float deltaTime)
 			currentAnimation = runAnimation;
 		}
 	}
-	offset.x -= accelaration.x * deltaTime * 60;
-	if(abs(offset.x) > maxAccelaration.x)
-		offset.x = -maxAccelaration.x;
 
-	isStaying = false;
-	direction = Direction::LEFT;
+	offset.x -= config::PLAYER_RUNNING_ACCELARATION * deltaTime * 60;
+	if(abs(offset.x) > config::PLAYER_RUNNING_MAX_SPEED)
+		offset.x = -config::PLAYER_RUNNING_MAX_SPEED;
 
-	if(offset.x < 0)
-		offsetFromCenter += offset.x;
+	if(isOnGround)
+		direction = Direction::LEFT;
+	
+	if(!isOnGround && direction == Direction::RIGHT && offset.x < 0)
+		offset.x = 0.f;
 }
 
 void PlayerGameObject::jump(float deltaTime)
 {
 	if(!isAlowedToJump) return;
+
 	isJumped = true;
-	offset.y -= accelaration.y * deltaTime * 60;
-	if(abs(offset.y) > maxAccelaration.y) {
-		offset.y = -maxAccelaration.y;
+	offset.y -= config::PLAYER_JUMPING_ACCELARATION * deltaTime * 60;
+	if(abs(offset.y) > config::PLAYER_JUMPING_MAX_SPEED) {
+		offset.y = -config::PLAYER_JUMPING_MAX_SPEED;
 		isAlowedToJump = false;
 	}
 	if(currentAnimation != jumpAnimation) {
@@ -96,31 +107,48 @@ void PlayerGameObject::move(sf::Vector2f offset)
 
 void PlayerGameObject::updateMovement(float deltaTime) // override
 {
-	auto deceleration = this->deceleration;
-	if(!isOnGround)
-		deceleration.x /= 2; 
+	const bool isStayingOnIce = [](const std::list<BlockObject_ptr> &blocks)
+	{
+		for(auto block: blocks) {
+			if(block->blockType == BlockType::ICE)
+				return true;
+		}
+		return false;
+	}(stayingOnBlocks);
+
+	auto deceleration = config::PLAYER_RUNNING_DECELERATION;
+	if(offset.y != 0)
+		deceleration /= 3;
+	else if(isStayingOnIce)
+		deceleration = config::PLAYER_RUNNIMG_ON_ICE_DECELARATION;
+
 	// x
-	if(offset.x > 0) {
-		offset.x -= deceleration.x;
-		if(offset.x < 0)
-			offset.x = 0;
-	}
-	else if(offset.x < 0) {
-		offset.x += deceleration.x;
-		if(offset.x > 0)
-			offset.x = 0;
+	// std::cout << bool(isStaying) << std::endl;
+	if(isStaying) {
+		if(offset.x > 0) {
+			offset.x -= deceleration;
+
+			if(offset.x < 0)
+				offset.x = 0;
+		}
+		else if(offset.x < 0) {
+			offset.x += deceleration;
+
+			if(offset.x > 0)
+				offset.x = 0;
+		}
 	}
 
 	// y
-	offset.y += deceleration.y;
-	if(offset.y > maxAccelaration.y)
-		offset.y = maxAccelaration.y;
-	else if(abs(offset.y) > maxAccelaration.y)
-		offset.y = -maxAccelaration.y;
+	offset.y += config::GRAVITY;
+	if(offset.y > config::MAX_FALLING_SPEED)
+		offset.y = config::MAX_FALLING_SPEED;
+	else if(abs(offset.y) > config::MAX_FALLING_SPEED)
+		offset.y = -config::MAX_FALLING_SPEED;
 
 	// if the player is falling too low - than he should die
 		// TO DO
-}
+ }
 
 void PlayerGameObject::drawAnimation(sf::RenderWindow &window, float deltaTime)
 {
@@ -130,7 +158,7 @@ void PlayerGameObject::drawAnimation(sf::RenderWindow &window, float deltaTime)
 			// if there is a hindrance set animation speed to max
 			// otherwise we would have a very slow animation
 			if(isStacked)
-				currentAnimation->setCurrentFrame(currentAnimation->getCurrentFrame() + deltaTime * maxAccelaration.x * currentAnimation->animationSpeed);
+				currentAnimation->setCurrentFrame(currentAnimation->getCurrentFrame() + deltaTime * config::PLAYER_RUNNING_MAX_SPEED * currentAnimation->animationSpeed);
 
 			// if the player is not staying and there is no any hindrance
 			else 

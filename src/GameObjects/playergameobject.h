@@ -10,10 +10,10 @@ enum class Direction
 	RIGHT
 };
 
-class PlayerGameObject: public LiveGameObject
+class PlayerGameObject: public GameObject
 {
 public:
-	PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf::Texture> _texture, sf::Vector2f _accelaration, sf::Vector2f _deceleration, sf::Vector2f _maxAccelaration);
+	PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf::Texture> _texture);
 	void moveRight(float deltaTime);
 	void moveLeft(float deltaTime);
 	void jump(float deltaTime);
@@ -26,7 +26,6 @@ public:
 	void setStayingOnBlocks(std::list<BlockObject_ptr> stayingOnBlocks);
 	bool isStacked = false; // stacked means stacked of the left side of screen (when the player is running back)
 	bool getIsStaying() const;
-	float offsetFromCenter = 0;
 
 private:
 	std::list<BlockObject_ptr> stayingOnBlocks;
@@ -37,7 +36,7 @@ private:
 	Direction direction = Direction::RIGHT;
 
 	void die();
-	bool isAlive;
+	bool isAlive = false;
 
 	// animations
 	std::shared_ptr<AnimationController> currentAnimation;
