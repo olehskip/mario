@@ -33,7 +33,7 @@ protected:
 // class BotGameObject: public GameObject
 // {
 // public:
-// 	BotGameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf::Texture> _texture, sf::Vector2f _accelaration, sf::Vector2f _deceleration, sf::Vector2f _maxAccelaration);
+// 	BotGameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf::Texture> _texture, sf::Vector2f _acceleration, sf::Vector2f _deceleration, sf::Vector2f _maxAcceleration);
 // 	void moveRight(){};
 // 	void moveLeft(){};
 // 	void jump(){};

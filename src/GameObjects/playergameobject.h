@@ -14,12 +14,11 @@ class PlayerGameObject: public GameObject
 {
 public:
 	PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf::Texture> _texture);
-	void moveRight(float deltaTime);
-	void moveLeft(float deltaTime);
+	void move(Direction directionToMove, float deltaTime);
+	void move(sf::Vector2f offset);
 	void jump(float deltaTime);
 	void stay(float deltaTime);
 	void setOffset(sf::Vector2f newOffset);
-	void move(sf::Vector2f offset);
 	void updateMovement(float deltaTime) override;
 	void drawAnimation(sf::RenderWindow &window, float deltaTime);
 
@@ -33,6 +32,7 @@ private:
 	bool isAlowedToJump = true;
 	bool isJumped = false;
 	bool isOnGround = false;
+	bool isOnIce = false;
 	Direction direction = Direction::RIGHT;
 
 	void die();

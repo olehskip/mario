@@ -43,8 +43,8 @@ void GameObject::draw(sf::RenderWindow &window)
 }
 
 // ---BotGameObject---
-// BotGameObject::BotGameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf::Texture> _texture, sf::Vector2f _accelaration, sf::Vector2f _deceleration, sf::Vector2f _maxAccelaration): 
-// 	LiveGameObject(pos, scale, _texture, _accelaration, _deceleration,_maxAccelaration)
+// BotGameObject::BotGameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf::Texture> _texture, sf::Vector2f _acceleration, sf::Vector2f _deceleration, sf::Vector2f _maxAcceleration): 
+// 	LiveGameObject(pos, scale, _texture, _acceleration, _deceleration,_maxAcceleration)
 // {
 
 // }

@@ -14,6 +14,7 @@ public:
 	void updateTime();
 	float getDeltaTime() const;
 	int getStopwatchTime() const;
+	float getSpeed() const { return player->getOffset().x; }
 
 	void restart();
 	void update();
@@ -24,7 +25,6 @@ public:
 	void playerMoveLeft();
 	void playerMoveRight();
 	void playerJump();
-	float getPlayerXCenter();
 
 	sf::Vector2f cameraController(const sf::Vector2f &cameraCenter);
 

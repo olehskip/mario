@@ -1,10 +1,11 @@
 #include "backgroundcontroller.h"
-
+#include <iostream>
 BackgroundController::BackgroundController()
 {
 	for(int i = 0; i < backgroundSprites.size(); ++i) {
 		backgroundSprites[i].setTexture(*textures.getTexture(TexturesID::GRASSY_BACKGROUND));
-		backgroundSprites[i].setScale(sf::Vector2f(1, float(backgroundSprites[i].getTexture()->getSize().y / config::WINDOW_HEIGHT) + 0.1));
+		backgroundSprites[i].setScale(sf::Vector2f(1, (config::WINDOW_HEIGHT * config::WINDOW_SCALE) / backgroundSprites[i].getGlobalBounds().height));
+
 		if(i > 0)
 			backgroundSprites[i].setPosition(backgroundSprites[i - 1].getGlobalBounds().left + backgroundSprites[i - 1].getGlobalBounds().width, 0);
 		else 

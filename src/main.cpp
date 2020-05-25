@@ -31,7 +31,7 @@ int main()
 	while(window.isOpen()) {
 		sf::Event event;
 		while(window.pollEvent(event)) {
-			if(event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+			if(event.type == sf::Event::Closed)
 				window.close();
 		}
 		gameLogic.updateTime();
@@ -48,7 +48,8 @@ int main()
 		window.clear(config::BACKGROUND_COLOR);
 
 		gameLogic.update();
-		labels[0].setString(std::to_string(gameLogic.getStopwatchTime()));
+		// labels[0].setString(std::to_string(gameLogic.getStopwatchTime()));
+		labels[0].setString(std::to_string(gameLogic.getSpeed()));
 
 		const auto cameraPosition = gameLogic.cameraController(view.getCenter());
 		view.move(cameraPosition);

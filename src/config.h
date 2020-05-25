@@ -39,17 +39,18 @@ namespace config
 
 		// ---player constants---
 			// ---jumping---
-			const float PLAYER_JUMPING_ACCELARATION = 7.f;
-			const float PLAYER_JUMPING_MAX_SPEED = 22.f; 
+			const float PLAYER_JUMPING_ACCELERATION = 6.f;
+			const float PLAYER_JUMPING_MAX_SPEED = 20.f; 
 			// ---jumping---
 
 			// ---running
-			const float PLAYER_RUNNING_ACCELARATION = 0.27f;
-			const float PLAYER_RUNNING_DECELERATION = 0.4f;
+			const float PLAYER_RUNNING_ACCELERATION = 0.3f;
+			const float PLAYER_RUNNING_DECELERATION = 0.5f;
 			const float PLAYER_RUNNING_MAX_SPEED = 10.f;
 
-			const float PLAYER_RUNNIMG_ON_ICE_ACCELARATION = 0.24f;
-			const float PLAYER_RUNNIMG_ON_ICE_DECELARATION = 0.35f;
+			const float PLAYER_RUNNIMG_ACCELERATION_ON_ICE= 0.23f;
+			const float PLAYER_RUNNIMG_DECELARATION_ON_ICE = 0.35f;
+			const float PLAYER_RUNNING_MAX_SPEED_ON_ICE = 13.f;
 			// ---running
 
 	// ---live objects constants---

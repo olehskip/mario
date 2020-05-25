@@ -5,7 +5,7 @@ GameLogic::GameLogic()
 	// change in the future
 	srand(time(NULL));
 	
-	player = std::make_unique<PlayerGameObject>(sf::Vector2f(0, 4 * 64), sf::Vector2f(1, 1), textures.getTexture(TexturesID::MARIO_PLAYER));
+	player = std::make_unique<PlayerGameObject>(sf::Vector2f(50, 4 * 64), sf::Vector2f(1, 1), textures.getTexture(TexturesID::MARIO_PLAYER));
 	// spawn for testing
 
 	// for(int i = 0; i < 10; ++i) {
@@ -88,23 +88,17 @@ void GameLogic::draw(sf::RenderWindow &window)
 // player functions
 void GameLogic::playerMoveLeft()
 {
-	player->moveLeft(deltaTime);
+	player->move(Direction::LEFT, deltaTime);
 }
 
 void GameLogic::playerMoveRight()
 {
-	player->moveRight(deltaTime);
+	player->move(Direction::RIGHT, deltaTime);
 }
 
 void GameLogic::playerJump()
 {
 	player->jump(deltaTime);
-}
-
-float GameLogic::getPlayerXCenter()
-{
-	return player->getGlobalBounds().left;
-	// return player->getGlobalBounds().left + player->getGlobalBounds().width / 2;
 }
 
 sf::Vector2f GameLogic::cameraController(const sf::Vector2f &cameraCenter)
