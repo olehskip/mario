@@ -1,31 +1,25 @@
-#include "textures.h"
-#include <iostream>
+#include "textures_loader.h"
 
 // ---GameTexture---
-GameTexture::GameTexture(std::string texturePath)
+GameTexture::GameTexture(const std::string &texturePath)
 {
-	if(texture->loadFromFile(texturePath)) {
-		if(config::IS_LOGGING_ENABLED)
-			std::cout << "[OK] Successfully loaded an image from " << texturePath << std::endl;
-	}
-	else {
-		if(config::IS_LOGGING_ENABLED)
-			std::cout << "[ERROR] Not loaded an image from " << texturePath << std::endl;
+	if(!texture->loadFromFile(texturePath))
 		texture->create(64, 64);
-	}
 }
 
 // ---Textures---
-Textures &Textures::getInstance()
+TexturesLoader &TexturesLoader::getInstance()
 {
-	static Textures instance;
+	static TexturesLoader instance;
 	return instance;
 }
 
-Textures::Textures()
+TexturesLoader::TexturesLoader()
 {
 	// ---backgrounds---
-	allTextures.push_back(GameTexture("data/textures/backgrounds/grassy_background.png"));
+	allTextures.push_back(GameTexture("data/textures/backgrounds/mountains_background.png"));
+	allTextures.push_back(GameTexture("data/textures/backgrounds/field_background.png"));
+	allTextures.push_back(GameTexture("data/textures/backgrounds/forest_background.png"));
 	
 	// ---player sprite---
 	allTextures.push_back(GameTexture("data/textures/sprites/mario_sprite.png"));
@@ -46,7 +40,6 @@ Textures::Textures()
 	allTextures.push_back(GameTexture("data/textures/blocks/lucky_box.png"));
 
 	// ---scenery---
-	allTextures.push_back(GameTexture("data/textures/scenery/cloud.png"));
 	allTextures.push_back(GameTexture("data/textures/scenery/bush1.png"));
 	allTextures.push_back(GameTexture("data/textures/scenery/bush2.png"));
 	allTextures.push_back(GameTexture("data/textures/scenery/bush3.png"));
@@ -56,7 +49,7 @@ Textures::Textures()
 	allTextures.push_back(GameTexture("data/textures/scenery/small_tree1.png"));
 }
 
-std::shared_ptr<sf::Texture> Textures::getTexture(TexturesID textureID)
+const std::shared_ptr<sf::Texture> TexturesLoader::getTexture(TexturesID textureID)
 {
-	return allTextures[int(textureID)].texture;
+	return allTextures[static_cast<int>(textureID)].texture;
 }

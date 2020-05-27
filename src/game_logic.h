@@ -1,8 +1,11 @@
 #pragma once
-#include "GameObjects/playergameobject.h"
-#include "GameObjects/blockgameobject.h"
 #include "config.h"
-#include "textures.h"
+#include "GameObjects/player_game_object.h"
+#include "GameObjects/block_game_object.h"
+#include "Loaders/textures_loader.h"
+#include "Loaders/fonts_loader.h"
+#include "Controllers/background_controller.h"
+#include "Controllers/animated_label_controller.h"
 
 #include <random>
 #include "time.h"
@@ -14,7 +17,6 @@ public:
 	void updateTime();
 	float getDeltaTime() const;
 	int getStopwatchTime() const;
-	float getSpeed() const { return player->getOffset().x; }
 
 	void restart();
 	void update();
@@ -26,8 +28,22 @@ public:
 	void playerMoveRight();
 	void playerJump();
 
+	/*
+	 * Contrlling camera moving
+	 * 
+	 * This function does not let mario leave from the game scene
+	 * and controls that mario runs only at center or left part of the game scene
+	 * 
+	 * @param cameraCenter means the center of camera for not to let mario move only at center and left part of the scene
+	 * @return the offset so that the camera moves by it
+	 */
 	sf::Vector2f cameraController(const sf::Vector2f &cameraCenter);
 
+	void scrollBackground(sf::Vector2f offset);
+
+	/*
+	 * This function temponary, because there will be a map constructor
+	 */
 	int getRandomNumber(int min, int max) {
 		static std::mt19937 rng;
 		rng.seed(std::random_device()());
@@ -43,4 +59,7 @@ private:
 	PlayerObject_ptr player;
 	sf::Clock clock, stopwatch;
 	float deltaTime = 0.f;
+
+	BackgroundController backgroundController;
+	std::unique_ptr<AnimatedLabelController> titleAnimatedLabel;
 };

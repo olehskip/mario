@@ -1,7 +1,7 @@
-#include "gameobject.h"
+#include "game_object.h"
 
 // ---GameObject---
-GameObject::GameObject(sf::Vector2f pos, sf::Vector2f _scale, std::shared_ptr<sf::Texture> _texture):
+GameObject::GameObject(sf::Vector2f pos, sf::Vector2f _scale, const std::shared_ptr<sf::Texture> _texture):
 	scale(_scale)
 {
 	texture = _texture;

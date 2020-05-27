@@ -1,33 +1,22 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "gamelogic.h"
-#include "backgroundcontroller.h"
+#include "game_logic.h"
 
-// g++ main.cpp gamelogic.cpp raincontroller.cpp textures.cpp GameObjects/animationcontroller.cpp GameObjects/gameobject.cpp GameObjects/playergameobject.cpp GameObjects/blockgameobject.cpp -o ./output -lsfml-graphics -lsfml-window -lsfml-system
+// g++ main.cpp gamelogic.cpp raincontroller.cpp texturesLoader.cpp GameObjects/animationcontroller.cpp GameObjects/gameobject.cpp GameObjects/playergameobject.cpp GameObjects/blockgameobject.cpp -o ./output -lsfml-graphics -lsfml-window -lsfml-system
 
 int main()
 {
 	GameLogic gameLogic = GameLogic();
 	sf::RenderWindow window(sf::VideoMode(config::WINDOW_WIDTH, config::WINDOW_HEIGHT), config::WINDOW_NAME);
-	sf::View view(sf::Vector2f((config::WINDOW_WIDTH / 2) * config::WINDOW_SCALE, (config::WINDOW_HEIGHT / 2) * config::WINDOW_SCALE ),
+	sf::View view(sf::Vector2f((config::WINDOW_WIDTH / 2) * config::WINDOW_ZOOM, (config::WINDOW_HEIGHT / 2) * config::WINDOW_ZOOM),
 				  sf::Vector2f(config::WINDOW_WIDTH, config::WINDOW_HEIGHT));
-	view.zoom(config::WINDOW_SCALE);
+	view.zoom(config::WINDOW_ZOOM);
 	window.setView(view);
 	window.setFramerateLimit(60);
+	
+	std::vector<LabelController> labels; // all labels: time, score, etc
+	labels.push_back(LabelController(fontsLoader.getFont(FontsID::DIGITAL7), 40 * config::WINDOW_ZOOM, sf::Color::White, std::string(), sf::Vector2f(5, 5))); // time
 
-	BackgroundController backgroundController;
-
-	std::vector<sf::Text> labels; // all labels: time, score, etc
-	labels.push_back(sf::Text()); // time
-	sf::Font labelsFont;
-	if(!labelsFont.loadFromFile(config::MAIN_FONT_PATH))
-		return EXIT_FAILURE;
-	for(auto &label: labels) {
-		label.setFont(labelsFont);
-		label.setCharacterSize(40);
-		label.setFillColor(sf::Color::White);
-		label.setPosition(5, 5);
-	}
 	while(window.isOpen()) {
 		sf::Event event;
 		while(window.pollEvent(event)) {
@@ -48,22 +37,20 @@ int main()
 		window.clear(config::BACKGROUND_COLOR);
 
 		gameLogic.update();
-		// labels[0].setString(std::to_string(gameLogic.getStopwatchTime()));
-		labels[0].setString(std::to_string(gameLogic.getSpeed()));
+		labels[0].setText(std::to_string(gameLogic.getStopwatchTime()));
 
 		const auto cameraPosition = gameLogic.cameraController(view.getCenter());
 		view.move(cameraPosition);
 		
 		window.setView(view);
-		backgroundController.move(cameraPosition);
-		backgroundController.draw(window);
-		for(auto &label: labels)
+		gameLogic.scrollBackground(cameraPosition);
+
+		for(auto &label: labels) {
 			label.move(cameraPosition);
+			label.draw(window);
+		}
+
 		gameLogic.draw(window);
-
-		
-		window.draw(labels[0]);
-
 		window.display();
 	}
 

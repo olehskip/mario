@@ -1,4 +1,4 @@
-#include "playergameobject.h"
+#include "player_game_object.h"
 
 
 PlayerGameObject::PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf::Texture> _texture): 
@@ -45,6 +45,9 @@ void PlayerGameObject::move(Direction directionToMove, float deltaTime)
 
 	if(std::abs(offset.x) > maxSpeed)
 		offset.x = maxSpeed* dx;
+
+	if(!isOnGround && ((direction == Direction::LEFT && offset.x > 0) || (direction == Direction::RIGHT && offset.x < 0)))
+		offset.x = 0.f;
 }
 
 void PlayerGameObject::move(sf::Vector2f offset)

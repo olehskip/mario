@@ -6,9 +6,11 @@
 namespace config
 {
 	const std::string WINDOW_NAME = "mario remake CXC";
-	const int WINDOW_WIDTH = 800;
-	const int WINDOW_HEIGHT = 800;
-	const float WINDOW_SCALE = 1.3f;
+	const std::string TITLE_TEXT = "Programmer: Oleg Skip;\nDesigner: Zahar Sydoryk;\nGitHub: olegskip/mario-remake;";
+	const int WINDOW_WIDTH = 1000;
+	const int WINDOW_HEIGHT = 980;
+	const float WINDOW_ZOOM = 1.5f;
+	const float FULL_SCREEN_TEXTURES_SCALE = config::WINDOW_HEIGHT / (config::WINDOW_HEIGHT * config::WINDOW_ZOOM); 
 	const int DYING_Y = 200;
 
 	const sf::Vector2i VISIBLE_CELLS_COUNT = sf::Vector2i(120, 120);
@@ -17,7 +19,7 @@ namespace config
 	// const std::string MAIN_FONT_PATH = "data/fonts/pixeboy.ttf";
 	const std::string MAIN_FONT_PATH = "data/fonts/digital-7.ttf";
 
-	const sf::Color BACKGROUND_COLOR = sf::Color(104, 136, 249);
+	const sf::Color BACKGROUND_COLOR = sf::Color(90, 180, 220);
 
 	// ---animations---
 
@@ -39,7 +41,7 @@ namespace config
 
 		// ---player constants---
 			// ---jumping---
-			const float PLAYER_JUMPING_ACCELERATION = 6.f;
+			const float PLAYER_JUMPING_ACCELERATION = 4.f;
 			const float PLAYER_JUMPING_MAX_SPEED = 20.f; 
 			// ---jumping---
 
@@ -54,6 +56,10 @@ namespace config
 			// ---running
 
 	// ---live objects constants---
-	
-	const bool IS_LOGGING_ENABLED = false;
+
+	// ---backgrounds---
+	const unsigned int MOUNTAINS_BACKGROUND_OFFSET_Y = 130;
+	const unsigned int FIELD_BACKGROUND_OFFSET_Y = 760;
+	const unsigned int FOREST_BACKGROUND_OFFSET_Y = 570;
+	// ---backgrounds---
 }

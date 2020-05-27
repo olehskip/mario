@@ -1,3 +1,3 @@
 echo "Start compiling..."
-g++ main.cpp gamelogic.cpp backgroundcontroller.cpp textures.cpp GameObjects/animationcontroller.cpp GameObjects/gameobject.cpp GameObjects/playergameobject.cpp GameObjects/blockgameobject.cpp -o ./output -lsfml-graphics -lsfml-window -lsfml-system
+g++ main.cpp game_logic.cpp GameObjects/game_object.cpp GameObjects/player_game_object.cpp GameObjects/block_game_object.cpp Controllers/animation_controller.cpp Controllers/background_controller.cpp Controllers/label_controller.cpp Controllers/animated_label_controller.cpp Loaders/textures_loader.cpp Loaders/fonts_loader.cpp  -o ./output -lsfml-graphics -lsfml-window -lsfml-system -pthread
 echo "Finished compiling..."

@@ -1,5 +1,5 @@
 #pragma once
-#include "gameobject.h"
+#include "game_object.h"
 
 enum class BlockType
 {
@@ -10,7 +10,7 @@ enum class BlockType
 class BlockGameObject: public GameObject
 {
 public:
-	BlockGameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf::Texture> _texture, bool _isHasCollision, BlockType blockType = BlockType::DEFAULT, sf::Vector2f _jumpUpAcceleration = sf::Vector2f(0, 0));
+	BlockGameObject(sf::Vector2f pos, sf::Vector2f scale, const std::shared_ptr<sf::Texture> _texture, bool _isHasCollision, BlockType blockType = BlockType::DEFAULT, sf::Vector2f _jumpUpAcceleration = sf::Vector2f(0, 0));
 
 	void jumpUp(float deltaTime);
 	void updateMovement(float deltaTime) override;

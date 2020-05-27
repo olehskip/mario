@@ -9,7 +9,7 @@
 class GameObject
 {
 public:
-	GameObject(sf::Vector2f pos, sf::Vector2f _scale, std::shared_ptr<sf::Texture> _texture);
+	GameObject(sf::Vector2f pos, sf::Vector2f _scale, const std::shared_ptr<sf::Texture> _texture);
 
 	sf::Sprite getSpriteCopy() {return sprite;}
 	sf::Vector2f getPosition() const;

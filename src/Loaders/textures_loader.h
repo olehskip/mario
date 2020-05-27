@@ -3,15 +3,17 @@
 #include <memory>
 #include <SFML/Graphics/Texture.hpp>
 
-#include "config.h"
-
 enum class TexturesID
 {
-	// ---backgrounds---
-	GRASSY_BACKGROUND,
+	// ---backgrounds parts---
+	MOUNTAINS_BACKGROUND,
+	FIELD_BACKGROUND,
+	FOREST_BACKGROUND,
+	// ---backgrounds parts---
 
 	// ---player sprite---
 	MARIO_PLAYER,
+	// ---player sprite---
 
 	// ---blocks---
 	SIMLE_BRICK,
@@ -23,13 +25,14 @@ enum class TexturesID
 	SOLID_GRASS_BRICK3,
 	SOLID_GRASS_BRICK4,
 	SOLID_GRASS_BRICK5,
+	// ---blocks---
 
 	// ---special blocks---
 	ICE_BLOCK,
 	LUCKY_BOX,
+	// ---special blocks---
 
 	// ---scenery---
-	CLOUD,
 	BUSH1,
 	BUSH2,
 	BUSH3,
@@ -37,24 +40,25 @@ enum class TexturesID
 	MUSHROOMS,
 	STUMP,
 	SMALL_TREE1,
+	// ---scenery---
 };
 
 class GameTexture
 {
 public:
-	GameTexture(std::string texturePath);
+	GameTexture(const std::string &texturePath);
 	std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
 };
 
-class Textures
+class TexturesLoader
 {
 public:
-	static Textures &getInstance();
-	std::shared_ptr<sf::Texture> getTexture(TexturesID textureID);
+	static TexturesLoader &getInstance();
+	const std::shared_ptr<sf::Texture> getTexture(TexturesID textureID);
 
 private:
-	Textures();
+	TexturesLoader();
 
 	std::vector<GameTexture> allTextures;
 };
-static Textures &textures = Textures::getInstance();
+static TexturesLoader &texturesLoader = TexturesLoader::getInstance();

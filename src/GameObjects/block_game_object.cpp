@@ -1,7 +1,7 @@
-#include "blockgameobject.h"
+#include "block_game_object.h"
 
 
-BlockGameObject::BlockGameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf::Texture> _texture, bool _isHasCollision, BlockType blockType, sf::Vector2f _jumpUpAcceleration): 
+BlockGameObject::BlockGameObject(sf::Vector2f pos, sf::Vector2f scale, const std::shared_ptr<sf::Texture> _texture, bool _isHasCollision, BlockType blockType, sf::Vector2f _jumpUpAcceleration): 
 	GameObject(pos, scale, _texture), isHasCollision(_isHasCollision), jumpUpAcceleration(_jumpUpAcceleration), blockType(blockType)
 {
 }
