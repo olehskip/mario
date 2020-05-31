@@ -6,7 +6,6 @@ AnimatedLabelController::AnimatedLabelController(const std::shared_ptr<sf::Font>
 	LabelController(font, fontSize, color, std::string(""), pos), finalText(_finalText), delay(_delay)
 {
 	animationThread = std::thread(&AnimatedLabelController::animate, this);
-	// textObj.setString("pasasi");
 }
 
 void AnimatedLabelController::startAnimation()

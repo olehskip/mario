@@ -7,16 +7,16 @@ Background::Background()
 		backgroundParts.push_back(sf::Sprite());
 	
 	backgroundParts[0].setTexture(*texturesLoader.getTexture(TexturesID::MOUNTAINS_BACKGROUND));
-	backgroundParts[1].setTexture(*texturesLoader.getTexture(TexturesID::FIELD_BACKGROUND));
-	backgroundParts[2].setTexture(*texturesLoader.getTexture(TexturesID::FOREST_BACKGROUND));
+	backgroundParts[1].setTexture(*texturesLoader.getTexture(TexturesID::FOREST_BACKGROUND));
+	backgroundParts[2].setTexture(*texturesLoader.getTexture(TexturesID::FIELD_BACKGROUND));
 	float scale = (config::WINDOW_HEIGHT * config::WINDOW_ZOOM) / 1000;
 
 	for(auto &part: backgroundParts)
 		part.setScale(sf::Vector2f(scale, scale));
 
 	backgroundParts[0].setPosition(sf::Vector2f(0, config::MOUNTAINS_BACKGROUND_OFFSET_Y * backgroundParts[0].getScale().y));
-	backgroundParts[1].setPosition(sf::Vector2f(0, config::FIELD_BACKGROUND_OFFSET_Y * backgroundParts[1].getScale().y));
-	backgroundParts[2].setPosition(sf::Vector2f(0, config::FOREST_BACKGROUND_OFFSET_Y * backgroundParts[2].getScale().y));
+	backgroundParts[1].setPosition(sf::Vector2f(0, config::FOREST_BACKGROUND_OFFSET_Y * backgroundParts[1].getScale().y));
+	backgroundParts[2].setPosition(sf::Vector2f(0, config::FIELD_BACKGROUND_OFFSET_Y * backgroundParts[2].getScale().y));
 }
 
 void Background::draw(sf::RenderWindow &window)
