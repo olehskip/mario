@@ -5,41 +5,32 @@ GameLogic::GameLogic()
 	// change in the future
 	srand(time(NULL));
 	
-	player = std::make_unique<PlayerGameObject>(sf::Vector2f(50, 17 * 64), sf::Vector2f(1, 1), texturesLoader.getTexture(TexturesID::MARIO_PLAYER));
+	player = std::make_unique<PlayerGameObject>(sf::Vector2f(50, 17 * 64), sf::Vector2f(1, 1), texturesLoader.getObject("mario_sprite"));
+	backgroundController = std::make_unique<BackgroundController>(texturesLoader.getObject("mountains_background"), texturesLoader.getObject("forest_background"), 
+		texturesLoader.getObject("field_background"));
 	titleAnimatedLabel = std::make_unique<AnimatedLabelController>
-						 (fontsLoader.getFont(FontsID::PIXEBOY), 30 * config::WINDOW_ZOOM, sf::Color::White, std::string(config::TITLE_TEXT), sf::Vector2f(20, 650), 15);
-	// spawn for testing
-
-	// for(int i = 0; i < 10; ++i) {
-	// 	blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * 10, i * 64), sf::Vector2f(1, 1), texturesLoader.getTexture(TexturesID::BOTTOM_BRICK), true));
-	// }
-
-	for(int x = 0; x < 40; ++x) {
-		if((rand() % 9) - 7 < 0) continue;
-		float randomX = getRandomNumber(150 * x - 20, 150 * x + 20);
-		int randomTexture = getRandomNumber(int(TexturesID::BUSH1), int(TexturesID::SMALL_TREE1));
-		scenery.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(randomX, 19 * 64 - texturesLoader.getTexture(static_cast<TexturesID>(randomTexture))->getSize().y), sf::Vector2f(1, 1), texturesLoader.getTexture(static_cast<TexturesID>(randomTexture)), false));
-	}
+						 (fontsLoader.getObject(std::string("pixeboy")), 30 * config::WINDOW_ZOOM, sf::Color::White, std::string(config::TITLE_TEXT), sf::Vector2f(20, 650), 15);
 	
+	// spawn for testing
+	for(int x = 3; x < 6; ++x) {
+		blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, 14 * 64), sf::Vector2f(1, 1), texturesLoader.getObject("lucky_box"), true, BlockType::LUCKY_BOX));
+	}
+
 	for(int x = 0; x < 100; ++x) {
-		blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, 19 * 64), sf::Vector2f(1, 1), texturesLoader.getTexture(TexturesID::GRASS_BRICK), true));
+		blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, 19 * 64), sf::Vector2f(1, 1), texturesLoader.getObject("grass_brick"), true));
 	}
 	for(int y = 20; y < 23; ++y) {
 		for(int x = 0; x < 100; ++x) {
-			blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, y * 64), sf::Vector2f(1, 1), texturesLoader.getTexture(TexturesID::BOTTOM_BRICK), true));
+			blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, y * 64), sf::Vector2f(1, 1), texturesLoader.getObject("bottom_brick"), true));
 		}
 	}
 	for(int y = 19; y < 23; ++y) {
 		for(int x = 100; x < 200; ++x) {
-			blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, y * 64), sf::Vector2f(1, 1), texturesLoader.getTexture(TexturesID::ICE_BLOCK), true, BlockType::ICE));
+			blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, y * 64), sf::Vector2f(1, 1), texturesLoader.getObject("ice_block"), true, BlockType::ICE));
 		}
 	}
-	// for(int i = 100; i < 150; ++i) {
-	// 	blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * i, 20 * 64), sf::Vector2f(1, 1), texturesLoader.getTexture(TexturesID::SIMLE_BRICK), true));
-	// }
-	// for(int i = 150; i < 2000; ++i) {
-	// 	blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * i, 20 * 64), sf::Vector2f(1, 1), texturesLoader.getTexture(TexturesID::SOLID_BRICK), true));
-	// }
+
+	audioController.startPlayingMusic();
 }
 
 void GameLogic::updateTime()
@@ -67,11 +58,15 @@ void GameLogic::update()
 	player->updateMovement(deltaTime);
 	checkForCollision();
 	player->move(player->getOffset());
+	for(auto &block: blocks) {
+		block->updateMovement(deltaTime);
+	}
+	audioController.update();
 }
 
 void GameLogic::draw(sf::RenderWindow &window)
 {
-	backgroundController.draw(window);
+	backgroundController->draw(window);
 	player->drawAnimation(window, deltaTime);
 	for(auto &block: blocks)
 		block->draw(window);
@@ -81,20 +76,26 @@ void GameLogic::draw(sf::RenderWindow &window)
 	titleAnimatedLabel->draw(window);
 }
 
-// player functions
-void GameLogic::playerMoveLeft()
+void GameLogic::keysManager()
 {
-	player->move(Direction::LEFT, deltaTime);
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+		player->move(Direction::LEFT, deltaTime);
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+		player->move(Direction::RIGHT, deltaTime);
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+		player->jump(deltaTime);
+		audioController.playSound("mario_jumps");
+	}
+	else
+		player->isJumpingNow = false;
+
+	if(!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+		player->stay(deltaTime);
 }
 
-void GameLogic::playerMoveRight()
+void GameLogic::toggleMute()
 {
-	player->move(Direction::RIGHT, deltaTime);
-}
-
-void GameLogic::playerJump()
-{
-	player->jump(deltaTime);
+	audioController.toggleMute();
 }
 
 sf::Vector2f GameLogic::cameraController(const sf::Vector2f &cameraCenter)
@@ -115,7 +116,7 @@ sf::Vector2f GameLogic::cameraController(const sf::Vector2f &cameraCenter)
 
 void GameLogic::scrollBackground(sf::Vector2f offset)
 {
-	backgroundController.move(offset);
+	backgroundController->move(offset);
 }
 
 void GameLogic::checkForCollision()
@@ -130,10 +131,10 @@ void GameLogic::checkForCollision()
 		const auto blockRect = block->getGlobalBounds();
 		if(playerGlobalBounds.left < blockRect.left + blockRect.width && playerGlobalBounds.left + playerGlobalBounds.width> blockRect.left) { // x)
 			// if the the player head is touched a block
-			if(player->getOffset().y < 0 && playerGlobalBounds.top + player->getOffset().y >= blockRect.top  && playerGlobalBounds.top + player->getOffset().y < blockRect.top + blockRect.height) {
-				player->setOffset(sf::Vector2f(player->getOffset().x, blockRect.height + blockRect.top - playerGlobalBounds.top));
+			if(player->getOffset().y < 0 && playerGlobalBounds.top + player->getOffset().y > blockRect.top  && playerGlobalBounds.top + player->getOffset().y < blockRect.top + blockRect.height) {
+				player->setOffset(sf::Vector2f(player->getOffset().x, blockRect.height + blockRect.top - playerGlobalBounds.top + 5));
 				touchedBlocks.push_back(block);
-				// block->jumpUp(deltaTime);
+				block->jumpUp(deltaTime);
 				break;
 			}
 			// if the player is stacked to put in the right place

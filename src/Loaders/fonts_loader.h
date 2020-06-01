@@ -1,30 +1,26 @@
 #pragma once
 #include <SFML/Graphics/Font.hpp>
 #include <memory>
+#include <unordered_map>
+
+#include "loader_interface.h"
 
 
-enum class FontsID
-{
-	PIXEBOY,
-	DIGITAL7
-};
+/*
+ * All fonts
+ * pixeboy
+ * digital7
+ */
 
-class GameFont
-{
-public:
-    GameFont(const std::string &texturePath);
-    std::shared_ptr<sf::Font> font = std::make_shared<sf::Font>();
-};
-
-
-class FontsLoader
+class FontObject: public LoaderObjectInterface<sf::Font>
 {
 public:
-	static FontsLoader &getInstance();
-	const std::shared_ptr<sf::Font> getFont(FontsID fontID) const;
+	FontObject(const std::string &texturePath);
+};
 
-private:
+
+class FontsLoader: public LoaderInterface<sf::Font>
+{
+public:
 	FontsLoader();
-	std::vector<GameFont> allFonts;
 };
-static FontsLoader &fontsLoader = FontsLoader::getInstance();

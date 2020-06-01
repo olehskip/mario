@@ -10,10 +10,17 @@ enum class Direction
 	RIGHT
 };
 
+enum class PlayerYState
+{
+	JUMP,
+	FALL,
+	STAND
+};
+
 class PlayerGameObject: public GameObject
 {
 public:
-	PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, const std::shared_ptr<sf::Texture> _texture);
+	PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, const sf::Texture &_texture);
 	void move(Direction directionToMove, float deltaTime);
 
 	/*
@@ -56,7 +63,13 @@ public:
 	 * Need for not to let the player leave the game scene
 	 */
 	bool isStacked = false;
-	bool getIsStaying() const;
+
+	/*
+	 * Is player is jumping
+	 * We need this variable for checking is player jumping right now
+	 * for preventing endless jump
+	 */
+	bool isJumpingNow = false;
 
 private:
 	/*
@@ -74,7 +87,7 @@ private:
 	bool isStaying = true;
 
 	/*
-	 * If the player is already jumped, then he can jump again
+	 * If the player is standing after jump, then he can jump again
 	 */
 	bool isAlowedToJump = true;
 

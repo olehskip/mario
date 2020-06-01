@@ -1,22 +1,33 @@
 #include "audio_loader.h"
 
+// ---music---
 // ---MusicObject---
-MusicObject::MusicObject(const std::string &musicPath)
+MusicObject::MusicObject(const std::string &musicPath):
+	LoaderObjectInterface(musicPath)
 {
-	music->openFromFile(musicPath);
-	music->setVolume(100);
-	music->setLoop(true); // temponary
+	object->openFromFile(musicPath);
+	object->setVolume(100);
 }
 
-// ---AudioLoader---
-AudioLoader::AudioLoader()
+// ---MusicLoader---
+MusicLoader::MusicLoader()
 {
-	allMusic.push_back(MusicObject("data/audio/music/super_mario_bros.ogg"));
-	allMusic.push_back(MusicObject("data/audio/music/hurry.ogg"));
-	allMusic.push_back(MusicObject("data/audio/music/game_over.ogg"));
+	allObjects.insert(std::make_pair("hurry", MusicObject("data/audio/music/hurry.ogg")));
+	allObjects.insert(std::make_pair("super_mario_bros", MusicObject("data/audio/music/super_mario_bros.ogg")));
 }
 
-const std::shared_ptr<sf::Music> AudioLoader::getMusic(MusicID musicID) const
+// ---sounds---
+// ---SoundObject---
+SoundObject::SoundObject(const std::string &soundPath): LoaderObjectInterface(soundPath)
 {
-	return allMusic[static_cast<int>(musicID)].music;
+	object->loadFromFile(soundPath);
+	// object->setBuffer(soundBuffer);
+	// object->setVolume(100);
+}
+
+// ---SoundsLoader---
+SoundsLoader::SoundsLoader()
+{
+	allObjects.insert(std::make_pair("mario_jumps", SoundObject("data/audio/sounds/mario_jumps.ogg")));
+	allObjects.insert(std::make_pair("mario_dies", SoundObject("data/audio/sounds/mario_dies.ogg")));
 }

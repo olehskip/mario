@@ -1,5 +1,4 @@
 #include <SFML/Graphics.hpp>
-#include <iostream>
 #include "game_logic.h"
 
 // g++ main.cpp gamelogic.cpp raincontroller.cpp texturesLoader.cpp GameObjects/animationcontroller.cpp GameObjects/gameobject.cpp GameObjects/playergameobject.cpp GameObjects/blockgameobject.cpp -o ./output -lsfml-graphics -lsfml-window -lsfml-system
@@ -15,29 +14,34 @@ int main()
 	window.setFramerateLimit(60);
 	
 	std::vector<LabelController> labels; // all labels: time, score, etc
-	labels.push_back(LabelController(fontsLoader.getFont(FontsID::DIGITAL7), 40 * config::WINDOW_ZOOM, sf::Color::White, std::string(), sf::Vector2f(5, 5))); // time
+	labels.push_back(LabelController(gameLogic.fontsLoader.getObject(std::string("digital7")), 40 * config::WINDOW_ZOOM, sf::Color::White, std::string(), sf::Vector2f(5, 5))); // time
 
+	bool isFocused = true;
 	while(window.isOpen()) {
 		sf::Event event;
 		while(window.pollEvent(event)) {
 			if(event.type == sf::Event::Closed)
 				window.close();
+			if(event.type == sf::Event::KeyPressed) {
+				if(event.key.code == sf::Keyboard::M)
+					gameLogic.toggleMute();
+			}
+			if(event.type == sf::Event::GainedFocus)
+				isFocused = true;
+			else if(event.type == sf::Event::LostFocus)
+				isFocused = false;
 		}
 		gameLogic.updateTime();
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-			gameLogic.playerMoveLeft();
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-			gameLogic.playerMoveRight();
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-			gameLogic.playerJump();
 
-		if(!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-			gameLogic.stay();
+		if(isFocused)
+			gameLogic.keysManager();
+
+		
 
 		window.clear(config::BACKGROUND_COLOR);
 
 		gameLogic.update();
-		labels[0].setText(std::to_string(gameLogic.getStopwatchTime()));
+		labels[0].setText(std::to_string(gameLogic.getSpeed()));
 
 		const auto cameraPosition = gameLogic.cameraController(view.getCenter());
 		view.move(cameraPosition);

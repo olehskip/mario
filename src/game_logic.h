@@ -6,6 +6,7 @@
 #include "Loaders/fonts_loader.h"
 #include "Controllers/background_controller.h"
 #include "Controllers/animated_label_controller.h"
+#include "Controllers/audio_controller.h"
 
 #include <random>
 #include "time.h"
@@ -21,12 +22,15 @@ public:
 	void restart();
 	void update();
 	void draw(sf::RenderWindow &window); 
-	void stay() { player->stay(deltaTime); } // temponary?? not finished
+	float getSpeed() { return player->getOffset().x;}
 
-	// player functions
-	void playerMoveLeft();
-	void playerMoveRight();
+	void keysManager();
 	void playerJump();
+	void playerNotJump();
+	void toggleMute();
+
+	FontsLoader fontsLoader;
+	TexturesLoader texturesLoader;
 
 	/*
 	 * Contrlling camera moving
@@ -60,6 +64,10 @@ private:
 	sf::Clock clock, stopwatch;
 	float deltaTime = 0.f;
 
-	BackgroundController backgroundController;
+	std::unique_ptr<BackgroundController> backgroundController;
+
+	// at the start there is an animated label with developers contacts
 	std::unique_ptr<AnimatedLabelController> titleAnimatedLabel;
+
+	AudioController audioController;
 };

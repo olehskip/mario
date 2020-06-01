@@ -1,64 +1,22 @@
 #pragma once
+#include <SFML/Graphics/Texture.hpp>
 #include <vector>
 #include <memory>
-#include <SFML/Graphics/Texture.hpp>
+#include <unordered_map>
 
-enum class TexturesID
-{
-	// ---backgrounds parts---
-	MOUNTAINS_BACKGROUND,
-	FIELD_BACKGROUND,
-	FOREST_BACKGROUND,
-	// ---backgrounds parts---
+#include "loader_interface.h"
 
-	// ---player sprite---
-	MARIO_PLAYER,
-	// ---player sprite---
+// TO DO
+// WRITE ALL TEXTURES LIST
 
-	// ---blocks---
-	SIMLE_BRICK,
-	BOTTOM_BRICK,
-	GRASS_BRICK,
-	SOLID_BRICK,
-	SOLID_GRASS_BRICK1,
-	SOLID_GRASS_BRICK2,
-	SOLID_GRASS_BRICK3,
-	SOLID_GRASS_BRICK4,
-	SOLID_GRASS_BRICK5,
-	// ---blocks---
-
-	// ---special blocks---
-	ICE_BLOCK,
-	LUCKY_BOX,
-	// ---special blocks---
-
-	// ---scenery---
-	BUSH1,
-	BUSH2,
-	BUSH3,
-	BUSH4,
-	MUSHROOMS,
-	STUMP,
-	SMALL_TREE1,
-	// ---scenery---
-};
-
-class GameTexture
+class TextureObject: public LoaderObjectInterface<sf::Texture>
 {
 public:
-	GameTexture(const std::string &texturePath);
-	std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
+	TextureObject(const std::string &texturePath);
 };
 
-class TexturesLoader
+class TexturesLoader: public LoaderInterface<sf::Texture>
 {
 public:
-	static TexturesLoader &getInstance();
-	const std::shared_ptr<sf::Texture> getTexture(TexturesID textureID);
-
-private:
 	TexturesLoader();
-
-	std::vector<GameTexture> allTextures;
 };
-static TexturesLoader &texturesLoader = TexturesLoader::getInstance();

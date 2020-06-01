@@ -2,19 +2,20 @@
 
 AudioController::AudioController()
 {
-	
 }
 
 void AudioController::startPlayingMusic()
 {
-	audioLoader.getMusic(MusicID::SUPER_MARIO_BROS)->setVolume(100);
-	audioLoader.getMusic(MusicID::SUPER_MARIO_BROS)->play();
+	currentMusicIndex = 0;
+}
+
+void AudioController::playSound(const std::string &soundName)
+{
 }
 
 void AudioController::toggleMute()
 {
-	isMuted = !isMuted;
-	if(isMuted)
+	if(volume == 100)
 		mute();
 	else
 		unmute();
@@ -22,16 +23,23 @@ void AudioController::toggleMute()
 
 void AudioController::mute()
 {
-	isMuted = true;
-	audioLoader.getMusic(MusicID::SUPER_MARIO_BROS)->setVolume(0);
+	volume = 0;
+	musicLoader.getObject(currentMusicIndex).setVolume(0);
 }
 
 void AudioController::unmute()
 {
-	isMuted = false;
-	audioLoader.getMusic(MusicID::SUPER_MARIO_BROS)->setVolume(100);
+	volume = 100;
+	musicLoader.getObject(currentMusicIndex).setVolume(100);
 }
 
 void AudioController::update()
 {
+	if(musicLoader.getObject(currentMusicIndex).getStatus() == sf::SoundStream::Status::Stopped) {
+		musicLoader.getObject(currentMusicIndex).stop();
+		if(++currentMusicIndex > musicLoader.getCount())
+			currentMusicIndex = 0;
+		// musicLoader.getObject(currentMusicIndex).play();
+		musicLoader.getObject(currentMusicIndex).setVolume(volume);
+	}
 }

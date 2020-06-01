@@ -1,35 +1,51 @@
 #pragma once
 
-#include "loader_interface.h"
 #include <SFML/Audio/Music.hpp>
-#include <iostream>
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
-enum class MusicID
-{
-	SUPER_MARIO_BROS,
-	HURRY,
-	GAME_OVER
-};
+#include "loader_interface.h"
 
-class MusicObject
+// ---music----
+
+/* 
+ * ---All music---
+ * super_mario_bros
+ * hurry
+ */
+
+class MusicObject: public LoaderObjectInterface<sf::Music>
 {
 public:
 	MusicObject(const std::string &musicPath);
-	std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
 };
 
-/*
- * AudioLoader doesn't need Singleton pattern,
- * because only AudioController has access and controls the music
- */
-class AudioLoader
+
+class MusicLoader: public LoaderInterface<sf::Music>
 {
 public:
-	AudioLoader();
-	const std::shared_ptr<sf::Music> getMusic(MusicID musicID) const;
+	MusicLoader();
+};
 
-private:
-	std::vector<MusicObject> allMusic;
+// --sounds---
+
+/*
+ * ---All sounds---
+ * mario_dies
+ */
+
+class SoundObject: public LoaderObjectInterface<sf::SoundBuffer>
+{
+public:
+	SoundObject(const std::string &soundPath);
+};
+
+
+class SoundsLoader: public LoaderInterface<sf::SoundBuffer>
+{
+public:
+	SoundsLoader();
 };

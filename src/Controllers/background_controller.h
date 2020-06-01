@@ -1,15 +1,15 @@
 #pragma once
 #include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <array>
 
-#include "../Loaders/textures_loader.h"
 #include "../config.h"
 
 class Background
 {
 public:
-	Background();
+	Background(const sf::Texture &mountains, const sf::Texture &forest, const sf::Texture &field);
 	void draw(sf::RenderWindow &window);
 	
 	void setPositionX(float x);
@@ -25,7 +25,7 @@ private:
 class BackgroundController
 {
 public:
-	BackgroundController();
+	BackgroundController(const sf::Texture &mountains, const sf::Texture &forest, const sf::Texture &field);
 
 	void move(sf::Vector2f offset);
 	void draw(sf::RenderWindow &window);
@@ -35,7 +35,7 @@ private:
 	 * We need 3 sprites because 2 sprites visible, when third sprite becomes the first
 	 * It looks like endless background
 	 */
-	std::array<Background, 3> backgroundSprites;
+	std::array<std::unique_ptr<Background>, 3> backgroundSprites;
 
 	float globalCameraOffsetX = 0.f;
 	float spriteWidth;

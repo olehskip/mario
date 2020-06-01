@@ -1,7 +1,6 @@
 #include "player_game_object.h"
 
-
-PlayerGameObject::PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, std::shared_ptr<sf::Texture> _texture): 
+PlayerGameObject::PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, const sf::Texture &_texture): 
 	GameObject(pos, scale, _texture)
 {
 	runAnimation = std::make_shared<AnimationController>(0, config::RUN_ANIMATION_FRAMES_COUNT, config::RUN_ANIMATION_SPEED);
@@ -41,10 +40,14 @@ void PlayerGameObject::move(Direction directionToMove, float deltaTime)
 	else 
 		offset.x += config::PLAYER_RUNNING_ACCELERATION * deltaTime * 60 * dx;
 
-	const float maxSpeed = !isOnIce ? config::PLAYER_RUNNING_MAX_SPEED: config::PLAYER_RUNNING_MAX_SPEED_ON_ICE;
-
-	if(std::abs(offset.x) > maxSpeed)
-		offset.x = maxSpeed* dx;
+	if(isOnGround) {
+		if(std::abs(offset.x) > getMaxXSpeed())
+			offset.x = getMaxXSpeed() * dx;
+	}
+	else {
+		if(std::abs(offset.x) > maxXSpeedBeforeJump)
+			offset.x = maxXSpeedBeforeJump * dx;
+	}
 
 	if(!isOnGround && ((direction == Direction::LEFT && offset.x > 0) || (direction == Direction::RIGHT && offset.x < 0)))
 		offset.x = 0.f;
@@ -60,10 +63,14 @@ void PlayerGameObject::jump(float deltaTime)
 	if(!isAlowedToJump) return;
 
 	isJumped = true;
+	isJumpingNow = true;
+	if(offset.y == 0)
+		maxXSpeedBeforeJump = getMaxXSpeed();
 	offset.y -= config::PLAYER_JUMPING_ACCELERATION * deltaTime * 60;
+
 	if(abs(offset.y) > config::PLAYER_JUMPING_MAX_SPEED) {
-		offset.y = -config::PLAYER_JUMPING_MAX_SPEED;
 		isAlowedToJump = false;
+		offset.y = -config::PLAYER_JUMPING_MAX_SPEED;
 	}
 	if(currentAnimation != jumpAnimation) {
 		jumpAnimation = std::make_shared<AnimationController>(jumpAnimation->newObject());
@@ -125,6 +132,10 @@ void PlayerGameObject::updateMovement(float deltaTime) // override
 	else if(abs(offset.y) > config::MAX_FALLING_SPEED)
 		offset.y = -config::MAX_FALLING_SPEED;
 
+	if(isJumped && offset.y > 0 || isJumped && !isJumpingNow) {
+		isAlowedToJump = false;
+	}
+
 	// if the player is falling too low - than he should die
 		// TO DO
  }
@@ -175,7 +186,6 @@ void PlayerGameObject::drawAnimation(sf::RenderWindow &window, float deltaTime)
 	else
 		sprite.setTextureRect(sf::IntRect((64 + 32) * int(currentAnimation->getCurrentFrame()), (117 + 32) * currentAnimation->row, 64, 117));
 
-	sprite.setScale(scale);
 	GameObject::draw(window);
 }
 
@@ -195,6 +205,12 @@ void PlayerGameObject::setStayingOnBlocks(std::list<BlockObject_ptr> stayingOnBl
 			}
 		}
 	}
+}
+
+float PlayerGameObject::getMaxXSpeed()
+{
+	const float maxSpeed = !isOnIce ? config::PLAYER_RUNNING_MAX_SPEED: config::PLAYER_RUNNING_MAX_SPEED_ON_ICE;
+	return maxSpeed;
 }
 
 void PlayerGameObject::die()

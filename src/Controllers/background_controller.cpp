@@ -1,14 +1,14 @@
 #include "background_controller.h"
-#include <iostream>
+
 // ---Background---
-Background::Background()
+Background::Background(const sf::Texture &mountains, const sf::Texture &forest, const sf::Texture &field)
 {
 	for(int i = 0; i < 3; ++i) 
 		backgroundParts.push_back(sf::Sprite());
 	
-	backgroundParts[0].setTexture(*texturesLoader.getTexture(TexturesID::MOUNTAINS_BACKGROUND));
-	backgroundParts[1].setTexture(*texturesLoader.getTexture(TexturesID::FOREST_BACKGROUND));
-	backgroundParts[2].setTexture(*texturesLoader.getTexture(TexturesID::FIELD_BACKGROUND));
+	backgroundParts[0].setTexture(mountains);
+	backgroundParts[1].setTexture(forest);
+	backgroundParts[2].setTexture(field);
 	float scale = (config::WINDOW_HEIGHT * config::WINDOW_ZOOM) / 1000;
 
 	for(auto &part: backgroundParts)
@@ -54,15 +54,16 @@ sf::FloatRect Background::getGlobalBounds() const
 }
 
 // ---BackgroundController---
-BackgroundController::BackgroundController()
+BackgroundController::BackgroundController(const sf::Texture &mountains, const sf::Texture &forest, const sf::Texture &field)
 {
 	for(int i = 0; i < backgroundSprites.size(); ++i) {
+		backgroundSprites[i] = std::make_unique<Background>(mountains, forest, field);
 		if(i > 0)
-			backgroundSprites[i].setPositionX(backgroundSprites[i - 1].getGlobalBounds().left + backgroundSprites[i - 1].getGlobalBounds().width);
+			backgroundSprites[i]->setPositionX(backgroundSprites[i - 1]->getGlobalBounds().left + backgroundSprites[i - 1]->getGlobalBounds().width);
 		else 
-			backgroundSprites[i].setPositionX(0.f);
+			backgroundSprites[i]->setPositionX(0.f);
 	}
-	spriteWidth = backgroundSprites[0].getGlobalBounds().width;
+	spriteWidth = backgroundSprites[0]->getGlobalBounds().width;
 }
 
 void BackgroundController::move(sf::Vector2f offset)
@@ -70,7 +71,7 @@ void BackgroundController::move(sf::Vector2f offset)
 	if(offset == sf::Vector2f(0, 0)) return;
 
 	for(auto &item: backgroundSprites)
-		item.move(sf::Vector2f(0, offset.y));
+		item->move(sf::Vector2f(0, offset.y));
 	globalCameraOffsetX += offset.x;
 	
 	if(globalCameraOffsetX / spriteWidth > 2) {
@@ -78,7 +79,7 @@ void BackgroundController::move(sf::Vector2f offset)
 		std::rotate(backgroundSprites.begin(), backgroundSprites.begin() + 1, backgroundSprites.end());
 		// backgroundSprites.back().setPosition(sf::Vector2f(backgroundSprites[backgroundSprites.size() - 2].getGlobalBounds().left + spriteWidth,
 		// 												  backgroundSprites[0].getPosition().y));
-		backgroundSprites.back().setPositionX(backgroundSprites[backgroundSprites.size() - 2].getGlobalBounds().left + spriteWidth);
+		backgroundSprites.back()->setPositionX(backgroundSprites[backgroundSprites.size() - 2]->getGlobalBounds().left + spriteWidth);
 	}
 
 }
@@ -86,5 +87,5 @@ void BackgroundController::move(sf::Vector2f offset)
 void BackgroundController::draw(sf::RenderWindow &window)
 {
 	for(auto &item: backgroundSprites)
-		item.draw(window);
+		item->draw(window);
 }

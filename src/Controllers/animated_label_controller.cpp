@@ -1,8 +1,7 @@
 #include "animated_label_controller.h"
-#include <iostream>
 #include <chrono>
 
-AnimatedLabelController::AnimatedLabelController(const std::shared_ptr<sf::Font> font, unsigned int fontSize, sf::Color color, const std::string &_finalText, sf::Vector2f pos, int _delay):
+AnimatedLabelController::AnimatedLabelController(const sf::Font &font, unsigned int fontSize, sf::Color color, const std::string &_finalText, sf::Vector2f pos, int _delay):
 	LabelController(font, fontSize, color, std::string(""), pos), finalText(_finalText), delay(_delay)
 {
 	animationThread = std::thread(&AnimatedLabelController::animate, this);

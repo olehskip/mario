@@ -9,7 +9,7 @@
 class AnimatedLabelController: public LabelController
 {
 public:
-	AnimatedLabelController(const std::shared_ptr<sf::Font> font, unsigned int fontSize, sf::Color color, const std::string &_finalText, sf::Vector2f pos, int _delay);
+	AnimatedLabelController(const sf::Font &font, unsigned int fontSize, sf::Color color, const std::string &_finalText, sf::Vector2f pos, int _delay);
 	void startAnimation();
 
 	void draw(sf::RenderWindow &window) override;

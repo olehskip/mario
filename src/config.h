@@ -7,24 +7,18 @@ namespace config
 {
 	const std::string WINDOW_NAME = "mario remake CXC";
 	const std::string TITLE_TEXT = "Programmer: Oleg Skip;\nDesigner: Zahar Sydoryk;\nGitHub: olegskip/mario-remake;";
-	const int WINDOW_WIDTH = 1000;
+	const int WINDOW_WIDTH = 800;
 	const int WINDOW_HEIGHT = 980;
 	const float WINDOW_ZOOM = 1.5f;
 	const float FULL_SCREEN_TEXTURES_SCALE = config::WINDOW_HEIGHT / (config::WINDOW_HEIGHT * config::WINDOW_ZOOM); 
 	const int DYING_Y = 200;
-
-	const sf::Vector2i VISIBLE_CELLS_COUNT = sf::Vector2i(120, 120);
-	const int CELL_SIZE = 32;
-
-	// const std::string MAIN_FONT_PATH = "data/fonts/pixeboy.ttf";
-	const std::string MAIN_FONT_PATH = "data/fonts/digital-7.ttf";
 
 	const sf::Color BACKGROUND_COLOR = sf::Color(90, 180, 220);
 
 	// ---animations---
 
 		// ---run animation---
-		const float RUN_ANIMATION_SPEED = 4.6f;
+		const float RUN_ANIMATION_SPEED = 4.4f;
 		const unsigned int RUN_ANIMATION_FRAMES_COUNT = 26, START_RUNNING_FRAME = 4, STOP_RUNNING_FRAME = 20;
 		// ---run animation---
 
@@ -41,8 +35,8 @@ namespace config
 
 		// ---player constants---
 			// ---jumping---
-			const float PLAYER_JUMPING_ACCELERATION = 4.f;
-			const float PLAYER_JUMPING_MAX_SPEED = 20.f; 
+			const float PLAYER_JUMPING_ACCELERATION = 23.f;
+			const float PLAYER_JUMPING_MAX_SPEED = 23.f; 
 			// ---jumping---
 
 			// ---running
@@ -52,7 +46,7 @@ namespace config
 
 			const float PLAYER_RUNNIMG_ACCELERATION_ON_ICE= 0.23f;
 			const float PLAYER_RUNNIMG_DECELARATION_ON_ICE = 0.35f;
-			const float PLAYER_RUNNING_MAX_SPEED_ON_ICE = 13.f;
+			const float PLAYER_RUNNING_MAX_SPEED_ON_ICE = 12.f;
 			// ---running
 
 	// ---live objects constants---

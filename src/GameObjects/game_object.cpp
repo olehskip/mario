@@ -1,14 +1,12 @@
 #include "game_object.h"
 
 // ---GameObject---
-GameObject::GameObject(sf::Vector2f pos, sf::Vector2f _scale, const std::shared_ptr<sf::Texture> _texture):
-	scale(_scale)
-{
-	texture = _texture;
-	
-	sprite.setTexture(*texture);
+GameObject::GameObject(sf::Vector2f pos, sf::Vector2f _scale, const sf::Texture &_texture):
+	texture(_texture)
+{	
+	sprite.setTexture(texture);
 	sprite.setPosition(pos.x, pos.y);
-	sprite.scale(scale.x, scale.y);
+	sprite.scale(_scale.x, _scale.y);
 }
 
 sf::Vector2f GameObject::getPosition() const
@@ -31,15 +29,9 @@ sf::Vector2f GameObject::getOffset() const
 	return offset;
 }
 
-sf::Vector2f GameObject::getGlobalOffset() const
-{
-	return globalOffset;
-}
-
 void GameObject::draw(sf::RenderWindow &window)
 {
 	window.draw(sprite);
-	globalOffset += offset;
 }
 
 // ---BotGameObject---
