@@ -57,10 +57,12 @@ void PlayerGameObject::move(sf::Vector2f offset)
 	sprite.move(offset);
 }
 
-void PlayerGameObject::jump(float deltaTime)
+bool PlayerGameObject::jump(float deltaTime)
 {
-	if(!isAlowedToJump) return;
+	if(!isAlowedToJump)
+		return false;
 
+	const bool output = !isJumped;
 	isJumped = true;
 	isJumpingNow = true;
 	if(offset.y == 0)
@@ -75,6 +77,9 @@ void PlayerGameObject::jump(float deltaTime)
 		jumpAnimation = std::make_shared<AnimationController>(jumpAnimation->newObject());
 		currentAnimation = jumpAnimation;
 	}
+
+
+	return output;
 }
 
 void PlayerGameObject::stay(float deltaTime)

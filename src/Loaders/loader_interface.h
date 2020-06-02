@@ -19,7 +19,11 @@ public:
 	LoaderInterface(){};
 	T &getObject(const std::string &objectName)
 	{
-		return *allObjects.find(objectName)->second.object;
+		auto findResult = allObjects.find(objectName);
+		if(findResult == allObjects.end())
+			return getObject(0);
+		else 
+			return *findResult->second.object;
 	}
 	
 	T &getObject(size_t objectIndex)

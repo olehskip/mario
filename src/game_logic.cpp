@@ -82,7 +82,8 @@ void GameLogic::keysManager()
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 		player->move(Direction::RIGHT, deltaTime);
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-		player->jump(deltaTime);
+		if(player->jump(deltaTime))
+			audioController.playSound("mario_jumps");
 	}
 	else
 		player->isJumpingNow = false;

@@ -23,7 +23,7 @@ void AnimationController::setCurrentFrame(float frame)
 {
 	currentFrame = frame;
 	if(int(currentFrame) > framesCount - 1)
-		currentFrame = 0;
+		currentFrame = framesCount - 1;
 }
 
 sf::IntRect AnimationController::getSpriteRect(Direction direction)

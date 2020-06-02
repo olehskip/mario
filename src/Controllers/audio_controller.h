@@ -20,7 +20,10 @@ public:
 	void toggleMute();
 	void mute();
 	void unmute();
-	// sf::Sound jumpSound;
+
+	// !TO DO - CHANGE!
+	sf::Sound jumpSound;
+	sf::Sound dieSound;
 	
 	// If currrent music ended, then this function start playing the next one
 	void update();

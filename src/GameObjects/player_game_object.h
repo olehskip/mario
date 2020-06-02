@@ -22,7 +22,7 @@ public:
 	 */
 	void move(sf::Vector2f offset);
 
-	void jump(float deltaTime);
+	bool jump(float deltaTime);
 	
 	/*
 	 * This function changes isStaying

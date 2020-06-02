@@ -36,7 +36,7 @@ namespace config
 		// ---animations---
 
 		// ---jumping---
-		const float JUMPING_ACCELERATION = 23.f;
+		const float JUMPING_ACCELERATION = 4.f;
 		const float JUMPING_MAX_SPEED = 23.f; 
 		// ---jumping---
 

@@ -35,6 +35,7 @@ public:
 /*
  * ---All sounds---
  * mario_dies
+ * mario_jumps
  */
 
 class SoundObject: public LoaderObjectInterface<sf::SoundBuffer>

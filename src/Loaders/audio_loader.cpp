@@ -21,8 +21,6 @@ MusicLoader::MusicLoader()
 SoundObject::SoundObject(const std::string &soundPath): LoaderObjectInterface(soundPath)
 {
 	object->loadFromFile(soundPath);
-	// object->setBuffer(soundBuffer);
-	// object->setVolume(100);
 }
 
 // ---SoundsLoader---

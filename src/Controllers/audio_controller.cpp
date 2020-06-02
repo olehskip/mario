@@ -2,6 +2,8 @@
 
 AudioController::AudioController()
 {
+	jumpSound.setBuffer(soundsLoader.getObject("mario_jumps"));
+	dieSound.setBuffer(soundsLoader.getObject("mario_dies"));
 }
 
 void AudioController::startPlayingMusic()
@@ -13,6 +15,9 @@ void AudioController::startPlayingMusic()
 
 void AudioController::playSound(const std::string &soundName)
 {
+	jumpSound.stop();
+	jumpSound.setVolume(100);
+	jumpSound.play();
 }
 
 void AudioController::toggleMute()
