@@ -8,7 +8,6 @@
 #include "Controllers/animated_label_controller.h"
 #include "Controllers/audio_controller.h"
 
-#include <random>
 #include "time.h"
 
 class GameLogic
@@ -44,17 +43,6 @@ public:
 	sf::Vector2f cameraController(const sf::Vector2f &cameraCenter);
 
 	void scrollBackground(sf::Vector2f offset);
-
-	/*
-	 * This function temponary, because there will be a map constructor
-	 */
-	int getRandomNumber(int min, int max) {
-		static std::mt19937 rng;
-		rng.seed(std::random_device()());
-		std::uniform_int_distribution<std::mt19937::result_type> dist(min, max);
-
-		return dist(rng);
-	}
 
 private:
 	void checkForCollision();

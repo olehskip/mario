@@ -9,14 +9,14 @@ Background::Background(const sf::Texture &mountains, const sf::Texture &forest, 
 	backgroundParts[0].setTexture(mountains);
 	backgroundParts[1].setTexture(forest);
 	backgroundParts[2].setTexture(field);
-	float scale = (config::WINDOW_HEIGHT * config::WINDOW_ZOOM) / 1000;
+	float scale = (config::window::WINDOW_HEIGHT * config::window::WINDOW_ZOOM) / 1000;
 
 	for(auto &part: backgroundParts)
 		part.setScale(sf::Vector2f(scale, scale));
 
-	backgroundParts[0].setPosition(sf::Vector2f(0, config::MOUNTAINS_BACKGROUND_OFFSET_Y * backgroundParts[0].getScale().y));
-	backgroundParts[1].setPosition(sf::Vector2f(0, config::FOREST_BACKGROUND_OFFSET_Y * backgroundParts[1].getScale().y));
-	backgroundParts[2].setPosition(sf::Vector2f(0, config::FIELD_BACKGROUND_OFFSET_Y * backgroundParts[2].getScale().y));
+	backgroundParts[0].setPosition(sf::Vector2f(0, config::background::MOUNTAINS_BACKGROUND_OFFSET_Y * backgroundParts[0].getScale().y));
+	backgroundParts[1].setPosition(sf::Vector2f(0, config::background::FOREST_BACKGROUND_OFFSET_Y * backgroundParts[1].getScale().y));
+	backgroundParts[2].setPosition(sf::Vector2f(0, config::background::FIELD_BACKGROUND_OFFSET_Y * backgroundParts[2].getScale().y));
 }
 
 void Background::draw(sf::RenderWindow &window)
@@ -77,8 +77,6 @@ void BackgroundController::move(sf::Vector2f offset)
 	if(globalCameraOffsetX / spriteWidth > 2) {
 		globalCameraOffsetX -= spriteWidth;
 		std::rotate(backgroundSprites.begin(), backgroundSprites.begin() + 1, backgroundSprites.end());
-		// backgroundSprites.back().setPosition(sf::Vector2f(backgroundSprites[backgroundSprites.size() - 2].getGlobalBounds().left + spriteWidth,
-		// 												  backgroundSprites[0].getPosition().y));
 		backgroundSprites.back()->setPositionX(backgroundSprites[backgroundSprites.size() - 2]->getGlobalBounds().left + spriteWidth);
 	}
 

@@ -7,6 +7,8 @@ AudioController::AudioController()
 void AudioController::startPlayingMusic()
 {
 	currentMusicIndex = 0;
+	musicLoader.getObject(currentMusicIndex).play();
+	musicLoader.getObject(currentMusicIndex).setVolume(volume);
 }
 
 void AudioController::playSound(const std::string &soundName)
@@ -39,7 +41,7 @@ void AudioController::update()
 		musicLoader.getObject(currentMusicIndex).stop();
 		if(++currentMusicIndex > musicLoader.getCount())
 			currentMusicIndex = 0;
-		// musicLoader.getObject(currentMusicIndex).play();
+		musicLoader.getObject(currentMusicIndex).play();
 		musicLoader.getObject(currentMusicIndex).setVolume(volume);
 	}
 }

@@ -3,12 +3,11 @@
 PlayerGameObject::PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, const sf::Texture &_texture): 
 	GameObject(pos, scale, _texture)
 {
-	runAnimation = std::make_shared<AnimationController>(0, config::RUN_ANIMATION_FRAMES_COUNT, config::RUN_ANIMATION_SPEED);
-	jumpAnimation = std::make_shared<AnimationController>(1, config::JUMP_ANIMATION_FRAMES_COUNT, config::JUMP_ANIMATION_SPEED);
+	runAnimation = std::make_shared<AnimationController>(0, config::player::RUN_ANIMATION_FRAMES_COUNT, config::player::RUN_ANIMATION_SPEED, config::player::frameSize, config::ANIMATION_SPACE_SIZE);
+	jumpAnimation = std::make_shared<AnimationController>(1, config::player::JUMP_ANIMATION_FRAMES_COUNT, config::player::JUMP_ANIMATION_SPEED, config::player::frameSize, config::ANIMATION_SPACE_SIZE);
 	currentAnimation = runAnimation;
 
-	sprite.setTextureRect(sf::IntRect((64 + 32) * int(currentAnimation->getCurrentFrame()) + 64, 0, -64, 117));
-	sprite.setScale(scale);
+	sprite.setTextureRect(currentAnimation->getSpriteRect(direction));
 }
 
 void PlayerGameObject::move(Direction directionToMove, float deltaTime)
@@ -36,9 +35,9 @@ void PlayerGameObject::move(Direction directionToMove, float deltaTime)
 
 	// if player is running and suddenly he changed the direction
 	if(offset.x * -dx > 0)
-		offset.x += config::PLAYER_RUNNING_DECELERATION * deltaTime * 60 * dx;
+		offset.x += config::player::RUNNING_DECELERATION * deltaTime * 60 * dx;
 	else 
-		offset.x += config::PLAYER_RUNNING_ACCELERATION * deltaTime * 60 * dx;
+		offset.x += config::player::RUNNING_ACCELERATION * deltaTime * 60 * dx;
 
 	if(isOnGround) {
 		if(std::abs(offset.x) > getMaxXSpeed())
@@ -66,11 +65,11 @@ void PlayerGameObject::jump(float deltaTime)
 	isJumpingNow = true;
 	if(offset.y == 0)
 		maxXSpeedBeforeJump = getMaxXSpeed();
-	offset.y -= config::PLAYER_JUMPING_ACCELERATION * deltaTime * 60;
+	offset.y -= config::player::JUMPING_ACCELERATION * deltaTime * 60;
 
-	if(abs(offset.y) > config::PLAYER_JUMPING_MAX_SPEED) {
+	if(abs(offset.y) > config::player::JUMPING_MAX_SPEED) {
 		isAlowedToJump = false;
-		offset.y = -config::PLAYER_JUMPING_MAX_SPEED;
+		offset.y = -config::player::JUMPING_MAX_SPEED;
 	}
 	if(currentAnimation != jumpAnimation) {
 		jumpAnimation = std::make_shared<AnimationController>(jumpAnimation->newObject());
@@ -91,8 +90,8 @@ void PlayerGameObject::stay(float deltaTime)
 		currentAnimation->setCurrentFrame(0.f);
 		return;
 	}
-	if(int(currentAnimation->getCurrentFrame()) < config::STOP_RUNNING_FRAME && int(currentAnimation->getCurrentFrame()) > 0)
-		currentAnimation->setCurrentFrame(config::STOP_RUNNING_FRAME);
+	if(int(currentAnimation->getCurrentFrame()) < config::player::STOP_RUNNING_FRAME && int(currentAnimation->getCurrentFrame()) > 0)
+		currentAnimation->setCurrentFrame(config::player::STOP_RUNNING_FRAME);
 	currentAnimation->setCurrentFrame(currentAnimation->getCurrentFrame() + deltaTime * abs(offset.x) * currentAnimation->animationSpeed);
 }
 
@@ -104,11 +103,11 @@ void PlayerGameObject::setOffset(sf::Vector2f newOffset)
 void PlayerGameObject::updateMovement(float deltaTime) // override
 {
 	// x
-	auto deceleration = config::PLAYER_RUNNING_DECELERATION;
+	auto deceleration = config::player::RUNNING_DECELERATION;
 	if(offset.y != 0)
 		deceleration /= 4;
 	else if(isOnIce)
-		deceleration = config::PLAYER_RUNNIMG_DECELARATION_ON_ICE;
+		deceleration = config::player::RUNNIMG_DECELARATION_ON_ICE;
 
 	if(isStaying) {
 		if(offset.x > 0) {
@@ -127,10 +126,10 @@ void PlayerGameObject::updateMovement(float deltaTime) // override
 
 	// y
 	offset.y += config::GRAVITY;
-	if(offset.y > config::MAX_FALLING_SPEED)
-		offset.y = config::MAX_FALLING_SPEED;
-	else if(abs(offset.y) > config::MAX_FALLING_SPEED)
-		offset.y = -config::MAX_FALLING_SPEED;
+	if(offset.y > config::player::MAX_FALLING_SPEED)
+		offset.y = config::player::MAX_FALLING_SPEED;
+	else if(abs(offset.y) > config::player::MAX_FALLING_SPEED)
+		offset.y = -config::player::MAX_FALLING_SPEED;
 
 	if(isJumped && offset.y > 0 || isJumped && !isJumpingNow) {
 		isAlowedToJump = false;
@@ -140,7 +139,7 @@ void PlayerGameObject::updateMovement(float deltaTime) // override
 		// TO DO
  }
 
-void PlayerGameObject::drawAnimation(sf::RenderWindow &window, float deltaTime)
+void PlayerGameObject::drawWithAnimation(sf::RenderWindow &window, float deltaTime)
 {
 	// if the player is on the ground and is running
 	if(isOnGround && currentAnimation == runAnimation) {
@@ -148,22 +147,22 @@ void PlayerGameObject::drawAnimation(sf::RenderWindow &window, float deltaTime)
 			// if there is a hindrance set animation speed to max
 			// otherwise we would have a very slow animation
 			if(isStacked)
-				// currentAnimation->setCurrentFrame(currentAnimation->getCurrentFrame() + deltaTime * config::PLAYER_RUNNING_MAX_SPEED * currentAnimation->animationSpeed);
+				// currentAnimation->setCurrentFrame(currentAnimation->getCurrentFrame() + deltaTime * config::player::PLAYER_RUNNING_MAX_SPEED * currentAnimation->animationSpeed);
 				currentAnimation->setCurrentFrame(0.f);
 
 			// if the player is not staying and there is no any hindrance
 			else 
 				currentAnimation->setCurrentFrame(currentAnimation->getCurrentFrame() + deltaTime * abs(offset.x) * currentAnimation->animationSpeed);
 				
-			if(currentAnimation->getCurrentFrame() >= config::STOP_RUNNING_FRAME)
-				currentAnimation->setCurrentFrame(config::START_RUNNING_FRAME);
+			if(currentAnimation->getCurrentFrame() >= config::player::STOP_RUNNING_FRAME)
+				currentAnimation->setCurrentFrame(config::player::START_RUNNING_FRAME);
 		}
 	}
 
 	// if the player is falling, but did not jump
 	else if(offset.y > 0.f && !isJumped) {
 		currentAnimation = jumpAnimation;
-		currentAnimation->setCurrentFrame(config::JUMPING_FRAME);
+		currentAnimation->setCurrentFrame(config::player::JUMPING_FRAME);
 	}
 	// if the player is jumping
 	else if(currentAnimation == jumpAnimation) {
@@ -174,19 +173,17 @@ void PlayerGameObject::drawAnimation(sf::RenderWindow &window, float deltaTime)
 				currentAnimation->setCurrentFrame(currentAnimation->framesCount - 1);
 		}
 		else {
-			if(int(currentAnimation->getCurrentFrame()) < int(config::JUMPING_FRAME)) {
+			if(int(currentAnimation->getCurrentFrame()) < int(config::player::JUMPING_FRAME)) {
 				currentAnimation->setCurrentFrame(currentAnimation->getCurrentFrame() + deltaTime * abs(offset.y) * currentAnimation->animationSpeed);
-				if(int(currentAnimation->getCurrentFrame()) > config::JUMPING_FRAME)
-					currentAnimation->setCurrentFrame(config::JUMPING_FRAME);
+				if(int(currentAnimation->getCurrentFrame()) > config::player::JUMPING_FRAME)
+					currentAnimation->setCurrentFrame(config::player::JUMPING_FRAME);
 			}
 		}
 	}
-	if(direction == Direction::LEFT)
-		sprite.setTextureRect(sf::IntRect((64 + 32) * int(currentAnimation->getCurrentFrame()) + 64, (117 + 32) * currentAnimation->row, -64, 117));
-	else
-		sprite.setTextureRect(sf::IntRect((64 + 32) * int(currentAnimation->getCurrentFrame()), (117 + 32) * currentAnimation->row, 64, 117));
 
-	GameObject::draw(window);
+	sprite.setTextureRect(currentAnimation->getSpriteRect(direction));
+
+	draw(window);
 }
 
 // if the player on ground - he can jump
@@ -209,7 +206,7 @@ void PlayerGameObject::setStayingOnBlocks(std::list<BlockObject_ptr> stayingOnBl
 
 float PlayerGameObject::getMaxXSpeed()
 {
-	const float maxSpeed = !isOnIce ? config::PLAYER_RUNNING_MAX_SPEED: config::PLAYER_RUNNING_MAX_SPEED_ON_ICE;
+	const float maxSpeed = !isOnIce ? config::player::RUNNING_MAX_SPEED: config::player::RUNNING_MAX_SPEED_ON_ICE;
 	return maxSpeed;
 }
 

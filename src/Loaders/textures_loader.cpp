@@ -16,8 +16,9 @@ TexturesLoader::TexturesLoader()
 	allObjects.insert(std::make_pair("forest_background", (TextureObject("data/textures/backgrounds/forest_background.png"))));
 	allObjects.insert(std::make_pair("field_background", (TextureObject("data/textures/backgrounds/field_background.png"))));
 	
-	// ---player sprite---
+	// ---sprites---
 	allObjects.insert(std::make_pair("mario_sprite", (TextureObject("data/textures/sprites/mario_sprite.png"))));
+	allObjects.insert(std::make_pair("goomba_sprite", (TextureObject("data/textures/sprites/goomba_sprite.png"))));
 
 	// ---blocks---
 	allObjects.insert(std::make_pair("simple_brick", (TextureObject("data/textures/blocks/simple_brick.png"))));
@@ -46,5 +47,8 @@ TexturesLoader::TexturesLoader()
 	allObjects.insert(std::make_pair("mushrooms", (TextureObject("data/textures/scenery/mushrooms.png"))));
 	allObjects.insert(std::make_pair("stump", (TextureObject("data/textures/scenery/stump.png"))));
 	allObjects.insert(std::make_pair("small_tree1", (TextureObject("data/textures/scenery/small_tree1.png"))));
-		allObjects.insert(std::make_pair("small_tree1", (TextureObject("data/textures/scenery/plate.png"))));
+	allObjects.insert(std::make_pair("small_tree1", (TextureObject("data/textures/scenery/plate.png"))));
+
+	// ---icons---
+	allObjects.insert(std::make_pair("mario_icon", (TextureObject("data/icons/icon.png"))));
 }

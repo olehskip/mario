@@ -9,7 +9,7 @@ GameLogic::GameLogic()
 	backgroundController = std::make_unique<BackgroundController>(texturesLoader.getObject("mountains_background"), texturesLoader.getObject("forest_background"), 
 		texturesLoader.getObject("field_background"));
 	titleAnimatedLabel = std::make_unique<AnimatedLabelController>
-						 (fontsLoader.getObject(std::string("pixeboy")), 30 * config::WINDOW_ZOOM, sf::Color::White, std::string(config::TITLE_TEXT), sf::Vector2f(20, 650), 15);
+						 (fontsLoader.getObject(std::string("pixeboy")), 30 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(config::window::TITLE_TEXT), sf::Vector2f(20, 650), 15);
 	
 	// spawn for testing
 	for(int x = 3; x < 6; ++x) {
@@ -67,12 +67,11 @@ void GameLogic::update()
 void GameLogic::draw(sf::RenderWindow &window)
 {
 	backgroundController->draw(window);
-	player->drawAnimation(window, deltaTime);
 	for(auto &block: blocks)
 		block->draw(window);
 	for(auto &decor: scenery)
 		decor->draw(window);
-	player->draw(window);
+	player->drawWithAnimation(window, deltaTime);
 	titleAnimatedLabel->draw(window);
 }
 
@@ -84,7 +83,6 @@ void GameLogic::keysManager()
 		player->move(Direction::RIGHT, deltaTime);
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
 		player->jump(deltaTime);
-		audioController.playSound("mario_jumps");
 	}
 	else
 		player->isJumpingNow = false;
@@ -100,7 +98,7 @@ void GameLogic::toggleMute()
 
 sf::Vector2f GameLogic::cameraController(const sf::Vector2f &cameraCenter)
 {
-	const auto windowLeft = cameraCenter.x - config::WINDOW_WIDTH / 2 * config::WINDOW_ZOOM;
+	const auto windowLeft = cameraCenter.x - config::window::WINDOW_WIDTH / 2 * config::window::WINDOW_ZOOM;
 	if(player->getSpriteCopy().getGlobalBounds().left <= windowLeft) {
 		player->setOffset(sf::Vector2f(-(player->getSpriteCopy().getGlobalBounds().left - windowLeft), player->getOffset().y));
 		player->isStacked = true;

@@ -6,17 +6,22 @@
 int main()
 {
 	GameLogic gameLogic = GameLogic();
-	sf::RenderWindow window(sf::VideoMode(config::WINDOW_WIDTH, config::WINDOW_HEIGHT), config::WINDOW_NAME);
-	sf::View view(sf::Vector2f((config::WINDOW_WIDTH / 2) * config::WINDOW_ZOOM, (config::WINDOW_HEIGHT / 2) * config::WINDOW_ZOOM),
-				  sf::Vector2f(config::WINDOW_WIDTH, config::WINDOW_HEIGHT));
-	view.zoom(config::WINDOW_ZOOM);
-	window.setView(view);
+	sf::RenderWindow window(sf::VideoMode(config::window::WINDOW_WIDTH, config::window::WINDOW_HEIGHT), config::window::WINDOW_NAME);
+	sf::Image icon;
+	if(icon.loadFromFile("data/icons/icon.png"))
+		window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 	window.setFramerateLimit(60);
+
+	sf::View view(sf::Vector2f((config::window::WINDOW_WIDTH / 2) * config::window::WINDOW_ZOOM, (config::window::WINDOW_HEIGHT / 2) * config::window::WINDOW_ZOOM),
+				  sf::Vector2f(config::window::WINDOW_WIDTH, config::window::WINDOW_HEIGHT));
+	view.zoom(config::window::WINDOW_ZOOM);
+	window.setView(view);
 	
 	std::vector<LabelController> labels; // all labels: time, score, etc
-	labels.push_back(LabelController(gameLogic.fontsLoader.getObject(std::string("digital7")), 40 * config::WINDOW_ZOOM, sf::Color::White, std::string(), sf::Vector2f(5, 5))); // time
+	labels.push_back(LabelController(gameLogic.fontsLoader.getObject(std::string("digital7")), 40 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(), sf::Vector2f(5, 5))); // time
 
 	bool isFocused = true;
+
 	while(window.isOpen()) {
 		sf::Event event;
 		while(window.pollEvent(event)) {
@@ -36,9 +41,7 @@ int main()
 		if(isFocused)
 			gameLogic.keysManager();
 
-		
-
-		window.clear(config::BACKGROUND_COLOR);
+		window.clear(config::window::BACKGROUND_COLOR);
 
 		gameLogic.update();
 		labels[0].setText(std::to_string(gameLogic.getSpeed()));

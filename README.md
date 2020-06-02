@@ -5,8 +5,8 @@ Code by [Oleg Skip](https://github.com/olegskip). All unique textures by [Zahar 
 The `build.sh` is located at `src/build.sh`(tested for `g++ (Ubuntu 9.3.0-10ubuntu2) 9.3.0`). Flags: `-lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -pthread`.
 # Copyright
 **All** textures and code are **self-made**. Music is taken from [downloads.khinsider.com](https://downloads.khinsider.com/game-soundtracks/album/super-mario-bros) and [themushroomkingdom.net](https://themushroomkingdom.net/media/smb/wav) (previously converted to .ogg because of SFML).
-# Some screenshots
-![screenshot1](https://github.com/olegskip/mario_remake/blob/master/screenshot/screenshot1.png)  
-![screenshot1](https://github.com/olegskip/mario_remake/blob/master/screenshot/screenshot2.png)  
-![screenshot1](https://github.com/olegskip/mario_remake/blob/master/screenshot/screenshot3.png)  
-![screenshot1](https://github.com/olegskip/mario_remake/blob/master/screenshot/screenshot4.png)  
+# Some images from game
+![screenshot1](https://github.com/olegskip/mario_remake/blob/master/screenshots/screenshot1.png)  
+![screenshot1](https://github.com/olegskip/mario_remake/blob/master/screenshots/screenshot2.png)  
+![screenshot1](https://github.com/olegskip/mario_remake/blob/master/screenshots/screenshot3.png)  
+![screenshot1](https://github.com/olegskip/mario_remake/blob/master/screenshots/screenshot4.png)  

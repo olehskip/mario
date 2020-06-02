@@ -4,12 +4,6 @@
 #include "../Controllers/animation_controller.h"
 #include <list>
 
-enum class Direction
-{
-	LEFT,
-	RIGHT
-};
-
 enum class PlayerYState
 {
 	JUMP,
@@ -50,7 +44,7 @@ public:
 	 * This function decides, which animation should draw
 	 * and control the animation direction of mario
 	 */
-	void drawAnimation(sf::RenderWindow &window, float deltaTime);
+	void drawWithAnimation(sf::RenderWindow &window, float deltaTime);
 
 	/*
 	 * This function changes std::list<BlockObject_ptr> stayingOnBlocks
@@ -114,7 +108,7 @@ private:
 	/* 
 	 * if the player jump we need to remember an acceleration BEFORE jump
 	 */
-	float maxXSpeedBeforeJump = config::PLAYER_JUMPING_MAX_SPEED;
+	float maxXSpeedBeforeJump = config::player::JUMPING_MAX_SPEED;
 
 	/*
 	 * The direction can change on the ground

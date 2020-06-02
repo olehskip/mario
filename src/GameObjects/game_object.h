@@ -15,6 +15,7 @@ public:
 	sf::FloatRect getGlobalBounds() const;
 	void setPosition(sf::Vector2f newPos);
 	sf::Vector2f getOffset() const;
+	
 	void draw(sf::RenderWindow &window);
 	virtual void updateMovement(float deltaTime) {};
 
