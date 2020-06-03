@@ -24,9 +24,9 @@ public:
 	float getSpeed() { return player->getOffset().x;}
 
 	void keysManager();
+	void keysManager(sf::Keyboard::Key key);
 	void playerJump();
 	void playerNotJump();
-	void toggleMute();
 
 	FontsLoader fontsLoader;
 	TexturesLoader texturesLoader;
@@ -58,4 +58,5 @@ private:
 	std::unique_ptr<AnimatedLabelController> titleAnimatedLabel;
 
 	AudioController audioController;
+	sf::Sprite audioIndicator;
 };

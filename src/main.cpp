@@ -18,20 +18,17 @@ int main()
 	window.setView(view);
 	
 	std::vector<LabelController> labels; // all labels: time, score, etc
-	labels.push_back(LabelController(gameLogic.fontsLoader.getObject(std::string("digital7")), 40 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(), sf::Vector2f(5, 5))); // time
+	labels.push_back(LabelController(gameLogic.fontsLoader.getObject(FontsID::DIGITAL7), 40 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(), sf::Vector2f(10, 5))); // time
 
 	bool isFocused = true;
-
 	while(window.isOpen()) {
 		sf::Event event;
 		while(window.pollEvent(event)) {
 			if(event.type == sf::Event::Closed)
 				window.close();
-			if(event.type == sf::Event::KeyPressed) {
-				if(event.key.code == sf::Keyboard::M)
-					gameLogic.toggleMute();
-			}
-			if(event.type == sf::Event::GainedFocus)
+			if(event.type == sf::Event::KeyPressed)
+				gameLogic.keysManager(event.key.code);
+			else if(event.type == sf::Event::GainedFocus)
 				isFocused = true;
 			else if(event.type == sf::Event::LostFocus)
 				isFocused = false;
@@ -44,7 +41,7 @@ int main()
 		window.clear(config::window::BACKGROUND_COLOR);
 
 		gameLogic.update();
-		labels[0].setText(std::to_string(gameLogic.getSpeed()));
+		labels[0].setText(std::to_string(gameLogic.getStopwatchTime()));
 
 		const auto cameraPosition = gameLogic.cameraController(view.getCenter());
 		view.move(cameraPosition);

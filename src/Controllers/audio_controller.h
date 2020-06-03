@@ -14,16 +14,14 @@ class AudioController
 {
 public:
 	AudioController();
+	// ~AudioController();
 	void startPlayingMusic();
-	void playSound(const std::string &soundName);
+	void playSound(SoundsID soundID);
 
-	void toggleMute();
+	// return is audio muted
+	bool toggleMute();
 	void mute();
 	void unmute();
-
-	// !TO DO - CHANGE!
-	sf::Sound jumpSound;
-	sf::Sound dieSound;
 	
 	// If currrent music ended, then this function start playing the next one
 	void update();
@@ -33,5 +31,6 @@ private:
 	SoundsLoader soundsLoader;
 
 	size_t currentMusicIndex = 0;
+	SoundsID currentSoundID;
 	unsigned int volume = 100;
 };

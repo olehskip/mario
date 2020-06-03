@@ -2,8 +2,6 @@
 
 AudioController::AudioController()
 {
-	jumpSound.setBuffer(soundsLoader.getObject("mario_jumps"));
-	dieSound.setBuffer(soundsLoader.getObject("mario_dies"));
 }
 
 void AudioController::startPlayingMusic()
@@ -13,31 +11,35 @@ void AudioController::startPlayingMusic()
 	musicLoader.getObject(currentMusicIndex).setVolume(volume);
 }
 
-void AudioController::playSound(const std::string &soundName)
+void AudioController::playSound(SoundsID soundID)
 {
-	jumpSound.stop();
-	jumpSound.setVolume(100);
-	jumpSound.play();
+	soundsLoader.getObject(soundID).setVolume(volume);
+	soundsLoader.getObject(soundID).play();
+	currentSoundID = soundID;
 }
 
-void AudioController::toggleMute()
+bool AudioController::toggleMute()
 {
 	if(volume == 100)
 		mute();
 	else
 		unmute();
+	
+	return volume != 100;
 }
 
 void AudioController::mute()
 {
 	volume = 0;
-	musicLoader.getObject(currentMusicIndex).setVolume(0);
+	musicLoader.getObject(currentMusicIndex).setVolume(volume);
+	soundsLoader.getObject(currentSoundID).stop();
 }
 
 void AudioController::unmute()
 {
 	volume = 100;
-	musicLoader.getObject(currentMusicIndex).setVolume(100);
+	musicLoader.getObject(currentMusicIndex).setVolume(volume);
+	soundsLoader.getObject(currentSoundID).stop();
 }
 
 void AudioController::update()

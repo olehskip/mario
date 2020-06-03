@@ -5,27 +5,31 @@
 MusicObject::MusicObject(const std::string &musicPath):
 	LoaderObjectInterface(musicPath)
 {
-	object->openFromFile(musicPath);
-	object->setVolume(100);
+	object.openFromFile(musicPath);
+	object.setVolume(100);
 }
 
-// ---MusicLoader---
+// ---MusicLoader---+
 MusicLoader::MusicLoader()
 {
-	allObjects.insert(std::make_pair("hurry", MusicObject("data/audio/music/hurry.ogg")));
-	allObjects.insert(std::make_pair("super_mario_bros", MusicObject("data/audio/music/super_mario_bros.ogg")));
+	allObjects.insert(std::make_pair(MusicID::HURRY, std::make_unique<MusicObject>("data/audio/music/hurry.ogg")));
+	allObjects.insert(std::make_pair(MusicID::SUPER_MARIO_BROS, std::make_unique<MusicObject>("data/audio/music/super_mario_bros.ogg")));
 }
 
 // ---sounds---
 // ---SoundObject---
-SoundObject::SoundObject(const std::string &soundPath): LoaderObjectInterface(soundPath)
+SoundObject::SoundObject(const std::string &soundPath):
+	LoaderObjectInterface(soundPath)
 {
-	object->loadFromFile(soundPath);
+	buffer->loadFromFile(soundPath);
+	object.setBuffer(*buffer);
 }
 
 // ---SoundsLoader---
 SoundsLoader::SoundsLoader()
 {
-	allObjects.insert(std::make_pair("mario_jumps", SoundObject("data/audio/sounds/mario_jumps.ogg")));
-	allObjects.insert(std::make_pair("mario_dies", SoundObject("data/audio/sounds/mario_dies.ogg")));
+	allObjects.insert(std::make_pair(SoundsID::MARIO_JUMPS, std::make_unique<SoundObject>("data/audio/sounds/mario_jumps.ogg")));
+	allObjects.insert(std::make_pair(SoundsID::MARIO_DIES, std::make_unique<SoundObject>("data/audio/sounds/mario_dies.ogg")));
 }
+
+

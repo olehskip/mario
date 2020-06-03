@@ -9,21 +9,21 @@ class LoaderObjectInterface
 {
 public:
 	LoaderObjectInterface(const std::string &objectPath){};
-	std::unique_ptr<T> object = std::make_unique<T>();
+	T object;
 };
 
-template<class T>
+template<class T, class E>
 class LoaderInterface
 {
 public:
 	LoaderInterface(){};
-	T &getObject(const std::string &objectName)
+	T &getObject(E findEnum)
 	{
-		auto findResult = allObjects.find(objectName);
+		auto findResult = allObjects.find(findEnum);
 		if(findResult == allObjects.end())
 			return getObject(0);
 		else 
-			return *findResult->second.object;
+			return findResult->second->object;
 	}
 	
 	T &getObject(size_t objectIndex)
@@ -32,7 +32,7 @@ public:
 			objectIndex = 0;
 		auto itt = allObjects.begin();
 		std::advance(itt, objectIndex);
-		return *itt->second.object;
+		return itt->second->object;
 	}
 
 	size_t getCount() const
@@ -41,5 +41,5 @@ public:
 	}
 
 protected:
-	std::unordered_map<std::string, LoaderObjectInterface<T>> allObjects;
+	std::unordered_map<E, std::unique_ptr<LoaderObjectInterface<T>>> allObjects;
 };

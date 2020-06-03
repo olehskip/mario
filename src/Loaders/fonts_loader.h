@@ -6,11 +6,11 @@
 #include "loader_interface.h"
 
 
-/*
- * All fonts
- * pixeboy
- * digital7
- */
+enum class FontsID
+{
+	PIXEBOY,
+	DIGITAL7
+};
 
 class FontObject: public LoaderObjectInterface<sf::Font>
 {
@@ -18,8 +18,7 @@ public:
 	FontObject(const std::string &texturePath);
 };
 
-
-class FontsLoader: public LoaderInterface<sf::Font>
+class FontsLoader: public LoaderInterface<sf::Font, FontsID>
 {
 public:
 	FontsLoader();

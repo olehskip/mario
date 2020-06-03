@@ -5,31 +5,34 @@ GameLogic::GameLogic()
 	// change in the future
 	srand(time(NULL));
 	
-	player = std::make_unique<PlayerGameObject>(sf::Vector2f(50, 17 * 64), sf::Vector2f(1, 1), texturesLoader.getObject("mario_sprite"));
-	backgroundController = std::make_unique<BackgroundController>(texturesLoader.getObject("mountains_background"), texturesLoader.getObject("forest_background"), 
-		texturesLoader.getObject("field_background"));
-	titleAnimatedLabel = std::make_unique<AnimatedLabelController>
-						 (fontsLoader.getObject(std::string("pixeboy")), 30 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(config::window::TITLE_TEXT), sf::Vector2f(20, 650), 15);
+	player = std::make_unique<PlayerGameObject>(sf::Vector2f(50, 17 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::MARIO_PLAYER_SPRITE));
+	backgroundController = std::make_unique<BackgroundController>(texturesLoader.getObject(TexturesID::MOUNTAINS_BACKGROUND),
+		texturesLoader.getObject(TexturesID::FOREST_BACKGROUND), texturesLoader.getObject(TexturesID::FIELD_BACKGROUND));
+	titleAnimatedLabel = std::make_unique<AnimatedLabelController>(fontsLoader.getObject(FontsID::PIXEBOY), 
+		30 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(config::window::TITLE_TEXT), sf::Vector2f(20, 650), 15);
 	
 	// spawn for testing
 	for(int x = 3; x < 6; ++x) {
-		blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, 14 * 64), sf::Vector2f(1, 1), texturesLoader.getObject("lucky_box"), true, BlockType::LUCKY_BOX));
+		blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, 14 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::LUCKY_BOX), true, BlockType::LUCKY_BOX));
 	}
 
 	for(int x = 0; x < 100; ++x) {
-		blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, 19 * 64), sf::Vector2f(1, 1), texturesLoader.getObject("grass_brick"), true));
+		blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, 19 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::GRASS_BRICK), true));
 	}
 	for(int y = 20; y < 23; ++y) {
 		for(int x = 0; x < 100; ++x) {
-			blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, y * 64), sf::Vector2f(1, 1), texturesLoader.getObject("bottom_brick"), true));
+			blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, y * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::BOTTOM_BRICK), true));
 		}
 	}
 	for(int y = 19; y < 23; ++y) {
 		for(int x = 100; x < 200; ++x) {
-			blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, y * 64), sf::Vector2f(1, 1), texturesLoader.getObject("ice_block"), true, BlockType::ICE));
+			blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, y * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::ICE_BLOCK), true, BlockType::ICE));
 		}
 	}
 
+	audioIndicator.setTexture(texturesLoader.getObject(TexturesID::AUDIO_UNMUTED));
+	audioIndicator.setPosition(config::window::WINDOW_WIDTH * config::window::WINDOW_ZOOM - audioIndicator.getGlobalBounds().width * config::window::WINDOW_ZOOM, 5);
+	audioIndicator.scale(1.3f, 1.3f);
 	audioController.startPlayingMusic();
 }
 
@@ -58,9 +61,8 @@ void GameLogic::update()
 	player->updateMovement(deltaTime);
 	checkForCollision();
 	player->move(player->getOffset());
-	for(auto &block: blocks) {
+	for(auto &block: blocks)
 		block->updateMovement(deltaTime);
-	}
 	audioController.update();
 }
 
@@ -73,6 +75,7 @@ void GameLogic::draw(sf::RenderWindow &window)
 		decor->draw(window);
 	player->drawWithAnimation(window, deltaTime);
 	titleAnimatedLabel->draw(window);
+	window.draw(audioIndicator);
 }
 
 void GameLogic::keysManager()
@@ -83,7 +86,7 @@ void GameLogic::keysManager()
 		player->move(Direction::RIGHT, deltaTime);
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
 		if(player->jump(deltaTime))
-			audioController.playSound("mario_jumps");
+			audioController.playSound(SoundsID::MARIO_JUMPS);
 	}
 	else
 		player->isJumpingNow = false;
@@ -92,9 +95,14 @@ void GameLogic::keysManager()
 		player->stay(deltaTime);
 }
 
-void GameLogic::toggleMute()
+void GameLogic::keysManager(sf::Keyboard::Key key)
 {
-	audioController.toggleMute();
+	if(key == sf::Keyboard::M) {
+		if(audioController.toggleMute())
+			audioIndicator.setTexture(texturesLoader.getObject(TexturesID::AUDIO_MUTED));
+		else
+			audioIndicator.setTexture(texturesLoader.getObject(TexturesID::AUDIO_UNMUTED));
+	}
 }
 
 sf::Vector2f GameLogic::cameraController(const sf::Vector2f &cameraCenter)
@@ -116,6 +124,7 @@ sf::Vector2f GameLogic::cameraController(const sf::Vector2f &cameraCenter)
 void GameLogic::scrollBackground(sf::Vector2f offset)
 {
 	backgroundController->move(offset);
+	audioIndicator.move(offset);
 }
 
 void GameLogic::checkForCollision()

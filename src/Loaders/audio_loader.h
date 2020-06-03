@@ -10,12 +10,11 @@
 #include "loader_interface.h"
 
 // ---music----
-
-/* 
- * ---All music---
- * super_mario_bros
- * hurry
- */
+enum class MusicID
+{
+	SUPER_MARIO_BROS,
+	HURRY
+};
 
 class MusicObject: public LoaderObjectInterface<sf::Music>
 {
@@ -23,29 +22,30 @@ public:
 	MusicObject(const std::string &musicPath);
 };
 
-
-class MusicLoader: public LoaderInterface<sf::Music>
+class MusicLoader: public LoaderInterface<sf::Music, MusicID>
 {
 public:
 	MusicLoader();
 };
 
+
 // --sounds---
+enum class SoundsID
+{
+	MARIO_JUMPS,
+	MARIO_DIES
+};
 
-/*
- * ---All sounds---
- * mario_dies
- * mario_jumps
- */
-
-class SoundObject: public LoaderObjectInterface<sf::SoundBuffer>
+class SoundObject: public LoaderObjectInterface<sf::Sound>
 {
 public:
 	SoundObject(const std::string &soundPath);
+
+private:
+	std::unique_ptr<sf::SoundBuffer> buffer = std::make_unique<sf::SoundBuffer>();
 };
 
-
-class SoundsLoader: public LoaderInterface<sf::SoundBuffer>
+class SoundsLoader: public LoaderInterface<sf::Sound, SoundsID>
 {
 public:
 	SoundsLoader();
