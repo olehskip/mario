@@ -13,22 +13,21 @@ GameLogic::GameLogic()
 	
 	// spawn for testing
 	for(int x = 3; x < 6; ++x) {
-		blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, 14 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::LUCKY_BOX), true, BlockType::LUCKY_BOX));
+		blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, 14 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::LUCKY_BOX), true, BlockType::LUCKY_BOX));
 	}
 
-	for(int x = 0; x < 100; ++x) {
-		blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, 19 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::GRASS_BRICK), true));
+	for(int x = -5; x < 1000; ++x) {
+		blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, 19 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::GRASS_BRICK), true));
 	}
 	for(int y = 20; y < 23; ++y) {
-		for(int x = 0; x < 100; ++x) {
-			blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, y * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::BOTTOM_BRICK), true));
+		for(int x = 0; x < 1000; ++x) {
+			blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, y * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::BOTTOM_BRICK), true));
 		}
 	}
-	for(int y = 19; y < 23; ++y) {
-		for(int x = 100; x < 200; ++x) {
-			blocks.push_back(std::make_shared<BlockGameObject>(sf::Vector2f(64 * x, y * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::ICE_BLOCK), true, BlockType::ICE));
-		}
-	}
+	blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * 3, 18 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::SOLID_BRICK), true));
+	blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * 10, 18 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::SOLID_BRICK), true));
+
+	enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(250, 800), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT));
 
 	audioIndicator.setTexture(texturesLoader.getObject(TexturesID::AUDIO_UNMUTED));
 	audioIndicator.setPosition(config::window::WINDOW_WIDTH * config::window::WINDOW_ZOOM - audioIndicator.getGlobalBounds().width * config::window::WINDOW_ZOOM, 5);
@@ -59,11 +58,18 @@ void GameLogic::restart()
 void GameLogic::update()
 {
 	player->updateMovement(deltaTime);
-	checkForCollision();
-	player->move(player->getOffset());
+	horizontalCollisionController(*player);
+	verticalCollisionController(*player);
 	for(auto &block: blocks)
 		block->updateMovement(deltaTime);
+	for(auto &enemy: enemies) {
+		enemy->updateMovement(deltaTime);
+		horizontalCollisionController(*enemy);
+		if(verticalCollisionController(*enemy))
+			enemy->changeDirection();
+	}
 	audioController.update();
+	fallingObjectKiller();
 }
 
 void GameLogic::draw(sf::RenderWindow &window)
@@ -74,6 +80,8 @@ void GameLogic::draw(sf::RenderWindow &window)
 	for(auto &decor: scenery)
 		decor->draw(window);
 	player->drawWithAnimation(window, deltaTime);
+	for(auto &enemy: enemies) 
+		enemy->drawWithAnimation(window, deltaTime);
 	titleAnimatedLabel->draw(window);
 	window.draw(audioIndicator);
 }
@@ -108,6 +116,7 @@ void GameLogic::keysManager(sf::Keyboard::Key key)
 sf::Vector2f GameLogic::cameraController(const sf::Vector2f &cameraCenter)
 {
 	const auto windowLeft = cameraCenter.x - config::window::WINDOW_WIDTH / 2 * config::window::WINDOW_ZOOM;
+	
 	if(player->getSpriteCopy().getGlobalBounds().left <= windowLeft) {
 		player->setOffset(sf::Vector2f(-(player->getSpriteCopy().getGlobalBounds().left - windowLeft), player->getOffset().y));
 		player->isStacked = true;
@@ -127,53 +136,73 @@ void GameLogic::scrollBackground(sf::Vector2f offset)
 	audioIndicator.move(offset);
 }
 
-void GameLogic::checkForCollision()
+bool GameLogic::horizontalCollisionController(GameObject &gameObject)
 {
-	const auto playerGlobalBounds = player->getGlobalBounds();
-	const auto playerPosition = player->getPosition();
+	const auto globalBounds = gameObject.getGlobalBounds();
+	const auto position = gameObject.getPosition();
+	bool isCollision = false;
 
-	std::list<BlockObject_ptr> touchedBlocks, stayingOnBlocks;
+	gameObject.isStandaingOnAnyBlock = false;
 	// check for horizontal collision
 	for(auto &block: blocks) {
 		if(!block->isHasCollision) continue;
 		const auto blockRect = block->getGlobalBounds();
-		if(playerGlobalBounds.left < blockRect.left + blockRect.width && playerGlobalBounds.left + playerGlobalBounds.width> blockRect.left) { // x)
-			// if the the player head is touched a block
-			if(player->getOffset().y < 0 && playerGlobalBounds.top + player->getOffset().y > blockRect.top  && playerGlobalBounds.top + player->getOffset().y < blockRect.top + blockRect.height) {
-				player->setOffset(sf::Vector2f(player->getOffset().x, blockRect.height + blockRect.top - playerGlobalBounds.top + 5));
-				touchedBlocks.push_back(block);
-				block->jumpUp(deltaTime);
+		if(globalBounds.left < blockRect.left + blockRect.width && globalBounds.left + globalBounds.width> blockRect.left) { // x
+			// if the the gameObject head is touched a block
+			if(gameObject.getOffset().y < 0 && globalBounds.top + gameObject.getOffset().y > blockRect.top  && globalBounds.top + gameObject.getOffset().y < blockRect.top + blockRect.height) {
+				gameObject.setOffset(sf::Vector2f(gameObject.getOffset().x, blockRect.height + blockRect.top - globalBounds.top + 5));
+				isCollision = true;
 				break;
 			}
-			// if the player is stacked to put in the right place
+
+			// if the gameObject is stacked to put in the right place
 			// or
-			// if the player is staying on the right edge of a block do not touch him
-			if(player->getOffset().y > 0 && playerGlobalBounds.top + player->getOffset().y < blockRect.top && playerGlobalBounds.top + playerGlobalBounds.height + player->getOffset().y  > blockRect.top) { // y
-				player->setOffset(sf::Vector2f(player->getOffset().x, blockRect.top - (playerGlobalBounds.top + playerGlobalBounds.height)));
-				stayingOnBlocks.push_back(block);
+			// if the gameObject is staying on the right edge of a block do not touch him
+			if(gameObject.getOffset().y > 0 && globalBounds.top + gameObject.getOffset().y < blockRect.top && globalBounds.top + globalBounds.height + gameObject.getOffset().y  > blockRect.top) {
+				gameObject.setOffset(sf::Vector2f(gameObject.getOffset().x, blockRect.top - (globalBounds.top + globalBounds.height)));
+				gameObject.isStandaingOnAnyBlock = true;
+				isCollision = true;
 			}
 		}
 	}
-	player->setStayingOnBlocks(stayingOnBlocks);
 
+	return isCollision;
+}
 
+bool GameLogic::verticalCollisionController(GameObject &gameObject)
+{
+	const auto globalBounds = gameObject.getGlobalBounds();
+	const auto position = gameObject.getPosition();
+	bool isCollision = false;
+	
 	// check for vertical collision
 	for(auto &block: blocks) {
 		if(!block->isHasCollision) continue;
 		const auto blockRect = block->getGlobalBounds();
-		if(player->getOffset().x == 0) break;
 
-		if(playerGlobalBounds.top + player->getOffset().y < blockRect.top + blockRect.height && playerGlobalBounds.top + playerGlobalBounds.height + player->getOffset().y > blockRect.top) {
+		if(globalBounds.top + gameObject.getOffset().y < blockRect.top + blockRect.height && globalBounds.top + globalBounds.height + gameObject.getOffset().y > blockRect.top) {
 			// from the left to the right
-			if(player->getOffset().x > 0 && playerGlobalBounds.left + playerGlobalBounds.width + player->getOffset().x > blockRect.left && playerGlobalBounds.left + playerGlobalBounds.width + player->getOffset().x < blockRect.left + blockRect.width) {
-				player->setOffset(sf::Vector2f(blockRect.left - playerGlobalBounds.left - playerGlobalBounds.width, player->getOffset().y));
+			if(gameObject.getOffset().x > 0 && globalBounds.left + globalBounds.width + gameObject.getOffset().x > blockRect.left && globalBounds.left + globalBounds.width + gameObject.getOffset().x < blockRect.left + blockRect.width) {
+				gameObject.setOffset(sf::Vector2f(blockRect.left - globalBounds.left - globalBounds.width, gameObject.getOffset().y));
+				isCollision = true;
 				break;
 			}
 			/// from the right to the left
-			else if(player->getOffset().x < 0 && playerGlobalBounds.left + player->getOffset().x < blockRect.left + blockRect.width && playerGlobalBounds.left + playerGlobalBounds.width + player->getOffset().x > blockRect.left + blockRect.width) {
-				player->setOffset(sf::Vector2f(blockRect.left + blockRect.width - playerGlobalBounds.left, player->getOffset().y));
+			else if(gameObject.getOffset().x < 0 && globalBounds.left + gameObject.getOffset().x < blockRect.left + blockRect.width && globalBounds.left + globalBounds.width + gameObject.getOffset().x > blockRect.left + blockRect.width) {
+				gameObject.setOffset(sf::Vector2f(blockRect.left + blockRect.width - globalBounds.left, gameObject.getOffset().y));
+				isCollision = true;
 				break;
 			}
 		}
+	}
+
+	return isCollision;
+}
+
+void GameLogic::fallingObjectKiller()
+{
+	for(auto it = enemies.rbegin(); it != enemies.rend(); ++it) {
+			if(it->get()->getPosition().y > config::DIE_OXIS_Y)
+				enemies.erase(std::remove(enemies.begin(), enemies.end(), *it));
 	}
 }

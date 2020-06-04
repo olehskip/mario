@@ -33,7 +33,6 @@ enum class TexturesID
 	// ---blocks---
 
 	// ---special blocks---
-	ICE_BLOCK,
 	LUCKY_BOX,
 	// ---special blocks---
 

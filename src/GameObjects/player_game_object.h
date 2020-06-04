@@ -26,12 +26,10 @@ public:
 	
 	/*
 	 * This function changes isStaying
-	 * If the player is not running
-	 * even if he is jumping(but not running left or right)
+	 * If the player is not RUN
+	 * even if he is jumping(but not RUN left or right)
 	 */
 	void stay(float deltaTime);
-
-	void setOffset(sf::Vector2f newOffset);
 	
 	/*
 	 * Updating the offset of the player
@@ -45,12 +43,6 @@ public:
 	 * and control the animation direction of mario
 	 */
 	void drawWithAnimation(sf::RenderWindow &window, float deltaTime);
-
-	/*
-	 * This function changes std::list<BlockObject_ptr> stayingOnBlocks
-	 * Calls by GameLogic::checkForCollision()
-	 */
-	void setStayingOnBlocks(std::list<BlockObject_ptr> stayingOnBlocks);
 
 	/*
 	 * Stacked means the player is stacked of the left side of screen
@@ -67,16 +59,9 @@ public:
 
 private:
 	/*
-	 * The list of blocks, which the player staying on
-	 * The variable changes by PlayerGameObject::setStayingOnBlocks(...),
-	 * which calles by GameLogic::checkForCollision(...)
-	 */
-	std::list<BlockObject_ptr> stayingOnBlocks;
-
-	/*
 	 * This variable changes by PlayerGameObject::stay(...)
-	 * If the player is not running
-	 * even if he is jumping(but not running left or right)
+	 * If the player is not RUN
+	 * even if he is jumping(but not RUN left or right)
 	 */	
 	bool isStaying = true;
 
@@ -84,31 +69,6 @@ private:
 	 * If the player is standing after jump, then he can jump again
 	 */
 	bool isAlowedToJump = true;
-
-	/*
-	 * If the player jumped
-	 * We need this variable for checking is player falling or jumping
-	 */
-	bool isJumped = false;
-
-	/*
-	 * This variable changes by PlayerGameObject::setStayingOnBlocks(...), 
-	 * which calls in GameLogic::checkForCollision()
-	 * If isOnGround == true, then the player is running or standing on a block
-	 */	
-	bool isOnGround = false;
-
-	/*
-	 * if the player is standing or running on ice
-	 * that variable determines after 
-	 */
-	bool isOnIce = false;
-
-	float getMaxXSpeed();
-	/* 
-	 * if the player jump we need to remember an acceleration BEFORE jump
-	 */
-	float maxXSpeedBeforeJump = config::player::JUMPING_MAX_SPEED;
 
 	/*
 	 * The direction can change on the ground
@@ -123,9 +83,9 @@ private:
 	bool isAlive = false;
 
 	// ---animations---
-	std::shared_ptr<AnimationController> currentAnimation;
 	std::shared_ptr<AnimationController> runAnimation;
 	std::shared_ptr<AnimationController> jumpAnimation;
+	std::shared_ptr<AnimationController> currentAnimation;
 	// ---animations---
 };
-typedef std::shared_ptr<PlayerGameObject> PlayerObject_ptr;
+typedef std::unique_ptr<PlayerGameObject> PlayerObject_ptr;

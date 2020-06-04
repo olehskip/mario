@@ -41,9 +41,11 @@ int main()
 		window.clear(config::window::BACKGROUND_COLOR);
 
 		gameLogic.update();
+		gameLogic.draw(window);
+		
 		labels[0].setText(std::to_string(gameLogic.getStopwatchTime()));
-
 		const auto cameraPosition = gameLogic.cameraController(view.getCenter());
+
 		view.move(cameraPosition);
 		
 		window.setView(view);
@@ -54,7 +56,6 @@ int main()
 			label.draw(window);
 		}
 
-		gameLogic.draw(window);
 		window.display();
 	}
 

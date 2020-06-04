@@ -2,6 +2,7 @@
 #include "config.h"
 #include "GameObjects/player_game_object.h"
 #include "GameObjects/block_game_object.h"
+#include "GameObjects/bot_game_object.h"
 #include "Loaders/textures_loader.h"
 #include "Loaders/fonts_loader.h"
 #include "Controllers/background_controller.h"
@@ -21,18 +22,15 @@ public:
 	void restart();
 	void update();
 	void draw(sf::RenderWindow &window); 
-	float getSpeed() { return player->getOffset().x;}
 
 	void keysManager();
 	void keysManager(sf::Keyboard::Key key);
-	void playerJump();
-	void playerNotJump();
 
 	FontsLoader fontsLoader;
 	TexturesLoader texturesLoader;
 
 	/*
-	 * Contrlling camera moving
+	 * Contrlling camera movingса
 	 * 
 	 * This function does not let mario leave from the game scene
 	 * and controls that mario runs only at center or left part of the game scene
@@ -45,7 +43,10 @@ public:
 	void scrollBackground(sf::Vector2f offset);
 
 private:
-	void checkForCollision();
+	bool horizontalCollisionController(GameObject &gameObject);
+	bool verticalCollisionController(GameObject &gameObject);
+	void fallingObjectKiller();
+
 	std::vector<BlockObject_ptr> blocks;
 	std::vector<BlockObject_ptr> scenery;
 	PlayerObject_ptr player;
@@ -59,4 +60,6 @@ private:
 
 	AudioController audioController;
 	sf::Sprite audioIndicator;
+
+	std::vector<BotObject_ptr> enemies;
 };

@@ -16,17 +16,17 @@ namespace config
 	}
 
 	const float GRAVITY = 1.f;
+	const float MAX_FALLING_SPEED = 22.f;
 	const unsigned int ANIMATION_SPACE_SIZE = 32;
+	const float DIE_OXIS_Y = 1500 * config::window::WINDOW_ZOOM;
 
 	namespace player
 	{
-		const float MAX_FALLING_SPEED = 22.f;
-		
 		// ---animations---
 			const sf::Vector2f frameSize =  sf::Vector2f(64, 117);
 			// ---run animation---
 			const float RUN_ANIMATION_SPEED = 4.4f;
-			const unsigned int RUN_ANIMATION_FRAMES_COUNT = 26, START_RUNNING_FRAME = 4, STOP_RUNNING_FRAME = 20;
+			const unsigned int RUN_ANIMATION_FRAMES_COUNT = 26, START_RUN_FRAME = 4, STOP_RUN_FRAME = 20;
 			// ---run animation---
 
 			// ---jump animation---
@@ -40,17 +40,22 @@ namespace config
 		const float JUMPING_MAX_SPEED = 23.f; 
 		// ---jumping---
 
-		// ---running---
-		const float RUNNING_ACCELERATION = 0.3f;
-		const float RUNNING_DECELERATION = 0.5f;
-		const float RUNNING_MAX_SPEED = 10.f;
-
-		const float RUNNIMG_ACCELERATION_ON_ICE= 0.23f;
-		const float RUNNIMG_DECELARATION_ON_ICE = 0.35f;
-		const float RUNNING_MAX_SPEED_ON_ICE = 12.f;
-		// ---running---
+		// ---RUN---
+		const float RUN_ACCELERATION = 0.3f;
+		const float RUN_DECELERATION = 0.5f;
+		const float RUN_MAX_SPEED = 10.f;
+		// ---RUN---
 	}
 	
+	namespace goomba
+	{
+		const float RUN_ACCELERATION = 0.5f;
+		const float RUN_MAX_SPEED = 3.3f;
+		const float DECELERATION_IN_JUMP = 0.2f;
+
+		const float ANIMATION_SPEED = 10.f;
+	}
+
 	const float COIN_ANIMATION_SPEED = 6.f;
 			
 	namespace background 

@@ -35,7 +35,6 @@ TexturesLoader::TexturesLoader()
 	// ---blocks---
 
 	// ---special blocks---
-	allObjects.insert(std::make_pair(TexturesID::ICE_BLOCK, std::make_unique<TextureObject>("data/textures/blocks/ice_block.png")));
 	allObjects.insert(std::make_pair(TexturesID::LUCKY_BOX, std::make_unique<TextureObject>("data/textures/blocks/lucky_box.png")));
 	// ---special blocks---
 

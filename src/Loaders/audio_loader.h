@@ -13,6 +13,8 @@
 enum class MusicID
 {
 	SUPER_MARIO_BROS,
+	SUPER_MARIO_BROS2,
+	SUPER_MARIO_BROS3,
 	HURRY
 };
 

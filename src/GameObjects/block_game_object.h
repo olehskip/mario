@@ -4,7 +4,6 @@
 enum class BlockType
 {
 	DEFAULT, 
-	ICE,
 	LUCKY_BOX
 };
 
