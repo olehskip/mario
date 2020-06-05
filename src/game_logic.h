@@ -8,6 +8,7 @@
 #include "Controllers/background_controller.h"
 #include "Controllers/animated_label_controller.h"
 #include "Controllers/audio_controller.h"
+#include "Controllers/game_over_scene_controller.h"
 
 #include "time.h"
 
@@ -46,9 +47,11 @@ private:
 	bool horizontalCollisionController(GameObject &gameObject);
 	bool verticalCollisionController(GameObject &gameObject);
 	void fallingObjectKiller();
+	void playerKiller();
 
 	std::vector<BlockObject_ptr> blocks;
 	std::vector<BlockObject_ptr> scenery;
+	std::vector<BotObject_ptr> enemies;
 	PlayerObject_ptr player;
 	sf::Clock clock, stopwatch;
 	float deltaTime = 0.f;
@@ -57,9 +60,10 @@ private:
 
 	// at the start there is an animated label with developers contacts
 	std::unique_ptr<AnimatedLabelController> titleAnimatedLabel;
+	std::vector<LabelController> labels; // all labels: time, score, etc
 
 	AudioController audioController;
 	sf::Sprite audioIndicator;
 
-	std::vector<BotObject_ptr> enemies;
+	std::unique_ptr<GameOverSceneController> gameOverSceneController;
 };

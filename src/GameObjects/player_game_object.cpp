@@ -9,12 +9,16 @@ PlayerGameObject::PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, const s
 
 	sprite.setTextureRect(currentAnimation->getSpriteRect(direction));
 }
-#include <iostream>
+
 void PlayerGameObject::move(Direction directionToMove, float deltaTime)
 {	
-	int dx = getDX(directionToMove);
+	const int dx = getDX(directionToMove);
+	float acceleration = config::player::RUN_ACCELERATION;
+	if(!isStandingOnAnyBlock)
+		acceleration /= 1.5f;
+
 	isStaying = false;
-	if(isStandaingOnAnyBlock) {
+	if(isStandingOnAnyBlock) {
 		if(offset.x == 0)
 			currentAnimation->setCurrentFrame(1.f);
 		if(currentAnimation != runAnimation) {
@@ -24,12 +28,12 @@ void PlayerGameObject::move(Direction directionToMove, float deltaTime)
 		direction = directionToMove;
 	}
 
-	offset.x += config::player::RUN_DECELERATION * deltaTime * 60 * dx;
+	offset.x += acceleration * deltaTime * 60 * dx;
 
 	if(std::abs(offset.x) > config::player::RUN_MAX_SPEED)
 		offset.x = config::player::RUN_MAX_SPEED * dx;
 
-	if(!isStandaingOnAnyBlock && ((direction == Direction::LEFT && offset.x > 0) || (direction == Direction::RIGHT && offset.x < 0)))
+	if(!isStandingOnAnyBlock && ((direction == Direction::LEFT && offset.x > 0) || (direction == Direction::RIGHT && offset.x < 0)))
 		offset.x = 0.f;
 }
 
@@ -43,7 +47,7 @@ bool PlayerGameObject::jump(float deltaTime)
 	if(!isAlowedToJump)
 		return false;
 
-	const bool output = offset.y == 0;
+	const bool output = (offset.y == 0);
 	isJumpingNow = true;
 	
 	offset.y -= config::player::JUMPING_ACCELERATION * deltaTime * 60;
@@ -63,7 +67,7 @@ bool PlayerGameObject::jump(float deltaTime)
 void PlayerGameObject::stay(float deltaTime)
 {
 	isStaying = true;
-	if(!isStandaingOnAnyBlock) return;
+	if(!isStandingOnAnyBlock) return;
 	if(currentAnimation != runAnimation) {
 		runAnimation = std::make_unique<AnimationController>(runAnimation->newObject());
 		currentAnimation = runAnimation;
@@ -80,6 +84,7 @@ void PlayerGameObject::stay(float deltaTime)
 
 void PlayerGameObject::updateMovement(float deltaTime) // override
 {
+	if(_isDead) return;
 	// x
 	auto deceleration = config::player::RUN_DECELERATION;
 	if(offset.y != 0)
@@ -107,19 +112,17 @@ void PlayerGameObject::updateMovement(float deltaTime) // override
 	else if(abs(offset.y) > config::MAX_FALLING_SPEED)
 		offset.y = -config::MAX_FALLING_SPEED;
 
-	if(!isStandaingOnAnyBlock && (!isAlowedToJump && offset.y > 0 || isAlowedToJump && !isJumpingNow)) {
+	if(!isStandingOnAnyBlock && (!isAlowedToJump && offset.y > 0 || isAlowedToJump && !isJumpingNow)) {
 		isAlowedToJump = false;
 	}
-	else if(isStandaingOnAnyBlock)
+	else if(isStandingOnAnyBlock)
 		isAlowedToJump = true;
-	// if the player is falling too low - than he should die
-		// TO DO
  }
 
 void PlayerGameObject::drawWithAnimation(sf::RenderWindow &window, float deltaTime)
 {
 	// if the player is on the ground and is RUN
-	if(isStandaingOnAnyBlock && currentAnimation == runAnimation) {
+	if(isStandingOnAnyBlock && currentAnimation == runAnimation) {
 		if(!isStaying) {
 			if(isStacked)
 				currentAnimation->setCurrentFrame(0.f);
@@ -158,5 +161,13 @@ void PlayerGameObject::drawWithAnimation(sf::RenderWindow &window, float deltaTi
 
 void PlayerGameObject::die()
 {
+	_isDead = true;
+	isAlowedToJump = true;
+	offset = sf::Vector2f(0, -5);
+	// TO DO DIE ANIMATION!
+}
 
+bool PlayerGameObject::isDead() const
+{
+	return _isDead;
 }

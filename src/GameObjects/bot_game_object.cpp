@@ -10,7 +10,7 @@ BotGameObject::BotGameObject(sf::Vector2f pos, sf::Vector2f scale, sf::Texture &
 void BotGameObject::updateMovement(float deltaTime) // override
 {
 	const int dx = getDX(direction);
-	if(isStandaingOnAnyBlock) {
+	if(isStandingOnAnyBlock) {
 		offset.x += config::goomba::RUN_ACCELERATION * dx;
 		if(std::abs(offset.x) > config::goomba::RUN_MAX_SPEED)
 			offset.x = config::goomba::RUN_MAX_SPEED * dx;

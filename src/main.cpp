@@ -17,8 +17,6 @@ int main()
 	view.zoom(config::window::WINDOW_ZOOM);
 	window.setView(view);
 	
-	std::vector<LabelController> labels; // all labels: time, score, etc
-	labels.push_back(LabelController(gameLogic.fontsLoader.getObject(FontsID::DIGITAL7), 40 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(), sf::Vector2f(10, 5))); // time
 
 	bool isFocused = true;
 	while(window.isOpen()) {
@@ -43,18 +41,12 @@ int main()
 		gameLogic.update();
 		gameLogic.draw(window);
 		
-		labels[0].setText(std::to_string(gameLogic.getStopwatchTime()));
 		const auto cameraPosition = gameLogic.cameraController(view.getCenter());
 
 		view.move(cameraPosition);
 		
 		window.setView(view);
 		gameLogic.scrollBackground(cameraPosition);
-
-		for(auto &label: labels) {
-			label.move(cameraPosition);
-			label.draw(window);
-		}
 
 		window.display();
 	}

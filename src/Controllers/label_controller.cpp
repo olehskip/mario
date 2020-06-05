@@ -19,6 +19,25 @@ std::string LabelController::getText() const
 	return textObj.getString();
 }
 
+void LabelController::centerX(const float windowCenterX)
+{
+	textObj.setOrigin(textObj.getLocalBounds().left + textObj.getLocalBounds().width / 2.f, textObj.getOrigin().y);
+	textObj.setPosition(windowCenterX / 2.f, textObj.getPosition().y);
+}
+
+void LabelController::centerY(const float windowCenterY)
+{
+	textObj.setOrigin(textObj.getOrigin().x, textObj.getLocalBounds().top + textObj.getLocalBounds().height / 2.f);
+	textObj.setPosition(textObj.getPosition().x, windowCenterY / 2.f);
+}
+
+void LabelController::blink(bool blinkState)
+{
+	if(blinkState)
+		blinkingClock.restart();
+	isBlinking = blinkState;
+}
+
 void LabelController::move(sf::Vector2f pos)
 {
 	textObj.move(pos);
@@ -26,5 +45,15 @@ void LabelController::move(sf::Vector2f pos)
 
 void LabelController::draw(sf::RenderWindow &window)
 {
-	window.draw(textObj);
+	if(isBlinking) {
+		if(blinkingClock.getElapsedTime().asSeconds() > 0.4f) {
+			isVisible = !isVisible;
+			blinkingClock.restart();
+		}
+	}
+	else 
+		blinkingClock.restart();
+
+	if(isVisible)
+		window.draw(textObj);
 }

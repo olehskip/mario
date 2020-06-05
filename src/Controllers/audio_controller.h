@@ -16,6 +16,7 @@ public:
 	AudioController();
 	// ~AudioController();
 	void startPlayingMusic();
+	void stopPlayingMusic();
 	void playSound(SoundsID soundID);
 
 	// return is audio muted
@@ -27,6 +28,7 @@ public:
 	void update();
 
 private:
+	bool isStoppedMusic = true;
 	MusicLoader musicLoader;
 	SoundsLoader soundsLoader;
 

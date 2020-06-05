@@ -57,7 +57,12 @@ public:
 	 */
 	bool isJumpingNow = false;
 
+	void die();
+	bool isDead() const;
+
 private:
+	bool _isDead = false;
+
 	/*
 	 * This variable changes by PlayerGameObject::stay(...)
 	 * If the player is not RUN
@@ -79,7 +84,6 @@ private:
 	 * if the player is falling to low then isAlive = true;
 	 * TO DO
 	 */
-	void die();
 	bool isAlive = false;
 
 	// ---animations---

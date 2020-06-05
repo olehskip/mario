@@ -33,6 +33,10 @@ GameLogic::GameLogic()
 	audioIndicator.setPosition(config::window::WINDOW_WIDTH * config::window::WINDOW_ZOOM - audioIndicator.getGlobalBounds().width * config::window::WINDOW_ZOOM, 5);
 	audioIndicator.scale(1.3f, 1.3f);
 	audioController.startPlayingMusic();
+
+	gameOverSceneController = std::make_unique<GameOverSceneController>(fontsLoader.getObject(FontsID::_8_BIT_ARCADE));
+
+	labels.push_back(LabelController(fontsLoader.getObject(FontsID::DIGITAL7), 40 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(), sf::Vector2f(10, 5))); // time
 }
 
 void GameLogic::updateTime()
@@ -58,8 +62,10 @@ void GameLogic::restart()
 void GameLogic::update()
 {
 	player->updateMovement(deltaTime);
-	horizontalCollisionController(*player);
-	verticalCollisionController(*player);
+	if(!player->isDead()) {
+		horizontalCollisionController(*player);
+		verticalCollisionController(*player);
+	}
 	for(auto &block: blocks)
 		block->updateMovement(deltaTime);
 	for(auto &enemy: enemies) {
@@ -70,6 +76,9 @@ void GameLogic::update()
 	}
 	audioController.update();
 	fallingObjectKiller();
+	playerKiller();
+	if(!player->isDead())
+		labels[0].setText(std::to_string(getStopwatchTime()));
 }
 
 void GameLogic::draw(sf::RenderWindow &window)
@@ -84,22 +93,29 @@ void GameLogic::draw(sf::RenderWindow &window)
 		enemy->drawWithAnimation(window, deltaTime);
 	titleAnimatedLabel->draw(window);
 	window.draw(audioIndicator);
+	gameOverSceneController->draw(window);
+	for(auto &label: labels)
+		label.draw(window);
 }
 
 void GameLogic::keysManager()
 {
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		player->move(Direction::LEFT, deltaTime);
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		player->move(Direction::RIGHT, deltaTime);
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-		if(player->jump(deltaTime))
-			audioController.playSound(SoundsID::MARIO_JUMPS);
+	if(!player->isDead()) {
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+			player->move(Direction::LEFT, deltaTime);
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+			player->move(Direction::RIGHT, deltaTime);
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+			if(player->jump(deltaTime))
+				audioController.playSound(SoundsID::MARIO_JUMPS);
+		}
+		else
+			player->isJumpingNow = false;
+
+		if(!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+			player->stay(deltaTime);
 	}
 	else
-		player->isJumpingNow = false;
-
-	if(!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 		player->stay(deltaTime);
 }
 
@@ -134,6 +150,8 @@ void GameLogic::scrollBackground(sf::Vector2f offset)
 {
 	backgroundController->move(offset);
 	audioIndicator.move(offset);
+	for(auto &label: labels)
+		label.move(offset);
 }
 
 bool GameLogic::horizontalCollisionController(GameObject &gameObject)
@@ -142,15 +160,16 @@ bool GameLogic::horizontalCollisionController(GameObject &gameObject)
 	const auto position = gameObject.getPosition();
 	bool isCollision = false;
 
-	gameObject.isStandaingOnAnyBlock = false;
+	gameObject.isStandingOnAnyBlock = false;
 	// check for horizontal collision
 	for(auto &block: blocks) {
 		if(!block->isHasCollision) continue;
 		const auto blockRect = block->getGlobalBounds();
 		if(globalBounds.left < blockRect.left + blockRect.width && globalBounds.left + globalBounds.width> blockRect.left) { // x
 			// if the the gameObject head is touched a block
-			if(gameObject.getOffset().y < 0 && globalBounds.top + gameObject.getOffset().y > blockRect.top  && globalBounds.top + gameObject.getOffset().y < blockRect.top + blockRect.height) {
-				gameObject.setOffset(sf::Vector2f(gameObject.getOffset().x, blockRect.height + blockRect.top - globalBounds.top + 5));
+			if(gameObject.getOffset().y < 0 && globalBounds.top + gameObject.getOffset().y > blockRect.top  && 
+			   globalBounds.top + gameObject.getOffset().y < blockRect.top + blockRect.height) {
+				gameObject.setOffset(sf::Vector2f(gameObject.getOffset().x, blockRect.height + blockRect.top - globalBounds.top + 2));
 				isCollision = true;
 				break;
 			}
@@ -158,9 +177,10 @@ bool GameLogic::horizontalCollisionController(GameObject &gameObject)
 			// if the gameObject is stacked to put in the right place
 			// or
 			// if the gameObject is staying on the right edge of a block do not touch him
-			if(gameObject.getOffset().y > 0 && globalBounds.top + gameObject.getOffset().y < blockRect.top && globalBounds.top + globalBounds.height + gameObject.getOffset().y  > blockRect.top) {
+			if(gameObject.getOffset().y > 0 && globalBounds.top + gameObject.getOffset().y < blockRect.top && 
+			   globalBounds.top + globalBounds.height + gameObject.getOffset().y  > blockRect.top) {
 				gameObject.setOffset(sf::Vector2f(gameObject.getOffset().x, blockRect.top - (globalBounds.top + globalBounds.height)));
-				gameObject.isStandaingOnAnyBlock = true;
+				gameObject.isStandingOnAnyBlock = true;
 				isCollision = true;
 			}
 		}
@@ -180,15 +200,18 @@ bool GameLogic::verticalCollisionController(GameObject &gameObject)
 		if(!block->isHasCollision) continue;
 		const auto blockRect = block->getGlobalBounds();
 
-		if(globalBounds.top + gameObject.getOffset().y < blockRect.top + blockRect.height && globalBounds.top + globalBounds.height + gameObject.getOffset().y > blockRect.top) {
+		if(globalBounds.top + gameObject.getOffset().y < blockRect.top + blockRect.height && 
+		   globalBounds.top + globalBounds.height + gameObject.getOffset().y > blockRect.top) {
 			// from the left to the right
-			if(gameObject.getOffset().x > 0 && globalBounds.left + globalBounds.width + gameObject.getOffset().x > blockRect.left && globalBounds.left + globalBounds.width + gameObject.getOffset().x < blockRect.left + blockRect.width) {
+			if(gameObject.getOffset().x > 0 && globalBounds.left + globalBounds.width + gameObject.getOffset().x > blockRect.left && 
+			   globalBounds.left + globalBounds.width + gameObject.getOffset().x < blockRect.left + blockRect.width) {
 				gameObject.setOffset(sf::Vector2f(blockRect.left - globalBounds.left - globalBounds.width, gameObject.getOffset().y));
 				isCollision = true;
 				break;
 			}
 			/// from the right to the left
-			else if(gameObject.getOffset().x < 0 && globalBounds.left + gameObject.getOffset().x < blockRect.left + blockRect.width && globalBounds.left + globalBounds.width + gameObject.getOffset().x > blockRect.left + blockRect.width) {
+			else if(gameObject.getOffset().x < 0 && globalBounds.left + gameObject.getOffset().x < blockRect.left + blockRect.width && 
+				    globalBounds.left + globalBounds.width + gameObject.getOffset().x > blockRect.left + blockRect.width) {
 				gameObject.setOffset(sf::Vector2f(blockRect.left + blockRect.width - globalBounds.left, gameObject.getOffset().y));
 				isCollision = true;
 				break;
@@ -204,5 +227,31 @@ void GameLogic::fallingObjectKiller()
 	for(auto it = enemies.rbegin(); it != enemies.rend(); ++it) {
 			if(it->get()->getPosition().y > config::DIE_OXIS_Y)
 				enemies.erase(std::remove(enemies.begin(), enemies.end(), *it));
+	}
+}
+
+void GameLogic::playerKiller()
+{
+	if(player->isDead()) return;
+    const auto globalBounds = player->getGlobalBounds();
+	for(auto &enemy: enemies) {
+		const auto enemyRect = enemy->getGlobalBounds();
+
+		if(globalBounds.top + player->getOffset().y < enemyRect.top + enemyRect.height && 
+		   globalBounds.top + globalBounds.height + player->getOffset().y > enemyRect.top) {
+			
+			if((globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left && 
+			   globalBounds.left + globalBounds.width + player->getOffset().x < enemyRect.left + enemyRect.width) ||
+			   (globalBounds.left + player->getOffset().x < enemyRect.left + enemyRect.width && 
+			   globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left + enemyRect.width)) {
+					gameOverSceneController->setShowState(true);
+					player->die();
+					audioController.stopPlayingMusic();
+					audioController.playSound(SoundsID::MARIO_DIES);
+					for(auto &label: labels)
+						label.blink(true);
+			  }
+
+		}	
 	}
 }

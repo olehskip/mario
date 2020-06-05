@@ -6,9 +6,17 @@ AudioController::AudioController()
 
 void AudioController::startPlayingMusic()
 {
+	musicLoader.getObject(currentMusicIndex).stop();
 	currentMusicIndex = 0;
+	isStoppedMusic = false;
 	musicLoader.getObject(currentMusicIndex).play();
 	musicLoader.getObject(currentMusicIndex).setVolume(volume);
+}
+
+void AudioController::stopPlayingMusic()
+{
+	isStoppedMusic = true;
+	musicLoader.getObject(currentMusicIndex).stop();
 }
 
 void AudioController::playSound(SoundsID soundID)
@@ -44,6 +52,7 @@ void AudioController::unmute()
 
 void AudioController::update()
 {
+	if(isStoppedMusic) return;
 	if(musicLoader.getObject(currentMusicIndex).getStatus() == sf::SoundStream::Status::Stopped) {
 		musicLoader.getObject(currentMusicIndex).stop();
 		if(++currentMusicIndex > musicLoader.getCount())

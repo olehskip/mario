@@ -20,7 +20,7 @@ public:
 	void draw(sf::RenderWindow &window);
 	virtual void updateMovement(float deltaTime) = 0;
 
-	bool isStandaingOnAnyBlock = false;
+	bool isStandingOnAnyBlock = false;
 
 protected:
 	const sf::Texture &texture;

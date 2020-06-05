@@ -9,7 +9,8 @@
 enum class FontsID
 {
 	PIXEBOY,
-	DIGITAL7
+	DIGITAL7,
+	_8_BIT_ARCADE
 };
 
 class FontObject: public LoaderObjectInterface<sf::Font>

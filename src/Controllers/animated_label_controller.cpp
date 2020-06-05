@@ -9,11 +9,8 @@ AnimatedLabelController::AnimatedLabelController(const sf::Font &font, unsigned 
 
 void AnimatedLabelController::startAnimation()
 {
-	static bool isAlreadyStarted;
-	if(!isAlreadyStarted) {
-		isAlreadyStarted = true;
+	if(animationThread.joinable())
 		animationThread.detach();
-	}
 }
 
 void AnimatedLabelController::draw(sf::RenderWindow &window) // override
