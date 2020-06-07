@@ -2,41 +2,14 @@
 
 GameLogic::GameLogic()
 {
-	// change in the future
-	srand(time(NULL));
-	
-	player = std::make_unique<PlayerGameObject>(sf::Vector2f(50, 17 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::MARIO_PLAYER_SPRITE));
-	backgroundController = std::make_unique<BackgroundController>(texturesLoader.getObject(TexturesID::MOUNTAINS_BACKGROUND),
-		texturesLoader.getObject(TexturesID::FOREST_BACKGROUND), texturesLoader.getObject(TexturesID::FIELD_BACKGROUND));
-	titleAnimatedLabel = std::make_unique<AnimatedLabelController>(fontsLoader.getObject(FontsID::PIXEBOY), 
-		30 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(config::window::TITLE_TEXT), sf::Vector2f(20, 650), 15);
-	
-	// spawn for testing
-	for(int x = 3; x < 6; ++x) {
-		blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, 14 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::LUCKY_BOX), true, BlockType::LUCKY_BOX));
-	}
-
-	for(int x = -5; x < 1000; ++x) {
-		blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, 19 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::GRASS_BRICK), true));
-	}
-	for(int y = 20; y < 23; ++y) {
-		for(int x = 0; x < 1000; ++x) {
-			blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, y * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::BOTTOM_BRICK), true));
-		}
-	}
-	blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * 3, 18 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::SOLID_BRICK), true));
-	blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * 10, 18 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::SOLID_BRICK), true));
-
-	enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(250, 800), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT));
+	view.setSize(config::window::WINDOW_WIDTH, config::window::WINDOW_HEIGHT);
+	view.zoom(config::window::WINDOW_ZOOM);
 
 	audioIndicator.setTexture(texturesLoader.getObject(TexturesID::AUDIO_UNMUTED));
-	audioIndicator.setPosition(config::window::WINDOW_WIDTH * config::window::WINDOW_ZOOM - audioIndicator.getGlobalBounds().width * config::window::WINDOW_ZOOM, 5);
-	audioIndicator.scale(1.3f, 1.3f);
-	audioController.startPlayingMusic();
-
-	gameOverSceneController = std::make_unique<GameOverSceneController>(fontsLoader.getObject(FontsID::_8_BIT_ARCADE));
-
-	labels.push_back(LabelController(fontsLoader.getObject(FontsID::DIGITAL7), 40 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(), sf::Vector2f(10, 5))); // time
+	audioIndicator.setPosition(config::window::WINDOW_WIDTH * config::window::WINDOW_ZOOM - audioIndicator.getGlobalBounds().width * 
+		config::window::WINDOW_ZOOM, 5);
+	audioIndicator.setScale(1.3f, 1.3f);
+	restart();
 }
 
 void GameLogic::updateTime()
@@ -47,7 +20,7 @@ void GameLogic::updateTime()
 
 float GameLogic::getDeltaTime() const
 {
-	return deltaTime;
+	return clock.getElapsedTime().asSeconds();
 }
 
 int GameLogic::getStopwatchTime() const
@@ -57,12 +30,65 @@ int GameLogic::getStopwatchTime() const
 
 void GameLogic::restart()
 {
+	static int count;
+	if(restartStopwatch.getElapsedTime().asSeconds() < 1.f && count > 0)
+		return;
+	count++;
+	
+	restartStopwatch.restart();
+	
+	view.setCenter(config::window::WINDOW_WIDTH / 2 * config::window::WINDOW_ZOOM, 
+		config::window::WINDOW_HEIGHT / 2 * config::window::WINDOW_ZOOM);
+
+	player = std::make_unique<PlayerGameObject>(sf::Vector2f(50, 17 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::MARIO_PLAYER_SPRITE));
+	backgroundController = std::make_unique<BackgroundController>(texturesLoader.getObject(TexturesID::MOUNTAINS_BACKGROUND),
+		texturesLoader.getObject(TexturesID::FOREST_BACKGROUND), texturesLoader.getObject(TexturesID::FIELD_BACKGROUND));
+	titleAnimatedLabel = std::make_unique<AnimatedLabelController>(fontsLoader.getObject(FontsID::PIXEBOY), 
+		30 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(config::window::TITLE_TEXT), sf::Vector2f(20, 650), 15);
+
+	// spawn for testing
+	blocks.clear();
+
+	for(int x = 3; x < 6; ++x) {
+		blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, 14 * 64), sf::Vector2f(1, 1), 
+			texturesLoader.getObject(TexturesID::LUCKY_BOX), true, BlockType::LUCKY_BOX));
+	}
+
+	for(int x = -5; x < 1000; ++x) {
+		blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, 19 * 64), sf::Vector2f(1, 1), 
+			texturesLoader.getObject(TexturesID::GRASS_BRICK), true));
+	}
+	for(int y = 20; y < 23; ++y) {
+		for(int x = 0; x < 1000; ++x) {
+			blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, y * 64), sf::Vector2f(1, 1), 
+				texturesLoader.getObject(TexturesID::BOTTOM_BRICK), true));
+		}
+	}
+	blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * 3, 18 * 64), sf::Vector2f(1, 1), 
+		texturesLoader.getObject(TexturesID::SOLID_BRICK), true));
+	blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * 10, 18 * 64), sf::Vector2f(1, 1), 
+		texturesLoader.getObject(TexturesID::SOLID_BRICK), true));
+
+	enemies.clear();
+	enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(250, 800), sf::Vector2f(1, 1), 
+		texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT));
+
+	audioController.startPlayingMusic();
+
+	gameOverSceneController = std::make_unique<GameOverSceneController>(fontsLoader.getObject(FontsID::_8_BIT_ARCADE));
+
+	labels.clear();
+	labels.push_back(LabelController(fontsLoader.getObject(FontsID::DIGITAL7), 40 * config::window::WINDOW_ZOOM, sf::Color::White, 
+		std::string(), sf::Vector2f(10, 5))); // time
+
+	stopwatch.restart();
+	clock.restart();
 }
 
 void GameLogic::update()
 {
 	player->updateMovement(deltaTime);
-	if(!player->isDead()) {
+	if(player->isAlive()) {
 		horizontalCollisionController(*player);
 		verticalCollisionController(*player);
 	}
@@ -77,8 +103,12 @@ void GameLogic::update()
 	audioController.update();
 	fallingObjectKiller();
 	playerKiller();
-	if(!player->isDead())
+	if(player->isAlive())
 		labels[0].setText(std::to_string(getStopwatchTime()));
+
+	const auto cameraPosition = cameraController(view.getCenter());
+	view.move(cameraPosition);
+	scrollBackground(cameraPosition);
 }
 
 void GameLogic::draw(sf::RenderWindow &window)
@@ -86,8 +116,8 @@ void GameLogic::draw(sf::RenderWindow &window)
 	backgroundController->draw(window);
 	for(auto &block: blocks)
 		block->draw(window);
-	for(auto &decor: scenery)
-		decor->draw(window);
+	// for(auto &decor: scenery)
+	// 	decor->draw(window);
 	player->drawWithAnimation(window, deltaTime);
 	for(auto &enemy: enemies) 
 		enemy->drawWithAnimation(window, deltaTime);
@@ -100,7 +130,7 @@ void GameLogic::draw(sf::RenderWindow &window)
 
 void GameLogic::keysManager()
 {
-	if(!player->isDead()) {
+	if(player->isAlive()) {
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 			player->move(Direction::LEFT, deltaTime);
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
@@ -127,6 +157,13 @@ void GameLogic::keysManager(sf::Keyboard::Key key)
 		else
 			audioIndicator.setTexture(texturesLoader.getObject(TexturesID::AUDIO_UNMUTED));
 	}
+	else if(key == sf::Keyboard::R || key == sf::Keyboard::F5)
+		restart();
+}
+
+const sf::View &GameLogic::getView() const
+{
+	return view;
 }
 
 sf::Vector2f GameLogic::cameraController(const sf::Vector2f &cameraCenter)
@@ -209,7 +246,7 @@ bool GameLogic::verticalCollisionController(GameObject &gameObject)
 				isCollision = true;
 				break;
 			}
-			/// from the right to the left
+			// from the right to the left
 			else if(gameObject.getOffset().x < 0 && globalBounds.left + gameObject.getOffset().x < blockRect.left + blockRect.width && 
 				    globalBounds.left + globalBounds.width + gameObject.getOffset().x > blockRect.left + blockRect.width) {
 				gameObject.setOffset(sf::Vector2f(blockRect.left + blockRect.width - globalBounds.left, gameObject.getOffset().y));
@@ -232,7 +269,7 @@ void GameLogic::fallingObjectKiller()
 
 void GameLogic::playerKiller()
 {
-	if(player->isDead()) return;
+	if(!player->isAlive()) return;
     const auto globalBounds = player->getGlobalBounds();
 	for(auto &enemy: enemies) {
 		const auto enemyRect = enemy->getGlobalBounds();
@@ -249,7 +286,7 @@ void GameLogic::playerKiller()
 					audioController.stopPlayingMusic();
 					audioController.playSound(SoundsID::MARIO_DIES);
 					for(auto &label: labels)
-						label.blink(true);
+						label.blink(true, 0.4f);
 			  }
 
 		}	

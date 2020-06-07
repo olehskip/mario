@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <SFML/System/Clock.hpp>
 #include <string>
 #include <memory>
@@ -15,10 +16,12 @@ public:
 	void setText(const std::string &text);
 	std::string getText() const;
 
-	void centerX(const float windowCenterX);
-	void centerY(const float windowCenterY);
+	void toCenterX(const float windowWidth);
+	void toCenterY(const float windowHeight);
+	void toBottomY(const float windowHeight);
+	void setPosition(const sf::Vector2f &vector);
 	
-	void blink(bool blinkState);
+	void blink(bool blinkState, float delay = 0.f);
 	
 	void move(sf::Vector2f pos);
 
@@ -29,5 +32,6 @@ protected:
 
 	bool isVisible = true;
 	bool isBlinking = false;
+	float blinkDelay = 0.f;
 	sf::Clock blinkingClock;
 };

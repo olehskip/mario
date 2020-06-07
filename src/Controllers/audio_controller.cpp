@@ -11,6 +11,8 @@ void AudioController::startPlayingMusic()
 	isStoppedMusic = false;
 	musicLoader.getObject(currentMusicIndex).play();
 	musicLoader.getObject(currentMusicIndex).setVolume(volume);
+	for(auto currentSoundID: currentSoundsID)
+		soundsLoader.getObject(currentSoundID).stop();
 }
 
 void AudioController::stopPlayingMusic()
@@ -23,7 +25,7 @@ void AudioController::playSound(SoundsID soundID)
 {
 	soundsLoader.getObject(soundID).setVolume(volume);
 	soundsLoader.getObject(soundID).play();
-	currentSoundID = soundID;
+	currentSoundsID.push_back(soundID);
 }
 
 bool AudioController::toggleMute()
@@ -40,20 +42,26 @@ void AudioController::mute()
 {
 	volume = 0;
 	musicLoader.getObject(currentMusicIndex).setVolume(volume);
-	soundsLoader.getObject(currentSoundID).stop();
+	for(auto currentSoundID: currentSoundsID)
+		soundsLoader.getObject(currentSoundID).setVolume(volume);
 }
 
 void AudioController::unmute()
 {
 	volume = 100;
 	musicLoader.getObject(currentMusicIndex).setVolume(volume);
-	soundsLoader.getObject(currentSoundID).stop();
+	for(auto currentSoundID: currentSoundsID)
+		soundsLoader.getObject(currentSoundID).setVolume(volume);	
 }
 
 void AudioController::update()
 {
-	if(isStoppedMusic) return;
-	if(musicLoader.getObject(currentMusicIndex).getStatus() == sf::SoundStream::Status::Stopped) {
+	for(auto itt = currentSoundsID.rbegin(); itt != currentSoundsID.rend(); ++itt) {
+		if(soundsLoader.getObject(*itt).getStatus() == sf::SoundStream::Status::Stopped)
+			currentSoundsID.erase(std::remove(currentSoundsID.begin(), currentSoundsID.end(), *itt));
+	}
+
+	if(!isStoppedMusic && musicLoader.getObject(currentMusicIndex).getStatus() == sf::SoundStream::Status::Stopped) {
 		musicLoader.getObject(currentMusicIndex).stop();
 		if(++currentMusicIndex > musicLoader.getCount())
 			currentMusicIndex = 0;

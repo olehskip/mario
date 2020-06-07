@@ -14,7 +14,6 @@ class AudioController
 {
 public:
 	AudioController();
-	// ~AudioController();
 	void startPlayingMusic();
 	void stopPlayingMusic();
 	void playSound(SoundsID soundID);
@@ -33,6 +32,6 @@ private:
 	SoundsLoader soundsLoader;
 
 	size_t currentMusicIndex = 0;
-	SoundsID currentSoundID;
+	std::vector<SoundsID> currentSoundsID;
 	unsigned int volume = 100;
 };

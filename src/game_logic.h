@@ -30,18 +30,7 @@ public:
 	FontsLoader fontsLoader;
 	TexturesLoader texturesLoader;
 
-	/*
-	 * Contrlling camera movingса
-	 * 
-	 * This function does not let mario leave from the game scene
-	 * and controls that mario runs only at center or left part of the game scene
-	 * 
-	 * @param cameraCenter means the center of camera for not to let mario move only at center and left part of the scene
-	 * @return the offset so that the camera moves by it
-	 */
-	sf::Vector2f cameraController(const sf::Vector2f &cameraCenter);
-
-	void scrollBackground(sf::Vector2f offset);
+	const sf::View &getView() const;
 
 private:
 	bool horizontalCollisionController(GameObject &gameObject);
@@ -50,13 +39,12 @@ private:
 	void playerKiller();
 
 	std::vector<BlockObject_ptr> blocks;
-	std::vector<BlockObject_ptr> scenery;
+	// std::vector<BlockObject_ptr> scenery;
 	std::vector<BotObject_ptr> enemies;
 	PlayerObject_ptr player;
-	sf::Clock clock, stopwatch;
+	sf::Clock clock, stopwatch, restartStopwatch;
 	float deltaTime = 0.f;
 
-	std::unique_ptr<BackgroundController> backgroundController;
 
 	// at the start there is an animated label with developers contacts
 	std::unique_ptr<AnimatedLabelController> titleAnimatedLabel;
@@ -66,4 +54,20 @@ private:
 	sf::Sprite audioIndicator;
 
 	std::unique_ptr<GameOverSceneController> gameOverSceneController;
+
+	// ---camera---
+	/*
+	 * Contrlling camera moving
+	 * 
+	 * This function does not let mario leave from the game scene
+	 * and controls that mario runs only at center or left part of the game scene
+	 * 
+	 * @param cameraCenter means the center of camera for not to let mario move only at center and left part of the scene
+	 * @return the offset so that the camera moves by it
+	 */
+	sf::Vector2f cameraController(const sf::Vector2f &cameraCenter);
+	std::unique_ptr<BackgroundController> backgroundController;
+	void scrollBackground(sf::Vector2f offset);
+	sf::View view;
+	// ---camera---
 };

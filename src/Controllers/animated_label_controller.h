@@ -2,21 +2,23 @@
 #include <array>
 #include <vector>
 #include <thread>
+#include <atomic>
 
 #include "label_controller.h"
-
 
 class AnimatedLabelController: public LabelController
 {
 public:
 	AnimatedLabelController(const sf::Font &font, unsigned int fontSize, sf::Color color, const std::string &_finalText, sf::Vector2f pos, int _delay);
+	~AnimatedLabelController();
 	void startAnimation();
 
 	void draw(sf::RenderWindow &window) override;
 
 private:
 	void animate();
-	std::thread animationThread;
+	bool isAlreadyStarted = false;
+	std::atomic_bool animationThreadStop = ATOMIC_VAR_INIT(false);
 
 	std::array<char, 26> alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 
 									 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};

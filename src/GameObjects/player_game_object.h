@@ -58,11 +58,9 @@ public:
 	bool isJumpingNow = false;
 
 	void die();
-	bool isDead() const;
+	bool isAlive() const;
 
 private:
-	bool _isDead = false;
-
 	/*
 	 * This variable changes by PlayerGameObject::stay(...)
 	 * If the player is not RUN
@@ -81,14 +79,16 @@ private:
 	Direction direction = Direction::RIGHT;
 
 	/*
-	 * if the player is falling to low then isAlive = true;
-	 * TO DO
+	 * The player can die only when:
+	 * - he fell too low;
+	 * - he encountered with an enemy
 	 */
-	bool isAlive = false;
+	bool mIsAlive = true;
 
 	// ---animations---
 	std::shared_ptr<AnimationController> runAnimation;
 	std::shared_ptr<AnimationController> jumpAnimation;
+	std::shared_ptr<AnimationController> dieAnimation;
 	std::shared_ptr<AnimationController> currentAnimation;
 	// ---animations---
 };

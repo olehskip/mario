@@ -7,6 +7,8 @@ LabelController::LabelController(const sf::Font &font, unsigned int fontSize, sf
 	textObj.setFillColor(color);
 	textObj.setString(text);
 	textObj.setPosition(pos);
+	textObj.setOrigin(textObj.getLocalBounds().left + textObj.getLocalBounds().width / 2.f, 
+					  textObj.getLocalBounds().top + textObj.getLocalBounds().height / 2.f);
 }
 
 void LabelController::setText(const std::string &text)
@@ -19,23 +21,32 @@ std::string LabelController::getText() const
 	return textObj.getString();
 }
 
-void LabelController::centerX(const float windowCenterX)
+void LabelController::toCenterX(const float windowWidth)
 {
-	textObj.setOrigin(textObj.getLocalBounds().left + textObj.getLocalBounds().width / 2.f, textObj.getOrigin().y);
-	textObj.setPosition(windowCenterX / 2.f, textObj.getPosition().y);
+	textObj.setPosition(windowWidth / 2.f, textObj.getPosition().y);
 }
 
-void LabelController::centerY(const float windowCenterY)
+void LabelController::toCenterY(const float windowHeight)
 {
-	textObj.setOrigin(textObj.getOrigin().x, textObj.getLocalBounds().top + textObj.getLocalBounds().height / 2.f);
-	textObj.setPosition(textObj.getPosition().x, windowCenterY / 2.f);
+	textObj.setPosition(textObj.getPosition().x, windowHeight / 2.f);
 }
 
-void LabelController::blink(bool blinkState)
+void LabelController::toBottomY(const float windowHeight)
+{
+	textObj.setPosition(0, windowHeight - textObj.getGlobalBounds().height);
+}
+
+void LabelController::setPosition(const sf::Vector2f &vector)
+{
+	textObj.setPosition(vector);
+}
+
+void LabelController::blink(bool blinkState, float delay)
 {
 	if(blinkState)
 		blinkingClock.restart();
 	isBlinking = blinkState;
+	blinkDelay = delay;
 }
 
 void LabelController::move(sf::Vector2f pos)
@@ -46,7 +57,7 @@ void LabelController::move(sf::Vector2f pos)
 void LabelController::draw(sf::RenderWindow &window)
 {
 	if(isBlinking) {
-		if(blinkingClock.getElapsedTime().asSeconds() > 0.4f) {
+		if(blinkingClock.getElapsedTime().asSeconds() > blinkDelay) {
 			isVisible = !isVisible;
 			blinkingClock.restart();
 		}
