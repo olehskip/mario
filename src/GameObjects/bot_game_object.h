@@ -1,8 +1,10 @@
 #pragma once
+#include <SFML/System/Clock.hpp>
+#include <functional>
+
 #include "game_object.h"
 #include "../Controllers/animation_controller.h"
 #include "../config.h"
-
 
 class BotGameObject: public GameObject
 {
@@ -14,8 +16,16 @@ public:
 
 	void changeDirection();
 
+	bool isAlive() const;
+	void die();
+
 private:
-	std::unique_ptr<AnimationController> animation;
+	bool mIsAlive = true;
+	bool isShow = true;
+	sf::Clock dieStopwatch;
+	std::shared_ptr<AnimationController> currentAnimation;
+	std::shared_ptr<AnimationController> runAnimation;
+	std::shared_ptr<AnimationController> dieAnimation;
 	Direction direction;
 };
 typedef std::unique_ptr<BotGameObject> BotObject_ptr;

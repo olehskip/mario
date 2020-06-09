@@ -21,10 +21,12 @@ public:
 	virtual void updateMovement(float deltaTime) = 0;
 
 	bool isStandingOnAnyBlock = false;
+	bool isNeedToRemove() const;
 
 protected:
 	const sf::Texture &texture;
 	sf::Sprite sprite;
+	bool mIsNeedToRemove = false;
 
 	sf::Vector2f offset = sf::Vector2f(0, 0);
 };

@@ -25,31 +25,40 @@ GameOverSceneController::~GameOverSceneController()
 
 void GameOverSceneController::draw(sf::RenderWindow &window)
 {
-	if(isShow) {
+	if(mIsShow) {
 		window.draw(background);
 		gameOverLabel->draw(window);
 		pressAnyKeyLabel->draw(window);
 	}
 }
 
-void GameOverSceneController::setShowState(bool state)
+void GameOverSceneController::show(float cameraLeft)
 {
-	isShow = state;
-	if(isShow) {
+	if(!mIsShow) {
+		mIsShow = true;
+		background.move(cameraLeft, 0);
+		gameOverLabel->move(sf::Vector2f(cameraLeft, 0));
+		pressAnyKeyLabel->move(sf::Vector2f(cameraLeft, 0));
 		std::thread(&GameOverSceneController::animateBackground, this).detach();
 	}
 }
 
+bool GameOverSceneController::isShow() const
+{
+	return mIsShow;
+}
+
 void GameOverSceneController::animateBackground()
 {
-	// std::this_thread::sleep_for(std::chrono::milliseconds(200));
 	for(int i = 0; i < 256; ++i) {
 		if(threadStop == true)
 			return;
-		background.setFillColor(sf::Color(0, 0, 0, i));
+		{
+			std::unique_lock<std::mutex> lock(mtx);
+			background.setFillColor(sf::Color(0, 0, 0, i));
+		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(3));
 	}
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	animateText();
 }
 
@@ -58,7 +67,10 @@ void GameOverSceneController::animateText()
 	for(auto oneChar: gameOverText) {
 		if(threadStop == true)
 			return;
-		gameOverLabel->setText(gameOverLabel->getText() + oneChar);
+		{
+			std::unique_lock<std::mutex> lock(mtx);
+			gameOverLabel->setText(gameOverLabel->getText() + oneChar);
+		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(150));
 	}
 	pressAnyKeyLabel->setText(pressAnyKeyText);

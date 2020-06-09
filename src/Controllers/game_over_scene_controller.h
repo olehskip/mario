@@ -3,6 +3,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <thread>
 #include <atomic>
+#include <mutex>
 
 #include "label_controller.h"
 
@@ -14,10 +15,11 @@ public:
 	~GameOverSceneController();
 
 	void draw(sf::RenderWindow &window);
-	void setShowState(bool state);
+	void show(float cameraLeft);
+	bool isShow() const;
 
 private:
-	bool isShow = false;
+	bool mIsShow = false;
 	std::atomic_bool threadStop = ATOMIC_VAR_INIT(false);
 	
 	// ---background---
@@ -35,4 +37,6 @@ private:
 	const std::string pressAnyKeyText = "Press R or F5 if you want to try again";
 	std::unique_ptr<LabelController> pressAnyKeyLabel;
 	// ---Press any key text---
+
+	std::mutex mtx;
 };

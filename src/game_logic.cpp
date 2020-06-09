@@ -30,13 +30,6 @@ int GameLogic::getStopwatchTime() const
 
 void GameLogic::restart()
 {
-	static int count;
-	if(restartStopwatch.getElapsedTime().asSeconds() < 1.f && count > 0)
-		return;
-	count++;
-	
-	restartStopwatch.restart();
-	
 	view.setCenter(config::window::WINDOW_WIDTH / 2 * config::window::WINDOW_ZOOM, 
 		config::window::WINDOW_HEIGHT / 2 * config::window::WINDOW_ZOOM);
 
@@ -45,14 +38,15 @@ void GameLogic::restart()
 		texturesLoader.getObject(TexturesID::FOREST_BACKGROUND), texturesLoader.getObject(TexturesID::FIELD_BACKGROUND));
 	titleAnimatedLabel = std::make_unique<AnimatedLabelController>(fontsLoader.getObject(FontsID::PIXEBOY), 
 		30 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(config::window::TITLE_TEXT), sf::Vector2f(20, 650), 15);
+	titleAnimatedLabel->startAnimation();
 
 	// spawn for testing
 	blocks.clear();
 
-	for(int x = 3; x < 6; ++x) {
-		blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, 14 * 64), sf::Vector2f(1, 1), 
-			texturesLoader.getObject(TexturesID::LUCKY_BOX), true, BlockType::LUCKY_BOX));
-	}
+	// for(int x = 3; x < 6; ++x) {
+	// 	blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, 14 * 64), sf::Vector2f(1, 1), 
+	// 		texturesLoader.getObject(TexturesID::LUCKY_BOX), true, BlockType::LUCKY_BOX));
+	// }
 
 	for(int x = -5; x < 1000; ++x) {
 		blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, 19 * 64), sf::Vector2f(1, 1), 
@@ -101,14 +95,9 @@ void GameLogic::update()
 			enemy->changeDirection();
 	}
 	audioController.update();
-	fallingObjectKiller();
-	playerKiller();
+	killer();
 	if(player->isAlive())
 		labels[0].setText(std::to_string(getStopwatchTime()));
-
-	const auto cameraPosition = cameraController(view.getCenter());
-	view.move(cameraPosition);
-	scrollBackground(cameraPosition);
 }
 
 void GameLogic::draw(sf::RenderWindow &window)
@@ -126,6 +115,10 @@ void GameLogic::draw(sf::RenderWindow &window)
 	gameOverSceneController->draw(window);
 	for(auto &label: labels)
 		label.draw(window);
+
+	const auto cameraPosition = cameraController(view.getCenter());
+	view.move(cameraPosition);
+	scrollBackground(cameraPosition);
 }
 
 void GameLogic::keysManager()
@@ -157,7 +150,7 @@ void GameLogic::keysManager(sf::Keyboard::Key key)
 		else
 			audioIndicator.setTexture(texturesLoader.getObject(TexturesID::AUDIO_UNMUTED));
 	}
-	else if(key == sf::Keyboard::R || key == sf::Keyboard::F5)
+	else if(key == sf::Keyboard::R || key == sf::Keyboard::F5 && gameOverSceneController->isShow())
 		restart();
 }
 
@@ -177,7 +170,7 @@ sf::Vector2f GameLogic::cameraController(const sf::Vector2f &cameraCenter)
 	else 
 		player->isStacked = false;
 
-	if(bool(player->getOffset().x > 0) && bool(player->getPosition().x >= cameraCenter.x))
+	if(player->getOffset().x > 0 && player->getPosition().x >= cameraCenter.x)
 		return sf::Vector2f(player->getOffset().x, 0);
 	else
 		return sf::Vector2f(0, 0);
@@ -259,36 +252,60 @@ bool GameLogic::verticalCollisionController(GameObject &gameObject)
 	return isCollision;
 }
 
-void GameLogic::fallingObjectKiller()
+void GameLogic::gameOver()
 {
-	for(auto it = enemies.rbegin(); it != enemies.rend(); ++it) {
-			if(it->get()->getPosition().y > config::DIE_OXIS_Y)
-				enemies.erase(std::remove(enemies.begin(), enemies.end(), *it));
-	}
+	gameOverSceneController->show(view.getCenter().x - (config::window::WINDOW_WIDTH * config::window::WINDOW_ZOOM) / 2);
+	player->die();
+	audioController.stopPlayingMusic();
+	audioController.playSound(SoundsID::MARIO_DIES);
+	for(auto &label: labels)
+		label.blink(true, 0.4f);
 }
 
-void GameLogic::playerKiller()
+void GameLogic::killer()
 {
-	if(!player->isAlive()) return;
-    const auto globalBounds = player->getGlobalBounds();
-	for(auto &enemy: enemies) {
-		const auto enemyRect = enemy->getGlobalBounds();
+	/* The enemies killer, then can die only when:
+	 * they fell tow low,
+	 * the player jumped on them
+	 * 
+	 * The player killer, he can die only when:
+	 * he fell to low
+	 * he encountered with an enemy
+	 */
 
-		if(globalBounds.top + player->getOffset().y < enemyRect.top + enemyRect.height && 
-		   globalBounds.top + globalBounds.height + player->getOffset().y > enemyRect.top) {
-			
-			if((globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left && 
-			   globalBounds.left + globalBounds.width + player->getOffset().x < enemyRect.left + enemyRect.width) ||
-			   (globalBounds.left + player->getOffset().x < enemyRect.left + enemyRect.width && 
-			   globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left + enemyRect.width)) {
-					gameOverSceneController->setShowState(true);
-					player->die();
-					audioController.stopPlayingMusic();
-					audioController.playSound(SoundsID::MARIO_DIES);
-					for(auto &label: labels)
-						label.blink(true, 0.4f);
-			  }
+	// an enemy fell too low
+	for(auto it = enemies.rbegin(); it != enemies.rend(); ++it) {
+		if(it->get()->getPosition().y > config::DIE_OXIS_Y || it->get()->isNeedToRemove())
+			enemies.erase(std::remove(enemies.begin(), enemies.end(), *it));
+	}
 
-		}	
+
+	// the player fell too low
+	if(player->isAlive() && player->getPosition().y > config::DIE_OXIS_Y)
+		gameOver();
+
+	if(player->isAlive()) {
+		const auto globalBounds = player->getGlobalBounds();
+		for(auto &enemy: enemies) {
+			if(!enemy->isAlive()) continue;
+			const auto enemyRect = enemy->getGlobalBounds();
+			if((player->getOffset().y > 0 && globalBounds.top + player->getOffset().y < enemyRect.top && 
+			   globalBounds.top + globalBounds.height + player->getOffset().y  > enemyRect.top) &&
+				((globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left && 
+				globalBounds.left + globalBounds.width + player->getOffset().x < enemyRect.left + enemyRect.width) ||
+				(globalBounds.left + player->getOffset().x < enemyRect.left + enemyRect.width && 
+				globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left + enemyRect.width))) {
+					player->setOffset(sf::Vector2f(player->getOffset().x, -5));
+					enemy->die();
+				}
+			// the player encountered with an enemy
+			else if((globalBounds.top + player->getOffset().y < enemyRect.top + enemyRect.height && 
+				globalBounds.top + globalBounds.height + player->getOffset().y > enemyRect.top) &&
+				((globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left && 
+				globalBounds.left + globalBounds.width + player->getOffset().x < enemyRect.left + enemyRect.width) ||
+				(globalBounds.left + player->getOffset().x < enemyRect.left + enemyRect.width && 
+				globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left + enemyRect.width)))
+					gameOver();
+		}
 	}
 }

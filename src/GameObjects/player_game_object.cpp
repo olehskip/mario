@@ -7,7 +7,7 @@ PlayerGameObject::PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, const s
 		config::player::RUN_ANIMATION_SPEED, config::player::frameSize, config::ANIMATION_SPACE_SIZE);
 	jumpAnimation = std::make_shared<AnimationController>(1, config::player::JUMP_ANIMATION_FRAMES_COUNT, 
 		config::player::JUMP_ANIMATION_SPEED, config::player::frameSize, config::ANIMATION_SPACE_SIZE);
-	dieAnimation = std::make_shared<AnimationController>(3, 1, 0.f, config::player::frameSize, config::ANIMATION_SPACE_SIZE);
+	dieAnimation = std::make_shared<AnimationController>(2, 1, 0.f, config::player::frameSize, config::ANIMATION_SPACE_SIZE);
 	
 	currentAnimation = runAnimation;
 
@@ -178,6 +178,7 @@ void PlayerGameObject::die()
 {
 	mIsAlive = false;
 	isAlowedToJump = true;
+	offset = sf::Vector2f(0.f, 0.f);
 	jump(1.f);
 	currentAnimation = dieAnimation;
 }

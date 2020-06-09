@@ -16,14 +16,14 @@ public:
 	void setText(const std::string &text);
 	std::string getText() const;
 
-	void toCenterX(const float windowWidth);
-	void toCenterY(const float windowHeight);
-	void toBottomY(const float windowHeight);
-	void setPosition(const sf::Vector2f &vector);
+	void toCenterX(float windowWidth);
+	void toCenterY(float windowHeight);
+	void toBottomY(float windowHeight);
+	void setPosition(const sf::Vector2f &pos);
+	sf::Vector2f getPosition() const;
+	void move(const sf::Vector2f &pos);
 	
 	void blink(bool blinkState, float delay = 0.f);
-	
-	void move(sf::Vector2f pos);
 
 	virtual void draw(sf::RenderWindow &window);
 

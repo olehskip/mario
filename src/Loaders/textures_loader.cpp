@@ -56,8 +56,6 @@ TexturesLoader::TexturesLoader()
 	// ---icons---
 	allObjects.insert(std::make_pair(TexturesID::AUDIO_MUTED, std::make_unique<TextureObject>("data/icons/audio_muted.png")));
 	allObjects.insert(std::make_pair(TexturesID::AUDIO_UNMUTED, std::make_unique<TextureObject>("data/icons/audio_unmuted.png")));
-	allObjects.insert(std::make_pair(TexturesID::HEART, std::make_unique<TextureObject>("data/icons/heart.png")));
-	allObjects.insert(std::make_pair(TexturesID::HEART_BROKEN, std::make_unique<TextureObject>("data/icons/heart_broken.png")));
 	// --icons--
 
 }

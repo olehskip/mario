@@ -19,12 +19,6 @@ void AnimatedLabelController::startAnimation()
 	}
 }
 
-void AnimatedLabelController::draw(sf::RenderWindow &window) // override
-{
-	startAnimation();
-	LabelController::draw(window);
-}
-
 void AnimatedLabelController::animate()
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(200));

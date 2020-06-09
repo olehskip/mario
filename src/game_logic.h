@@ -35,14 +35,14 @@ public:
 private:
 	bool horizontalCollisionController(GameObject &gameObject);
 	bool verticalCollisionController(GameObject &gameObject);
-	void fallingObjectKiller();
-	void playerKiller();
+	void gameOver();
+	void killer();
 
 	std::vector<BlockObject_ptr> blocks;
 	// std::vector<BlockObject_ptr> scenery;
 	std::vector<BotObject_ptr> enemies;
 	PlayerObject_ptr player;
-	sf::Clock clock, stopwatch, restartStopwatch;
+	sf::Clock clock, stopwatch;
 	float deltaTime = 0.f;
 
 

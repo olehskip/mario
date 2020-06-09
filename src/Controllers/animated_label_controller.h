@@ -13,8 +13,6 @@ public:
 	~AnimatedLabelController();
 	void startAnimation();
 
-	void draw(sf::RenderWindow &window) override;
-
 private:
 	void animate();
 	bool isAlreadyStarted = false;

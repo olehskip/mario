@@ -53,9 +53,7 @@ enum class TexturesID
 
 	// ---icons---
 	AUDIO_MUTED,
-	AUDIO_UNMUTED,
-	HEART,
-	HEART_BROKEN
+	AUDIO_UNMUTED
 	// ---icons---
 };
 
