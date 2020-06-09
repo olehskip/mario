@@ -10,6 +10,8 @@ GameLogic::GameLogic()
 		config::window::WINDOW_ZOOM, 5);
 	audioIndicator.setScale(1.3f, 1.3f);
 	restart();
+	titleAnimatedLabel = std::make_unique<AnimatedLabelController>(fontsLoader.getObject(FontsID::PIXEBOY), 
+		30 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(config::window::TITLE_TEXT), sf::Vector2f(20, 650), 15);
 }
 
 void GameLogic::updateTime()
@@ -36,9 +38,6 @@ void GameLogic::restart()
 	player = std::make_unique<PlayerGameObject>(sf::Vector2f(50, 17 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::MARIO_PLAYER_SPRITE));
 	backgroundController = std::make_unique<BackgroundController>(texturesLoader.getObject(TexturesID::MOUNTAINS_BACKGROUND),
 		texturesLoader.getObject(TexturesID::FOREST_BACKGROUND), texturesLoader.getObject(TexturesID::FIELD_BACKGROUND));
-	titleAnimatedLabel = std::make_unique<AnimatedLabelController>(fontsLoader.getObject(FontsID::PIXEBOY), 
-		30 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(config::window::TITLE_TEXT), sf::Vector2f(20, 650), 15);
-	titleAnimatedLabel->startAnimation();
 
 	// spawn for testing
 	blocks.clear();
@@ -150,7 +149,7 @@ void GameLogic::keysManager(sf::Keyboard::Key key)
 		else
 			audioIndicator.setTexture(texturesLoader.getObject(TexturesID::AUDIO_UNMUTED));
 	}
-	else if(key == sf::Keyboard::R || key == sf::Keyboard::F5 && gameOverSceneController->isShow())
+	else if(key == sf::Keyboard::R || key == sf::Keyboard::F5)
 		restart();
 }
 
