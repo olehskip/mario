@@ -8,28 +8,27 @@ BlockGameObject::BlockGameObject(sf::Vector2f pos, sf::Vector2f scale, const sf:
 
 void BlockGameObject::jumpUp(float deltaTime)
 {
-	// if(!isStartedJumping)
-	// 	offset.y = -6;
+	if(!isStartedJumping)
+		offset.y = -config::BLOCK_JUMP_SPEED;
 
-	// isStartedJumping = true;
+	isStartedJumping = true;
 }
 
 void BlockGameObject::updateMovement(float deltaTime) // override
 {
-	// if(blockType == BlockType::LUCKY_BOX && isStartedJumping) {
-	// 	globalOffsetY += offset.y;
-	// 	sprite.move(offset);
+	if(blockType == BlockType::LUCKY_BOX && isStartedJumping) {
+		globalOffsetY += offset.y;
 
-	// 	// if the block reached the critical point, then we need to return him back
-	// 	if(offset.y <= 0.f && globalOffsetY < -(getGlobalBounds().height * config::WINDOW_ZOOM / 2))
-	// 		offset.y = 6;
+		// if the block reached the critical point, then we need to return him back
+		if(offset.y <= 0.f && globalOffsetY < -getGlobalBounds().height)
+			offset.y = config::BLOCK_JUMP_SPEED;
 
-	// 	// if the block returned back, then to stop him
-	// 	if(offset.y > 0.f && globalOffsetY == 0) {
-	// 		offset.y = 0;
-	// 		isStartedJumping = false;
-	// 	}
-	// 	else if(offset.y > 0.f && globalOffsetY > 0)
-	// 		offset.y = -globalOffsetY;
-	// }
+		// if the block returned back, then to stop him
+		if(offset.y > 0.f && globalOffsetY == 0) {
+			offset.y = 0;
+			isStartedJumping = false;
+		}
+		else if(offset.y > 0.f && globalOffsetY > 0)
+			offset.y = -globalOffsetY;
+	}
 }

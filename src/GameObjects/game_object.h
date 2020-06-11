@@ -9,8 +9,7 @@ class GameObject
 {
 public:
 	GameObject(sf::Vector2f pos, sf::Vector2f scale, const sf::Texture &_texture);
-
-	sf::Sprite getSpriteCopy() {return sprite;}
+	sf::Sprite getSpriteCopy();
 	sf::Vector2f getPosition() const;
 	sf::FloatRect getGlobalBounds() const;
 	void setPosition(sf::Vector2f newPos);

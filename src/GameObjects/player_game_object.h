@@ -4,23 +4,13 @@
 #include "../Controllers/animation_controller.h"
 #include <list>
 
-enum class PlayerYState
-{
-	JUMP,
-	FALL,
-	STAND
-};
 
 class PlayerGameObject: public GameObject
 {
 public:
 	PlayerGameObject(sf::Vector2f pos, sf::Vector2f scale, const sf::Texture &_texture);
 	void move(Direction directionToMove, float deltaTime);
-
-	/*
-	 * This function uses for finnally draw the sprite
-	 */
-	void move(sf::Vector2f offset);
+	// using GameObject::move;
 
 	bool jump(float deltaTime);
 	

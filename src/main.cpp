@@ -12,11 +12,6 @@ int main()
 		window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 	window.setFramerateLimit(60);
 
-	// sf::View view(sf::Vector2f((config::window::WINDOW_WIDTH / 2) * config::window::WINDOW_ZOOM, (config::window::WINDOW_HEIGHT / 2) * config::window::WINDOW_ZOOM),
-	// 			  sf::Vector2f(config::window::WINDOW_WIDTH, config::window::WINDOW_HEIGHT));
-	// view.zoom(config::window::WINDOW_ZOOM);
-	// window.setView(gameLogic.view);
-
 	bool isFocused = true;
 	while(window.isOpen()) {
 		sf::Event event;

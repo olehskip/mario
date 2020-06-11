@@ -5,13 +5,17 @@ GameLogic::GameLogic()
 	view.setSize(config::window::WINDOW_WIDTH, config::window::WINDOW_HEIGHT);
 	view.zoom(config::window::WINDOW_ZOOM);
 
-	audioIndicator.setTexture(texturesLoader.getObject(TexturesID::AUDIO_UNMUTED));
-	audioIndicator.setPosition(config::window::WINDOW_WIDTH * config::window::WINDOW_ZOOM - audioIndicator.getGlobalBounds().width * 
-		config::window::WINDOW_ZOOM, 5);
-	audioIndicator.setScale(1.3f, 1.3f);
 	restart();
 	titleAnimatedLabel = std::make_unique<AnimatedLabelController>(fontsLoader.getObject(FontsID::PIXEBOY), 
-		30 * config::window::WINDOW_ZOOM, sf::Color::White, std::string(config::window::TITLE_TEXT), sf::Vector2f(20, 650), 15);
+		30 * config::window::WINDOW_ZOOM, sf::Color::White, config::window::TITLE_TEXT, sf::Vector2f(20, 650), 15);
+	titleAnimatedLabel->toCenterY(config::window::WINDOW_HEIGHT * config::window::WINDOW_ZOOM);
+
+	audioMuteLable = std::make_unique<TemponaryLabelController>(fontsLoader.getObject(FontsID::PIXEBOY), 
+		30 * config::window::WINDOW_ZOOM, sf::Color::White, "Audio is muted", sf::Vector2f(0, 0), 2.f);
+	audioMuteLable->toTopY();
+	audioMuteLable->toCenterX(config::window::WINDOW_WIDTH * config::window::WINDOW_ZOOM);
+	audioMuteLable->setText("");
+
 }
 
 void GameLogic::updateTime()
@@ -35,17 +39,21 @@ void GameLogic::restart()
 	view.setCenter(config::window::WINDOW_WIDTH / 2 * config::window::WINDOW_ZOOM, 
 		config::window::WINDOW_HEIGHT / 2 * config::window::WINDOW_ZOOM);
 
-	player = std::make_unique<PlayerGameObject>(sf::Vector2f(50, 17 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::MARIO_PLAYER_SPRITE));
+	player = std::make_unique<PlayerGameObject>(sf::Vector2f(3 * 64, 15 * 64), sf::Vector2f(1, 1), texturesLoader.getObject(TexturesID::MARIO_PLAYER_SPRITE));
 	backgroundController = std::make_unique<BackgroundController>(texturesLoader.getObject(TexturesID::MOUNTAINS_BACKGROUND),
 		texturesLoader.getObject(TexturesID::FOREST_BACKGROUND), texturesLoader.getObject(TexturesID::FIELD_BACKGROUND));
 
 	// spawn for testing
 	blocks.clear();
 
-	// for(int x = 3; x < 6; ++x) {
-	// 	blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, 14 * 64), sf::Vector2f(1, 1), 
-	// 		texturesLoader.getObject(TexturesID::LUCKY_BOX), true, BlockType::LUCKY_BOX));
-	// }
+	for(int x = 3; x < 20; ++x) {
+		blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, 14 * 64), sf::Vector2f(1, 1), 
+			texturesLoader.getObject(TexturesID::LUCKY_BOX), true, BlockType::LUCKY_BOX));
+	}
+	blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * 2, 13 * 64), sf::Vector2f(1, 1), 
+		texturesLoader.getObject(TexturesID::LUCKY_BOX), true, BlockType::LUCKY_BOX));
+	blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * 20, 13 * 64), sf::Vector2f(1, 1), 
+		texturesLoader.getObject(TexturesID::LUCKY_BOX), true, BlockType::LUCKY_BOX));
 
 	for(int x = -5; x < 1000; ++x) {
 		blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, 19 * 64), sf::Vector2f(1, 1), 
@@ -57,22 +65,18 @@ void GameLogic::restart()
 				texturesLoader.getObject(TexturesID::BOTTOM_BRICK), true));
 		}
 	}
-	blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * 3, 18 * 64), sf::Vector2f(1, 1), 
-		texturesLoader.getObject(TexturesID::SOLID_BRICK), true));
-	blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * 10, 18 * 64), sf::Vector2f(1, 1), 
-		texturesLoader.getObject(TexturesID::SOLID_BRICK), true));
 
 	enemies.clear();
-	enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(250, 800), sf::Vector2f(1, 1), 
+	enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(3 * 64, 64 * 7), sf::Vector2f(1, 1), 
 		texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT));
+
+	labels.clear();
+	labels.push_back(LabelController(fontsLoader.getObject(FontsID::PIXEBOY), 30 * config::window::WINDOW_ZOOM, sf::Color::White, 
+		std::string(), sf::Vector2f(10, 0))); // time
 
 	audioController.startPlayingMusic();
 
 	gameOverSceneController = std::make_unique<GameOverSceneController>(fontsLoader.getObject(FontsID::_8_BIT_ARCADE));
-
-	labels.clear();
-	labels.push_back(LabelController(fontsLoader.getObject(FontsID::DIGITAL7), 40 * config::window::WINDOW_ZOOM, sf::Color::White, 
-		std::string(), sf::Vector2f(10, 5))); // time
 
 	stopwatch.restart();
 	clock.restart();
@@ -81,22 +85,40 @@ void GameLogic::restart()
 void GameLogic::update()
 {
 	player->updateMovement(deltaTime);
-	if(player->isAlive()) {
-		horizontalCollisionController(*player);
-		verticalCollisionController(*player);
-	}
 	for(auto &block: blocks)
 		block->updateMovement(deltaTime);
+
+	if(player->isAlive()) {
+		const auto touchedBlocks = horizontalCollisionController(*player);
+		if(touchedBlocks.size() > 0 && isBlockCanJump) {
+			const size_t nearestTouchedBlockIndex = [](std::vector<size_t> indexes, std::vector<BlockObject_ptr> &_blocks, sf::FloatRect playerGlobalBounds)
+			{
+				std::pair<float, size_t> nearestBlock = std::make_pair(std::numeric_limits<float>::max(), -1);
+				for(size_t index: indexes) {
+					float currentDistance = std::abs((playerGlobalBounds.left + playerGlobalBounds.width) / 2 - 
+						(_blocks[index]->getGlobalBounds().left + _blocks[index]->getGlobalBounds().width) / 2);
+					if(currentDistance < nearestBlock.first)
+						nearestBlock = std::make_pair(currentDistance, index);
+				}
+				return nearestBlock.second;
+			}(touchedBlocks, blocks, player->getGlobalBounds());
+			blocks[nearestTouchedBlockIndex]->jumpUp(deltaTime);
+			isBlockCanJump = false;
+		}
+		verticalCollisionController(*player);
+	}
 	for(auto &enemy: enemies) {
 		enemy->updateMovement(deltaTime);
 		horizontalCollisionController(*enemy);
-		if(verticalCollisionController(*enemy))
+		if(verticalCollisionController(*enemy) && enemy->getOffset().y == 0)
 			enemy->changeDirection();
 	}
 	audioController.update();
 	killer();
 	if(player->isAlive())
 		labels[0].setText(std::to_string(getStopwatchTime()));
+		
+	audioMuteLable->update();
 }
 
 void GameLogic::draw(sf::RenderWindow &window)
@@ -110,7 +132,7 @@ void GameLogic::draw(sf::RenderWindow &window)
 	for(auto &enemy: enemies) 
 		enemy->drawWithAnimation(window, deltaTime);
 	titleAnimatedLabel->draw(window);
-	window.draw(audioIndicator);
+	audioMuteLable->draw(window);
 	gameOverSceneController->draw(window);
 	for(auto &label: labels)
 		label.draw(window);
@@ -128,8 +150,10 @@ void GameLogic::keysManager()
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 			player->move(Direction::RIGHT, deltaTime);
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-			if(player->jump(deltaTime))
+			if(player->jump(deltaTime)) {
+				isBlockCanJump = true;
 				audioController.playSound(SoundsID::MARIO_JUMPS);
+			}
 		}
 		else
 			player->isJumpingNow = false;
@@ -145,9 +169,9 @@ void GameLogic::keysManager(sf::Keyboard::Key key)
 {
 	if(key == sf::Keyboard::M) {
 		if(audioController.toggleMute())
-			audioIndicator.setTexture(texturesLoader.getObject(TexturesID::AUDIO_MUTED));
+			audioMuteLable->show("Audio is muted");
 		else
-			audioIndicator.setTexture(texturesLoader.getObject(TexturesID::AUDIO_UNMUTED));
+			audioMuteLable->show("Audio is unmuted");
 	}
 	else if(key == sf::Keyboard::R || key == sf::Keyboard::F5)
 		restart();
@@ -178,44 +202,43 @@ sf::Vector2f GameLogic::cameraController(const sf::Vector2f &cameraCenter)
 void GameLogic::scrollBackground(sf::Vector2f offset)
 {
 	backgroundController->move(offset);
-	audioIndicator.move(offset);
+	audioMuteLable->move(offset);
 	for(auto &label: labels)
 		label.move(offset);
 }
 
-bool GameLogic::horizontalCollisionController(GameObject &gameObject)
+
+std::vector<size_t> GameLogic::horizontalCollisionController(GameObject &gameObject)
 {
+	std::vector<size_t> output;
 	const auto globalBounds = gameObject.getGlobalBounds();
 	const auto position = gameObject.getPosition();
-	bool isCollision = false;
 
 	gameObject.isStandingOnAnyBlock = false;
 	// check for horizontal collision
 	for(auto &block: blocks) {
 		if(!block->isHasCollision) continue;
 		const auto blockRect = block->getGlobalBounds();
-		if(globalBounds.left < blockRect.left + blockRect.width && globalBounds.left + globalBounds.width> blockRect.left) { // x
-			// if the the gameObject head is touched a block
+		if(globalBounds.left < blockRect.left + blockRect.width && globalBounds.left + globalBounds.width > blockRect.left) { // x
+			// if the the gameObject head touched a block
 			if(gameObject.getOffset().y < 0 && globalBounds.top + gameObject.getOffset().y > blockRect.top  && 
-			   globalBounds.top + gameObject.getOffset().y < blockRect.top + blockRect.height) {
-				gameObject.setOffset(sf::Vector2f(gameObject.getOffset().x, blockRect.height + blockRect.top - globalBounds.top + 2));
-				isCollision = true;
-				break;
+			   globalBounds.top + gameObject.getOffset().y <= blockRect.top + blockRect.height) {
+				gameObject.setOffset(sf::Vector2f(gameObject.getOffset().x, blockRect.height + blockRect.top - globalBounds.top));
+				output.push_back(std::distance(blocks.begin(), std::find(blocks.begin(), blocks.end(), block)));
 			}
 
 			// if the gameObject is stacked to put in the right place
 			// or
 			// if the gameObject is staying on the right edge of a block do not touch him
-			if(gameObject.getOffset().y > 0 && globalBounds.top + gameObject.getOffset().y < blockRect.top && 
-			   globalBounds.top + globalBounds.height + gameObject.getOffset().y  > blockRect.top) {
+			else if(globalBounds.top + gameObject.getOffset().y < blockRect.top && 
+			   globalBounds.top + globalBounds.height + gameObject.getOffset().y > blockRect.top) {
 				gameObject.setOffset(sf::Vector2f(gameObject.getOffset().x, blockRect.top - (globalBounds.top + globalBounds.height)));
 				gameObject.isStandingOnAnyBlock = true;
-				isCollision = true;
 			}
 		}
 	}
 
-	return isCollision;
+	return output;
 }
 
 bool GameLogic::verticalCollisionController(GameObject &gameObject)
@@ -236,14 +259,12 @@ bool GameLogic::verticalCollisionController(GameObject &gameObject)
 			   globalBounds.left + globalBounds.width + gameObject.getOffset().x < blockRect.left + blockRect.width) {
 				gameObject.setOffset(sf::Vector2f(blockRect.left - globalBounds.left - globalBounds.width, gameObject.getOffset().y));
 				isCollision = true;
-				break;
 			}
 			// from the right to the left
 			else if(gameObject.getOffset().x < 0 && globalBounds.left + gameObject.getOffset().x < blockRect.left + blockRect.width && 
 				    globalBounds.left + globalBounds.width + gameObject.getOffset().x > blockRect.left + blockRect.width) {
 				gameObject.setOffset(sf::Vector2f(blockRect.left + blockRect.width - globalBounds.left, gameObject.getOffset().y));
 				isCollision = true;
-				break;
 			}
 		}
 	}
@@ -278,7 +299,6 @@ void GameLogic::killer()
 			enemies.erase(std::remove(enemies.begin(), enemies.end(), *it));
 	}
 
-
 	// the player fell too low
 	if(player->isAlive() && player->getPosition().y > config::DIE_OXIS_Y)
 		gameOver();
@@ -294,7 +314,7 @@ void GameLogic::killer()
 				globalBounds.left + globalBounds.width + player->getOffset().x < enemyRect.left + enemyRect.width) ||
 				(globalBounds.left + player->getOffset().x < enemyRect.left + enemyRect.width && 
 				globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left + enemyRect.width))) {
-					player->setOffset(sf::Vector2f(player->getOffset().x, -5));
+					player->setOffset(sf::Vector2f(player->getOffset().x, -10));
 					enemy->die();
 				}
 			// the player encountered with an enemy

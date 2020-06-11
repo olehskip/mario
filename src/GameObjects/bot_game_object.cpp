@@ -3,7 +3,7 @@
 BotGameObject::BotGameObject(sf::Vector2f pos, sf::Vector2f scale, sf::Texture &texture, Direction spawnDirection): 
 	GameObject(pos, scale, texture)
 {
-	runAnimation = std::make_shared<AnimationController>(0, 18, 4, sf::Vector2f(60, 72), 32, true);
+	runAnimation = std::make_shared<AnimationController>(0, 18, 10, sf::Vector2f(60, 72), 32, true);
 	dieAnimation = std::make_shared<AnimationController>(1, 1, 0, sf::Vector2f(60, 72), 32, true);
 	currentAnimation = runAnimation;
 	direction = spawnDirection;
@@ -20,12 +20,12 @@ void BotGameObject::updateMovement(float deltaTime) // override
 		}
 		else {
 			if(offset.x > 0) {
-				offset.x -= config::goomba::RUN_ACCELERATION;
+				offset.x -= config::goomba::DECELERATION_IN_JUMP;
 				if(offset.x < 0)
 					offset.x = 0;
 			}
 			else if(offset.x < 0) {
-				offset.x += config::goomba::RUN_ACCELERATION;
+				offset.x += config::goomba::DECELERATION_IN_JUMP;
 				if(offset.x > 0)
 					offset.x = 0;
 			}
@@ -44,11 +44,9 @@ void BotGameObject::updateMovement(float deltaTime) // override
 
 void BotGameObject::drawWithAnimation(sf::RenderWindow &window, float deltaTime)
 {
-	if(isShow) {
-		currentAnimation->setCurrentFrame(currentAnimation->getCurrentFrame() + deltaTime * std::abs(offset.x) * 10);
-		sprite.setTextureRect(currentAnimation->getSpriteRect(direction));
-		draw(window);
-	}
+	currentAnimation->setCurrentFrame(currentAnimation->getCurrentFrame() + deltaTime * std::abs(offset.x) * currentAnimation->animationSpeed);
+	sprite.setTextureRect(currentAnimation->getSpriteRect(direction));
+	draw(window);
 }
 
 void BotGameObject::changeDirection()

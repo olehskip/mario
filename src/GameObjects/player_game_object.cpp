@@ -41,11 +41,6 @@ void PlayerGameObject::move(Direction directionToMove, float deltaTime)
 		offset.x = 0.f;
 }
 
-void PlayerGameObject::move(sf::Vector2f offset)
-{
-	sprite.move(offset);
-}
-
 bool PlayerGameObject::jump(float deltaTime)
 {
 	if(!isAlowedToJump)

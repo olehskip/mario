@@ -31,6 +31,11 @@ void LabelController::toCenterY(float windowHeight)
 	textObj.setPosition(textObj.getPosition().x, windowHeight / 2.f);
 }
 
+void LabelController::toTopY()
+{
+	textObj.setPosition(getPosition().x, textObj.getGlobalBounds().height);
+}
+
 void LabelController::toBottomY(float windowHeight)
 {
 	textObj.setPosition(0, windowHeight - textObj.getGlobalBounds().height);

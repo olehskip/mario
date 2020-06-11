@@ -7,6 +7,7 @@
 #include "Loaders/fonts_loader.h"
 #include "Controllers/background_controller.h"
 #include "Controllers/animated_label_controller.h"
+#include "Controllers/temponary_label_controller.h"
 #include "Controllers/audio_controller.h"
 #include "Controllers/game_over_scene_controller.h"
 
@@ -33,8 +34,10 @@ public:
 	const sf::View &getView() const;
 
 private:
-	bool horizontalCollisionController(GameObject &gameObject);
+	std::vector<size_t> horizontalCollisionController(GameObject &gameObject);
 	bool verticalCollisionController(GameObject &gameObject);
+	bool isBlockCanJump = true;
+
 	void gameOver();
 	void killer();
 
@@ -45,13 +48,12 @@ private:
 	sf::Clock clock, stopwatch;
 	float deltaTime = 0.f;
 
-
 	// at the start there is an animated label with developers contacts
 	std::unique_ptr<AnimatedLabelController> titleAnimatedLabel;
+	std::unique_ptr<TemponaryLabelController> audioMuteLable;
 	std::vector<LabelController> labels; // all labels: time, score, etc
 
 	AudioController audioController;
-	sf::Sprite audioIndicator;
 
 	std::unique_ptr<GameOverSceneController> gameOverSceneController;
 

@@ -4,15 +4,9 @@
 
 AnimatedLabelController::AnimatedLabelController(const sf::Font &font, unsigned int fontSize, 
 	sf::Color color, const std::string &_finalText, sf::Vector2f pos, int _delay):
-	finalText(_finalText), delay(_delay)
+	LabelController(font, fontSize, color, std::string(""), pos), finalText(_finalText), delay(_delay)
 {
-	label = std::make_unique<LabelController>(font, fontSize, color, std::string(""), pos);
 	std::thread(&AnimatedLabelController::animate, this, finalText).detach();
-}
-
-void AnimatedLabelController::draw(sf::RenderWindow &window)
-{
-	label->draw(window);
 }
 
 void AnimatedLabelController::animate(std::string finalText)
@@ -24,19 +18,19 @@ void AnimatedLabelController::animate(std::string finalText)
 		if(std::find(alphabet.begin(), alphabet.end(), finalText[charCounter]) == alphabet.end()) {
 			text += finalText[charCounter];
 			std::this_thread::sleep_for(std::chrono::milliseconds(delay * 3));
-			label->setText(text);
+			setText(text);
 			charCounter++;
 			alphabetCharCounter = 0;
 		}
 		else {	
 			if(finalText[charCounter] == alphabet[alphabetCharCounter]) {
 				text += finalText[charCounter];
-				label->setText(text);
+				setText(text);
 				charCounter++;
 				alphabetCharCounter = 0;
 			}
 			else {
-				label->setText(text + alphabet[alphabetCharCounter]);
+				setText(text + alphabet[alphabetCharCounter]);
 				alphabetCharCounter++;
 			}
 		}

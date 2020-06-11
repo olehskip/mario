@@ -15,10 +15,11 @@ namespace config
 		const sf::Color BACKGROUND_COLOR = sf::Color(90, 180, 220);
 	}
 
-	const float GRAVITY = 1.f;
+	const float GRAVITY = 1.2f;
 	const float MAX_FALLING_SPEED = 22.f;
 	const unsigned int ANIMATION_SPACE_SIZE = 32;
 	const float DIE_OXIS_Y = 1500 * config::window::WINDOW_ZOOM;
+	const int BLOCK_JUMP_SPEED = 6.f;
 
 	namespace player
 	{
@@ -36,7 +37,7 @@ namespace config
 		// ---animations---
 
 		// ---jumping---
-		const float JUMPING_ACCELERATION = 4.f;
+		const float JUMPING_ACCELERATION = 4.5f;
 		const float JUMPING_MAX_SPEED = 23.f; 
 		// ---jumping---
 
@@ -51,7 +52,7 @@ namespace config
 	{
 		const float RUN_ACCELERATION = 0.5f;
 		const float RUN_MAX_SPEED = 3.3f;
-		const float DECELERATION_IN_JUMP = 0.2f;
+		const float DECELERATION_IN_JUMP = 0.1f;
 
 		const float ANIMATION_SPEED = 10.f;
 	}

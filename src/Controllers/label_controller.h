@@ -18,6 +18,7 @@ public:
 
 	void toCenterX(float windowWidth);
 	void toCenterY(float windowHeight);
+	void toTopY();
 	void toBottomY(float windowHeight);
 	void setPosition(const sf::Vector2f &pos);
 	sf::Vector2f getPosition() const;

@@ -8,6 +8,11 @@ GameObject::GameObject(sf::Vector2f pos, sf::Vector2f scale, const sf::Texture &
 	sprite.scale(scale.x, scale.y);
 }
 
+sf::Sprite GameObject::getSpriteCopy()
+{
+	return sprite;
+}
+
 sf::Vector2f GameObject::getPosition() const
 {
 	return sprite.getPosition();

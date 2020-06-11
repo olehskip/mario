@@ -21,7 +21,6 @@ public:
 
 private:
 	bool mIsAlive = true;
-	bool isShow = true;
 	sf::Clock dieStopwatch;
 	std::shared_ptr<AnimationController> currentAnimation;
 	std::shared_ptr<AnimationController> runAnimation;
@@ -29,3 +28,9 @@ private:
 	Direction direction;
 };
 typedef std::unique_ptr<BotGameObject> BotObject_ptr;
+
+// class GoombaBot
+// {
+
+// };
+
