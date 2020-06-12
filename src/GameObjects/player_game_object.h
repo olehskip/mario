@@ -47,6 +47,7 @@ public:
 	 */
 	bool isJumpingNow = false;
 
+	void headTouchedBlock();
 	void die();
 	bool isAlive() const;
 
@@ -61,7 +62,7 @@ private:
 	/*
 	 * If the player is standing after jump, then he can jump again
 	 */
-	bool isAlowedToJump = true;
+	bool isAllowToJump = true;
 
 	/*
 	 * The direction can change on the ground

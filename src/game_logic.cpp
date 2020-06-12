@@ -6,12 +6,12 @@ GameLogic::GameLogic()
 	view.zoom(config::window::WINDOW_ZOOM);
 
 	restart();
-	titleAnimatedLabel = std::make_unique<AnimatedLabelController>(fontsLoader.getObject(FontsID::PIXEBOY), 
-		30 * config::window::WINDOW_ZOOM, sf::Color::White, config::window::TITLE_TEXT, sf::Vector2f(20, 650), 15);
+	titleAnimatedLabel = std::make_unique<AnimatedLabelController>(sf::Vector2f(20, 650), fontsLoader.getObject(FontsID::PIXEBOY), 
+		30 * config::window::WINDOW_ZOOM, sf::Color::White, config::window::TITLE_TEXT, 15);
 	titleAnimatedLabel->toCenterY(config::window::WINDOW_HEIGHT * config::window::WINDOW_ZOOM);
 
-	audioMuteLable = std::make_unique<TemponaryLabelController>(fontsLoader.getObject(FontsID::PIXEBOY), 
-		30 * config::window::WINDOW_ZOOM, sf::Color::White, "Audio is muted", sf::Vector2f(0, 0), 2.f);
+	audioMuteLable = std::make_unique<TemponaryLabelController>(sf::Vector2f(0, 0), fontsLoader.getObject(FontsID::PIXEBOY), 
+		30 * config::window::WINDOW_ZOOM, sf::Color::White, "Audio is muted", 2.f);
 	audioMuteLable->toTopY();
 	audioMuteLable->toCenterX(config::window::WINDOW_WIDTH * config::window::WINDOW_ZOOM);
 	audioMuteLable->setText("");
@@ -67,17 +67,21 @@ void GameLogic::restart()
 	}
 
 	enemies.clear();
-	enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(3 * 64, 64 * 7), sf::Vector2f(1, 1), 
-		texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT));
+	enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(6 * 64, 64 * 10), sf::Vector2f(1, 1), 
+		texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT, config::goomba::COST));
+	enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(10 * 64, 64 * 15), sf::Vector2f(1, 1), 
+		texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT, config::goomba::COST));
 
+	pointsLabels.clear();
 	labels.clear();
-	labels.push_back(LabelController(fontsLoader.getObject(FontsID::PIXEBOY), 30 * config::window::WINDOW_ZOOM, sf::Color::White, 
-		std::string(), sf::Vector2f(10, 0))); // time
+	labels.push_back(LabelController(sf::Vector2f(10, 0), fontsLoader.getObject(FontsID::PIXEBOY), 30 * config::window::WINDOW_ZOOM, 
+	sf::Color::White, std::string())); // time
 
 	audioController.startPlayingMusic();
 
 	gameOverSceneController = std::make_unique<GameOverSceneController>(fontsLoader.getObject(FontsID::_8_BIT_ARCADE));
 
+	score = 0;
 	stopwatch.restart();
 	clock.restart();
 }
@@ -103,6 +107,7 @@ void GameLogic::update()
 				return nearestBlock.second;
 			}(touchedBlocks, blocks, player->getGlobalBounds());
 			blocks[nearestTouchedBlockIndex]->jumpUp(deltaTime);
+			player->headTouchedBlock();
 			isBlockCanJump = false;
 		}
 		verticalCollisionController(*player);
@@ -115,31 +120,51 @@ void GameLogic::update()
 	}
 	audioController.update();
 	killer();
-	if(player->isAlive())
+	if(player->isAlive()) {
+		for(auto i = pointsLabels.size() - 1; i <= 0; --i) {
+			pointsLabels[i].update(deltaTime);
+			if(pointsLabels[i].isEnded())
+				pointsLabels.erase(pointsLabels.begin() + i);
+		}
 		labels[0].setText(std::to_string(getStopwatchTime()));
-		
+	}
+	
 	audioMuteLable->update();
 }
 
 void GameLogic::draw(sf::RenderWindow &window)
 {
 	backgroundController->draw(window);
-	for(auto &block: blocks)
-		block->draw(window);
+	for(auto &block: blocks) {
+		if(isDrawObject(block->getGlobalBounds()))
+			block->draw(window);
+	}
 	// for(auto &decor: scenery)
 	// 	decor->draw(window);
 	player->drawWithAnimation(window, deltaTime);
-	for(auto &enemy: enemies) 
-		enemy->drawWithAnimation(window, deltaTime);
+	for(auto &enemy: enemies) {
+		if(isDrawObject(enemy->getGlobalBounds()))
+			enemy->drawWithAnimation(window, deltaTime);
+	}
 	titleAnimatedLabel->draw(window);
 	audioMuteLable->draw(window);
+	
+	for(auto &pointsLabel: pointsLabels)
+		pointsLabel.draw(window);
+
 	gameOverSceneController->draw(window);
 	for(auto &label: labels)
 		label.draw(window);
-
-	const auto cameraPosition = cameraController(view.getCenter());
+	
+	const auto cameraPosition = cameraController();
 	view.move(cameraPosition);
 	scrollBackground(cameraPosition);
+}
+
+bool GameLogic::isDrawObject(sf::FloatRect globalBounds)
+{
+	return globalBounds.left > view.getCenter().x - config::window::WINDOW_WIDTH / 2 * config::window::WINDOW_ZOOM ||
+		globalBounds.left + globalBounds.width < view.getCenter().x + config::window::WINDOW_WIDTH / 2 * config::window::WINDOW_ZOOM;
 }
 
 void GameLogic::keysManager()
@@ -182,9 +207,9 @@ const sf::View &GameLogic::getView() const
 	return view;
 }
 
-sf::Vector2f GameLogic::cameraController(const sf::Vector2f &cameraCenter)
+sf::Vector2f GameLogic::cameraController()
 {
-	const auto windowLeft = cameraCenter.x - config::window::WINDOW_WIDTH / 2 * config::window::WINDOW_ZOOM;
+	const auto windowLeft = view.getCenter().x - config::window::WINDOW_WIDTH / 2 * config::window::WINDOW_ZOOM;
 	
 	if(player->getSpriteCopy().getGlobalBounds().left <= windowLeft) {
 		player->setOffset(sf::Vector2f(-(player->getSpriteCopy().getGlobalBounds().left - windowLeft), player->getOffset().y));
@@ -193,7 +218,7 @@ sf::Vector2f GameLogic::cameraController(const sf::Vector2f &cameraCenter)
 	else 
 		player->isStacked = false;
 
-	if(player->getOffset().x > 0 && player->getPosition().x >= cameraCenter.x)
+	if(player->getOffset().x > 0 && player->getPosition().x >= view.getCenter().x)
 		return sf::Vector2f(player->getOffset().x, 0);
 	else
 		return sf::Vector2f(0, 0);
@@ -203,10 +228,11 @@ void GameLogic::scrollBackground(sf::Vector2f offset)
 {
 	backgroundController->move(offset);
 	audioMuteLable->move(offset);
+	for(auto &pointsLabel: pointsLabels)
+		pointsLabel.moveX(offset.x);
 	for(auto &label: labels)
 		label.move(offset);
 }
-
 
 std::vector<size_t> GameLogic::horizontalCollisionController(GameObject &gameObject)
 {
@@ -315,6 +341,9 @@ void GameLogic::killer()
 				(globalBounds.left + player->getOffset().x < enemyRect.left + enemyRect.width && 
 				globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left + enemyRect.width))) {
 					player->setOffset(sf::Vector2f(player->getOffset().x, -10));
+					pointsLabels.push_back(PointsLabelController(sf::Vector2f(enemy->getGlobalBounds().left, enemy->getGlobalBounds().top),
+						fontsLoader.getObject(FontsID::PIXEBOY), 30 * config::window::WINDOW_ZOOM, sf::Color::White, enemy->cost, 5));
+					score += enemy->cost;
 					enemy->die();
 				}
 			// the player encountered with an enemy

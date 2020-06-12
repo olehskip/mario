@@ -9,7 +9,7 @@
 class BotGameObject: public GameObject
 {
 public:
-	BotGameObject(sf::Vector2f pos, sf::Vector2f scale, sf::Texture &texture, Direction spawnDirection);
+	BotGameObject(sf::Vector2f pos, sf::Vector2f scale, sf::Texture &texture, Direction spawnDirection, unsigned int _cost);
 
 	void updateMovement(float deltaTime) override;
 	void drawWithAnimation(sf::RenderWindow &window, float deltaTime);
@@ -18,6 +18,7 @@ public:
 
 	bool isAlive() const;
 	void die();
+	const unsigned int cost;
 
 private:
 	bool mIsAlive = true;

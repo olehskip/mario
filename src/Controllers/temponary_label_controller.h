@@ -5,10 +5,10 @@
 class TemponaryLabelController: public LabelController
 {
 public:
-	TemponaryLabelController(const sf::Font &font, unsigned int fontSize, 
-		sf::Color color, const std::string &_text, sf::Vector2f pos, float _visibleTime);
+	TemponaryLabelController(sf::Vector2f pos, const sf::Font &font, unsigned int fontSize, 
+		sf::Color color, const std::string &_text, float _visibleTime);
 
-	void draw(sf::RenderWindow &window);
+	void draw(sf::RenderWindow &window) override;
 	void update();
 	void show(const std::string &text);
 

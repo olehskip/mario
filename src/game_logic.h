@@ -8,6 +8,7 @@
 #include "Controllers/background_controller.h"
 #include "Controllers/animated_label_controller.h"
 #include "Controllers/temponary_label_controller.h"
+#include "Controllers/points_label_controller.h"
 #include "Controllers/audio_controller.h"
 #include "Controllers/game_over_scene_controller.h"
 
@@ -23,7 +24,9 @@ public:
 
 	void restart();
 	void update();
-	void draw(sf::RenderWindow &window); 
+	void draw(sf::RenderWindow &window);
+	// if a game object over the game scene don't draw it
+	bool isDrawObject(sf::FloatRect globalBounds);
 
 	void keysManager();
 	void keysManager(sf::Keyboard::Key key);
@@ -47,11 +50,13 @@ private:
 	PlayerObject_ptr player;
 	sf::Clock clock, stopwatch;
 	float deltaTime = 0.f;
+	unsigned int score = 0;
 
 	// at the start there is an animated label with developers contacts
 	std::unique_ptr<AnimatedLabelController> titleAnimatedLabel;
 	std::unique_ptr<TemponaryLabelController> audioMuteLable;
 	std::vector<LabelController> labels; // all labels: time, score, etc
+	std::vector<PointsLabelController> pointsLabels;
 
 	AudioController audioController;
 
@@ -67,7 +72,7 @@ private:
 	 * @param cameraCenter means the center of camera for not to let mario move only at center and left part of the scene
 	 * @return the offset so that the camera moves by it
 	 */
-	sf::Vector2f cameraController(const sf::Vector2f &cameraCenter);
+	sf::Vector2f cameraController();
 	std::unique_ptr<BackgroundController> backgroundController;
 	void scrollBackground(sf::Vector2f offset);
 	sf::View view;

@@ -19,7 +19,7 @@ int main()
 		while(window.pollEvent(event)) {
 			if(event.type == sf::Event::Closed)
 				window.close();
-			if(event.type == sf::Event::KeyPressed)
+		if(event.type == sf::Event::KeyPressed)
 				gameLogic.keysManager(event.key.code);
 			else if(event.type == sf::Event::GainedFocus)
 				isFocused = true;

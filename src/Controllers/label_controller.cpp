@@ -1,6 +1,6 @@
 #include "label_controller.h"
 
-LabelController::LabelController(const sf::Font &font, unsigned int fontSize, sf::Color color, const std::string &text, sf::Vector2f pos)
+LabelController::LabelController(sf::Vector2f pos, const sf::Font &font, unsigned int fontSize, sf::Color color, const std::string &text)
 {
 	textObj.setFont(font);
 	textObj.setCharacterSize(fontSize);

@@ -12,7 +12,7 @@
 class LabelController
 {
 public:
-	LabelController(const sf::Font &font, unsigned int fontSize, sf::Color color, const std::string &text, sf::Vector2f pos);
+	LabelController(sf::Vector2f pos, const sf::Font &font, unsigned int fontSize, sf::Color color, const std::string &text);
 	void setText(const std::string &text);
 	std::string getText() const;
 

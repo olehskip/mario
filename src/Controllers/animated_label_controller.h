@@ -9,8 +9,8 @@
 class AnimatedLabelController: public LabelController
 {
 public:
-	AnimatedLabelController(const sf::Font &font, unsigned int fontSize, 
-		sf::Color color, const std::string &_finalText, sf::Vector2f pos, int _delay);
+	AnimatedLabelController(sf::Vector2f pos, const sf::Font &font, unsigned int fontSize, 
+		sf::Color color, const std::string &_finalText, int _delay);
 
 private:
 	void animate(std::string finalText);

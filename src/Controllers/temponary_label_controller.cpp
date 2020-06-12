@@ -1,8 +1,8 @@
 #include "temponary_label_controller.h"
 
-TemponaryLabelController::TemponaryLabelController(const sf::Font &font, unsigned int fontSize, 
-	sf::Color color, const std::string &_text, sf::Vector2f pos, float _visibleTime):
-	LabelController(font, fontSize, color, _text, pos), visibleTime(_visibleTime)
+TemponaryLabelController::TemponaryLabelController(sf::Vector2f pos, const sf::Font &font, unsigned int fontSize, 
+	sf::Color color, const std::string &_text, float _visibleTime):
+	LabelController(pos, font, fontSize, color, _text), visibleTime(_visibleTime)
 {
 
 }

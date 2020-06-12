@@ -43,7 +43,7 @@ void PlayerGameObject::move(Direction directionToMove, float deltaTime)
 
 bool PlayerGameObject::jump(float deltaTime)
 {
-	if(!isAlowedToJump)
+	if(!isAllowToJump)
 		return false;
 
 	const bool output = (offset.y == 0);
@@ -52,7 +52,7 @@ bool PlayerGameObject::jump(float deltaTime)
 	offset.y -= config::player::JUMPING_ACCELERATION * deltaTime * 60;
 
 	if(abs(offset.y) > config::player::JUMPING_MAX_SPEED) {
-		isAlowedToJump = false;
+		isAllowToJump = false;
 		offset.y = -config::player::JUMPING_MAX_SPEED;
 	}
 	if(currentAnimation != jumpAnimation) {
@@ -116,11 +116,11 @@ void PlayerGameObject::updateMovement(float deltaTime) // override
 	else if(abs(offset.y) > config::MAX_FALLING_SPEED)
 		offset.y = -config::MAX_FALLING_SPEED;
 
-	if(!isStandingOnAnyBlock && (!isAlowedToJump && offset.y > 0 || isAlowedToJump && !isJumpingNow)) {
-		isAlowedToJump = false;
+	if(!isStandingOnAnyBlock && (!isAllowToJump && offset.y > 0 || isAllowToJump && !isJumpingNow)) {
+		isAllowToJump = false;
 	}
 	else if(isStandingOnAnyBlock)
-		isAlowedToJump = true;
+		isAllowToJump = true;
  }
 
 void PlayerGameObject::drawWithAnimation(sf::RenderWindow &window, float deltaTime)
@@ -142,7 +142,7 @@ void PlayerGameObject::drawWithAnimation(sf::RenderWindow &window, float deltaTi
 		}
 	}
 	// if the player is falling, but did not jump
-	else if(offset.y > 0.f && isAlowedToJump) {
+	else if(offset.y > 0.f && isAllowToJump) {
 		currentAnimation = jumpAnimation;
 		currentAnimation->setCurrentFrame(config::player::JUMPING_FRAME);
 	}
@@ -169,10 +169,15 @@ void PlayerGameObject::drawWithAnimation(sf::RenderWindow &window, float deltaTi
 	draw(window);
 }
 
+void PlayerGameObject::headTouchedBlock()
+{
+	isAllowToJump = false;
+}
+
 void PlayerGameObject::die()
 {
 	mIsAlive = false;
-	isAlowedToJump = true;
+	isAllowToJump = true;
 	offset = sf::Vector2f(0.f, 0.f);
 	jump(1.f);
 	currentAnimation = dieAnimation;
