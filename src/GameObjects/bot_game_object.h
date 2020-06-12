@@ -9,7 +9,7 @@
 class BotGameObject: public GameObject
 {
 public:
-	BotGameObject(sf::Vector2f pos, sf::Vector2f scale, sf::Texture &texture, Direction spawnDirection, unsigned int _cost);
+	BotGameObject(sf::Vector2f pos, sf::Vector2f scale, sf::Texture &texture, Direction spawnDirection);
 
 	void updateMovement(float deltaTime) override;
 	void drawWithAnimation(sf::RenderWindow &window, float deltaTime);
@@ -18,7 +18,6 @@ public:
 
 	bool isAlive() const;
 	void die();
-	const unsigned int cost;
 
 private:
 	bool mIsAlive = true;
@@ -29,9 +28,3 @@ private:
 	Direction direction;
 };
 typedef std::unique_ptr<BotGameObject> BotObject_ptr;
-
-// class GoombaBot
-// {
-
-// };
-

@@ -50,7 +50,6 @@ private:
 	PlayerObject_ptr player;
 	sf::Clock clock, stopwatch;
 	float deltaTime = 0.f;
-	unsigned int score = 0;
 
 	// at the start there is an animated label with developers contacts
 	std::unique_ptr<AnimatedLabelController> titleAnimatedLabel;
@@ -77,4 +76,24 @@ private:
 	void scrollBackground(sf::Vector2f offset);
 	sf::View view;
 	// ---camera---
+
+	class Score {
+		public:
+			unsigned int getScoreValue() const;
+			/*
+			 * This function calculates the score according to streak
+			 * Points streak is enable when:
+			 * the player jumps on multiple enemies without touching the ground
+			 * or kicks a shell to clear a line of foes
+			 * 
+			 * The system is:
+			 * 1) 100 - 2) 200 - 3) 400 - 4) 500 - 5) 800 - 6) 1000 - 7) 2000 - 8) 4000 - 9) 5000 - 10) 8000 - 11) 1UP - ... - N) 1UP
+			 */
+			void resetStreak();
+			unsigned int increaseValue();
+
+		private:
+			unsigned int scoreValue = 0;
+			unsigned int streak = 0;
+	} score;
 };

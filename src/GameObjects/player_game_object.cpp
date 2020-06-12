@@ -181,9 +181,20 @@ void PlayerGameObject::die()
 	offset = sf::Vector2f(0.f, 0.f);
 	jump(1.f);
 	currentAnimation = dieAnimation;
+	livesCount -= 1;
 }
 
 bool PlayerGameObject::isAlive() const
 {
 	return mIsAlive;
+}
+
+void PlayerGameObject::giveExtraLife()
+{
+	livesCount++;
+}
+
+unsigned int PlayerGameObject::getLivesCount() const
+{
+	return livesCount;
 }

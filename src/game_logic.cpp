@@ -15,7 +15,6 @@ GameLogic::GameLogic()
 	audioMuteLable->toTopY();
 	audioMuteLable->toCenterX(config::window::WINDOW_WIDTH * config::window::WINDOW_ZOOM);
 	audioMuteLable->setText("");
-
 }
 
 void GameLogic::updateTime()
@@ -68,9 +67,11 @@ void GameLogic::restart()
 
 	enemies.clear();
 	enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(6 * 64, 64 * 10), sf::Vector2f(1, 1), 
-		texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT, config::goomba::COST));
-	enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(10 * 64, 64 * 15), sf::Vector2f(1, 1), 
-		texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT, config::goomba::COST));
+		texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT));
+	for(int x = 10; x < 15; ++x) {
+		enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(x * 100, 64 * 15), sf::Vector2f(1, 1), 
+			texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT));
+	}
 
 	pointsLabels.clear();
 	labels.clear();
@@ -81,7 +82,7 @@ void GameLogic::restart()
 
 	gameOverSceneController = std::make_unique<GameOverSceneController>(fontsLoader.getObject(FontsID::_8_BIT_ARCADE));
 
-	score = 0;
+	score = Score();
 	stopwatch.restart();
 	clock.restart();
 }
@@ -111,6 +112,8 @@ void GameLogic::update()
 			isBlockCanJump = false;
 		}
 		verticalCollisionController(*player);
+		if(player->isStandingOnAnyBlock)
+			score.resetStreak();
 	}
 	for(auto &enemy: enemies) {
 		enemy->updateMovement(deltaTime);
@@ -118,10 +121,10 @@ void GameLogic::update()
 		if(verticalCollisionController(*enemy) && enemy->getOffset().y == 0)
 			enemy->changeDirection();
 	}
-	audioController.update();
 	killer();
+	audioController.update();
 	if(player->isAlive()) {
-		for(auto i = pointsLabels.size() - 1; i <= 0; --i) {
+		for(int i = static_cast<int>(pointsLabels.size()) - 1; i >= 0; --i) {
 			pointsLabels[i].update(deltaTime);
 			if(pointsLabels[i].isEnded())
 				pointsLabels.erase(pointsLabels.begin() + i);
@@ -335,15 +338,15 @@ void GameLogic::killer()
 			if(!enemy->isAlive()) continue;
 			const auto enemyRect = enemy->getGlobalBounds();
 			if((player->getOffset().y > 0 && globalBounds.top + player->getOffset().y < enemyRect.top && 
-			   globalBounds.top + globalBounds.height + player->getOffset().y  > enemyRect.top) &&
+			   globalBounds.top + globalBounds.height + player->getOffset().y  > enemyRect.top - enemyRect.height / 2) &&
 				((globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left && 
 				globalBounds.left + globalBounds.width + player->getOffset().x < enemyRect.left + enemyRect.width) ||
 				(globalBounds.left + player->getOffset().x < enemyRect.left + enemyRect.width && 
 				globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left + enemyRect.width))) {
 					player->setOffset(sf::Vector2f(player->getOffset().x, -10));
 					pointsLabels.push_back(PointsLabelController(sf::Vector2f(enemy->getGlobalBounds().left, enemy->getGlobalBounds().top),
-						fontsLoader.getObject(FontsID::PIXEBOY), 30 * config::window::WINDOW_ZOOM, sf::Color::White, enemy->cost, 5));
-					score += enemy->cost;
+						fontsLoader.getObject(FontsID::PIXEBOY), 30 * config::window::WINDOW_ZOOM, sf::Color::White, 
+						score.increaseValue(), 5));
 					enemy->die();
 				}
 			// the player encountered with an enemy
@@ -356,4 +359,52 @@ void GameLogic::killer()
 					gameOver();
 		}
 	}
+}
+
+unsigned int GameLogic::Score::getScoreValue() const
+{
+	return scoreValue;
+}
+
+void GameLogic::Score::resetStreak()
+{
+	streak = 1;
+}
+
+unsigned int GameLogic::Score::increaseValue()
+{
+	/* 
+	 * The system is:
+	 * 1) 100 - 2) 200 - 3) 400 - 4) 500 - 5) 800 - 6) 1000 - 7) 2000 - 8) 4000 - 9) 5000 - 10) 8000 - 11) 1UP - ... - N) 1UP
+	 */
+
+	// sorry, I really hate switch
+	unsigned int scoreIncrease = scoreValue;
+	streak++;
+	if(streak == 1)
+		scoreIncrease = 100;
+	else if(streak == 2)
+		scoreIncrease = 200;
+	else if(streak == 3)
+		scoreIncrease = 400;
+	else if(streak == 4)
+		scoreIncrease = 500;
+	else if(streak == 5)
+		scoreIncrease = 800;
+	else if(streak == 6)
+		scoreIncrease = 1000;
+	else if(streak == 7)
+		scoreIncrease = 2000;
+	else if(streak == 8)
+		scoreIncrease = 4000;
+	else if(streak == 9)
+		scoreIncrease = 5000;
+	else if(streak == 10)
+		scoreIncrease = 8000;
+	else if(streak > 10) {
+		streak = 10;
+		scoreIncrease = 8000;
+	}
+	scoreValue += scoreIncrease;
+	return scoreIncrease;
 }

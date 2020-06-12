@@ -1,7 +1,7 @@
 #include "bot_game_object.h"
 
-BotGameObject::BotGameObject(sf::Vector2f pos, sf::Vector2f scale, sf::Texture &texture, Direction spawnDirection, unsigned int _cost): 
-	GameObject(pos, scale, texture), cost(_cost)
+BotGameObject::BotGameObject(sf::Vector2f pos, sf::Vector2f scale, sf::Texture &texture, Direction spawnDirection): 
+	GameObject(pos, scale, texture)
 {
 	runAnimation = std::make_shared<AnimationController>(0, 18, 10, sf::Vector2f(60, 72), 32, true);
 	dieAnimation = std::make_shared<AnimationController>(1, 1, 0, sf::Vector2f(60, 72), 32, true);

@@ -50,6 +50,8 @@ public:
 	void headTouchedBlock();
 	void die();
 	bool isAlive() const;
+	void giveExtraLife();
+	unsigned int getLivesCount() const;
 
 private:
 	/*
@@ -82,5 +84,7 @@ private:
 	std::shared_ptr<AnimationController> dieAnimation;
 	std::shared_ptr<AnimationController> currentAnimation;
 	// ---animations---
+
+	unsigned int livesCount = 0;
 };
 typedef std::unique_ptr<PlayerGameObject> PlayerObject_ptr;

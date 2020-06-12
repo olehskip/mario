@@ -55,7 +55,6 @@ namespace config
 		const float DECELERATION_IN_JUMP = 0.1f;
 
 		const float ANIMATION_SPEED = 10.f;
-		const unsigned int COST = 200;
 	}
 
 	const float COIN_ANIMATION_SPEED = 6.f;
