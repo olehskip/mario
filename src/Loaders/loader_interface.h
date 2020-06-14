@@ -8,7 +8,7 @@ template<class T>
 class LoaderObjectInterface
 {
 public:
-	LoaderObjectInterface(const std::string &objectPath){};
+	LoaderObjectInterface(const std::string & /* objectPath */){};
 	T object;
 };
 
@@ -28,7 +28,7 @@ public:
 	
 	T &getObject(size_t objectIndex)
 	{
-		if(objectIndex > std::distance(allObjects.begin(), allObjects.end()) - 1)
+		if(int(objectIndex) > int(std::distance(allObjects.begin(), allObjects.end()) - 1))
 			objectIndex = 0;
 		auto itt = allObjects.begin();
 		std::advance(itt, objectIndex);

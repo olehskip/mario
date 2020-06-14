@@ -27,16 +27,9 @@ void Background::draw(sf::RenderWindow &window)
 
 void Background::setPositionX(float x)
 {
-	for(auto &part: backgroundParts)
+	for(auto &part: backgroundParts) {
 		part.setPosition(sf::Vector2f(x, part.getPosition().y));
-}
-
-sf::Vector2f Background::getPosition() const
-{
-	if(backgroundParts.size() <= 0)
-		return sf::Vector2f(0, 0);
-	else
-		return backgroundParts[0].getPosition();
+	}
 }
 
 void Background::move(sf::Vector2f pos)
@@ -47,7 +40,7 @@ void Background::move(sf::Vector2f pos)
 
 sf::FloatRect Background::getGlobalBounds() const
 {
-	if(backgroundParts.size() < 0)
+	if(backgroundParts.size() == 0)
 		return sf::FloatRect();
 	else
 		return backgroundParts[0].getGlobalBounds();
@@ -56,7 +49,7 @@ sf::FloatRect Background::getGlobalBounds() const
 // ---BackgroundController---
 BackgroundController::BackgroundController(const sf::Texture &mountains, const sf::Texture &forest, const sf::Texture &field)
 {
-	for(int i = 0; i < backgroundSprites.size(); ++i) {
+	for(size_t i = 0; i < backgroundSprites.size(); ++i) {
 		backgroundSprites[i] = std::make_unique<Background>(mountains, forest, field);
 		if(i > 0)
 			backgroundSprites[i]->setPositionX(backgroundSprites[i - 1]->getGlobalBounds().left + backgroundSprites[i - 1]->getGlobalBounds().width);

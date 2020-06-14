@@ -8,15 +8,7 @@ enum class Direction
 	RIGHT
 };
 
-static int getDX(Direction dir)
-{
-	if(dir == Direction::LEFT)
-		return -1;
-	else if(dir == Direction::RIGHT)
-		return 1;
-	else
-		return 0;	
-}
+int getDX(Direction dir);
 
 class AnimationController
 {

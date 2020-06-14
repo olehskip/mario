@@ -56,9 +56,9 @@ void AudioController::unmute()
 
 void AudioController::update()
 {
-	for(auto itt = currentSoundsID.rbegin(); itt != currentSoundsID.rend(); ++itt) {
-		if(soundsLoader.getObject(*itt).getStatus() == sf::SoundStream::Status::Stopped)
-			currentSoundsID.erase(std::remove(currentSoundsID.begin(), currentSoundsID.end(), *itt));
+	for(auto it = currentSoundsID.rbegin(); it != currentSoundsID.rend(); ++it) {
+		if(soundsLoader.getObject(*it).getStatus() == sf::SoundStream::Status::Stopped)
+			currentSoundsID.erase(std::remove(currentSoundsID.begin(), currentSoundsID.end(), *it));
 	}
 
 	if(!isStoppedMusic && musicLoader.getObject(currentMusicIndex).getStatus() == sf::SoundStream::Status::Stopped) {

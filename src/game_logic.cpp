@@ -124,10 +124,10 @@ void GameLogic::update()
 	killer();
 	audioController.update();
 	if(player->isAlive()) {
-		for(int i = static_cast<int>(pointsLabels.size()) - 1; i >= 0; --i) {
-			pointsLabels[i].update(deltaTime);
-			if(pointsLabels[i].isEnded())
-				pointsLabels.erase(pointsLabels.begin() + i);
+		for(auto itt = pointsLabels.rbegin(); itt != pointsLabels.rend(); ++itt) {
+			itt->get()->update(deltaTime);
+			if(itt->get()->isEnded())
+				pointsLabels.erase(std::remove(pointsLabels.begin(), pointsLabels.end(), *itt));
 		}
 		labels[0].setText(std::to_string(getStopwatchTime()));
 	}
@@ -153,7 +153,7 @@ void GameLogic::draw(sf::RenderWindow &window)
 	audioMuteLable->draw(window);
 	
 	for(auto &pointsLabel: pointsLabels)
-		pointsLabel.draw(window);
+		pointsLabel->draw(window);
 
 	gameOverSceneController->draw(window);
 	for(auto &label: labels)
@@ -232,7 +232,7 @@ void GameLogic::scrollBackground(sf::Vector2f offset)
 	backgroundController->move(offset);
 	audioMuteLable->move(offset);
 	for(auto &pointsLabel: pointsLabels)
-		pointsLabel.moveX(offset.x);
+		pointsLabel->moveX(offset.x);
 	for(auto &label: labels)
 		label.move(offset);
 }
@@ -241,7 +241,6 @@ std::vector<size_t> GameLogic::horizontalCollisionController(GameObject &gameObj
 {
 	std::vector<size_t> output;
 	const auto globalBounds = gameObject.getGlobalBounds();
-	const auto position = gameObject.getPosition();
 
 	gameObject.isStandingOnAnyBlock = false;
 	// check for horizontal collision
@@ -273,7 +272,6 @@ std::vector<size_t> GameLogic::horizontalCollisionController(GameObject &gameObj
 bool GameLogic::verticalCollisionController(GameObject &gameObject)
 {
 	const auto globalBounds = gameObject.getGlobalBounds();
-	const auto position = gameObject.getPosition();
 	bool isCollision = false;
 	
 	// check for vertical collision
@@ -344,9 +342,9 @@ void GameLogic::killer()
 				(globalBounds.left + player->getOffset().x < enemyRect.left + enemyRect.width && 
 				globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left + enemyRect.width))) {
 					player->setOffset(sf::Vector2f(player->getOffset().x, -10));
-					pointsLabels.push_back(PointsLabelController(sf::Vector2f(enemy->getGlobalBounds().left, enemy->getGlobalBounds().top),
+					pointsLabels.push_back(std::make_unique<PointsLabelController>(sf::Vector2f(enemy->getGlobalBounds().left, enemy->getGlobalBounds().top),
 						fontsLoader.getObject(FontsID::PIXEBOY), 30 * config::window::WINDOW_ZOOM, sf::Color::White, 
-						score.increaseValue(), 5));
+						score.increaseValue(), 1));
 					enemy->die();
 				}
 			// the player encountered with an enemy

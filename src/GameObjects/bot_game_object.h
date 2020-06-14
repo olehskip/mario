@@ -19,6 +19,11 @@ public:
 	bool isAlive() const;
 	void die();
 
+	// friend bool operator==(const BotGameObject& left, const BotGameObject& right)
+	// {
+	// 	return left == right;
+	// }
+
 private:
 	bool mIsAlive = true;
 	sf::Clock dieStopwatch;

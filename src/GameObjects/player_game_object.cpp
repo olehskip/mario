@@ -74,11 +74,11 @@ void PlayerGameObject::stay(float deltaTime)
 	}
 
 	if(offset.x == 0.f || currentAnimation->getCurrentFrame() == 0.f || 
-	   int(currentAnimation->getCurrentFrame()) >= currentAnimation->framesCount - 1 || isStacked) {
+	   int(currentAnimation->getCurrentFrame()) >= int(currentAnimation->framesCount - 1) || isStacked) {
 		currentAnimation->setCurrentFrame(0.f);
 		return;
 	}
-	if(int(currentAnimation->getCurrentFrame()) < config::player::STOP_RUN_FRAME && int(currentAnimation->getCurrentFrame()) > 0)
+	if(int(currentAnimation->getCurrentFrame()) < int(config::player::STOP_RUN_FRAME) && int(currentAnimation->getCurrentFrame()) > 0)
 		currentAnimation->setCurrentFrame(config::player::STOP_RUN_FRAME);
 	currentAnimation->setCurrentFrame(currentAnimation->getCurrentFrame() + deltaTime * abs(offset.x) * currentAnimation->animationSpeed);
 }
@@ -116,7 +116,7 @@ void PlayerGameObject::updateMovement(float deltaTime) // override
 	else if(abs(offset.y) > config::MAX_FALLING_SPEED)
 		offset.y = -config::MAX_FALLING_SPEED;
 
-	if(!isStandingOnAnyBlock && (!isAllowToJump && offset.y > 0 || isAllowToJump && !isJumpingNow)) {
+	if((!isStandingOnAnyBlock && !isAllowToJump && offset.y > 0) || (isAllowToJump && !isJumpingNow)) {
 		isAllowToJump = false;
 	}
 	else if(isStandingOnAnyBlock)
@@ -152,14 +152,14 @@ void PlayerGameObject::drawWithAnimation(sf::RenderWindow &window, float deltaTi
 		if(offset.y > 0) {
 			currentAnimation->setCurrentFrame(currentAnimation->getCurrentFrame() + deltaTime * abs(offset.y) * 
 				currentAnimation->animationSpeed);
-			if(int(currentAnimation->getCurrentFrame()) > currentAnimation->framesCount - 1)
+			if(int(currentAnimation->getCurrentFrame()) > int(currentAnimation->framesCount - 1))
 				currentAnimation->setCurrentFrame(currentAnimation->framesCount - 1);
 		}
 		else {
 			if(int(currentAnimation->getCurrentFrame()) < int(config::player::JUMPING_FRAME)) {
 				currentAnimation->setCurrentFrame(currentAnimation->getCurrentFrame() + deltaTime * abs(offset.y) * 
 					currentAnimation->animationSpeed);
-				if(int(currentAnimation->getCurrentFrame()) > config::player::JUMPING_FRAME)
+				if(int(currentAnimation->getCurrentFrame()) > int(config::player::JUMPING_FRAME))
 					currentAnimation->setCurrentFrame(config::player::JUMPING_FRAME);
 			}
 		}

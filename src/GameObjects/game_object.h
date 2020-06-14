@@ -22,6 +22,14 @@ public:
 	bool isStandingOnAnyBlock = false;
 	bool isNeedToRemove() const;
 
+	friend bool operator==(const GameObject& left, const GameObject& right)
+	{
+		return left.getOffset() == right.getOffset() &&
+			left.isNeedToRemove() == right.isNeedToRemove() &&
+			left.getPosition() == right.getPosition() &&
+			left.getGlobalBounds() == right.getGlobalBounds();
+	}
+
 protected:
 	const sf::Texture &texture;
 	sf::Sprite sprite;

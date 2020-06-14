@@ -55,7 +55,7 @@ private:
 	std::unique_ptr<AnimatedLabelController> titleAnimatedLabel;
 	std::unique_ptr<TemponaryLabelController> audioMuteLable;
 	std::vector<LabelController> labels; // all labels: time, score, etc
-	std::vector<PointsLabelController> pointsLabels;
+	std::vector<PointsLabel_ptr> pointsLabels;
 
 	AudioController audioController;
 

@@ -14,7 +14,7 @@ void BotGameObject::updateMovement(float deltaTime) // override
 	const int dx = getDX(direction);
 	if(mIsAlive) {
 		if(isStandingOnAnyBlock) {
-			offset.x += config::goomba::RUN_ACCELERATION * dx;
+			offset.x += config::goomba::RUN_ACCELERATION * dx * deltaTime * 60;
 			if(std::abs(offset.x) > config::goomba::RUN_MAX_SPEED)
 				offset.x = config::goomba::RUN_MAX_SPEED * dx;
 		}
@@ -25,7 +25,7 @@ void BotGameObject::updateMovement(float deltaTime) // override
 					offset.x = 0;
 			}
 			else if(offset.x < 0) {
-				offset.x += config::goomba::DECELERATION_IN_JUMP;
+				offset.x += config::goomba::DECELERATION_IN_JUMP * deltaTime * 60;
 				if(offset.x > 0)
 					offset.x = 0;
 			}

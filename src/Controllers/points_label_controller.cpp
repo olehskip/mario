@@ -1,7 +1,7 @@
 #include "points_label_controller.h"
 
-PointsLabelController::PointsLabelController(sf::Vector2f pos, const sf::Font &font, unsigned int fontSize, sf::Color color, unsigned int scoreValue, float visibleTime):
-	LabelController(pos, font, fontSize, color, std::to_string(scoreValue))
+PointsLabelController::PointsLabelController(sf::Vector2f pos, const sf::Font &font, unsigned int fontSize, sf::Color color, unsigned int scoreValue, float _visibleTime):
+	LabelController(pos, font, fontSize, color, std::to_string(scoreValue)), visibleTime(_visibleTime)
 {
 }
 
@@ -17,7 +17,7 @@ void PointsLabelController::draw(sf::RenderWindow &window) // override
 
 bool PointsLabelController::isEnded() const
 {
-	return stopwatch.getElapsedTime().asSeconds() >= 1;
+	return stopwatch.getElapsedTime().asSeconds() >= visibleTime;
 }
 
 void PointsLabelController::moveX(float x)
