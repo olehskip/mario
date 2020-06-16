@@ -14,12 +14,16 @@ public:
 		BlockType blockType = BlockType::DEFAULT);
 
 	void jumpUp(float deltaTime);
-	void updateMovement(float deltaTime) override;
+	void updateMovement(float /* deltaTime */) override;
 	const bool isHasCollision;
 	const BlockType blockType;
+	bool isStartedJumping() const;
 
-protected:
-	bool isStartedJumping = false;
+private:
+	using GameObject::finalMove;
+	using GameObject::animate;
+	
+	bool mIsStartedJumping = false;
 	
 	float globalOffsetY = 0.f;
 };

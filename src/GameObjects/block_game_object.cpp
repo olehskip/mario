@@ -8,25 +8,33 @@ BlockGameObject::BlockGameObject(sf::Vector2f pos, sf::Vector2f scale, const sf:
 
 void BlockGameObject::jumpUp(float deltaTime)
 {
-	if(!isStartedJumping)
+	if(!mIsStartedJumping)
 		offset.y = int(-config::BLOCK_JUMP_SPEED * deltaTime * 60);
 
-	isStartedJumping = true;
+	mIsStartedJumping = true;
 }
 
-void BlockGameObject::updateMovement(float deltaTime) // override
+void BlockGameObject::updateMovement(float /* deltaTime */) // override
 {
-	if(blockType == BlockType::LUCKY_BOX && isStartedJumping) {
+	if(blockType == BlockType::LUCKY_BOX && mIsStartedJumping) {
 		globalOffsetY += offset.y;
+		sprite.move(offset);
 
 		// if the block reached the critical point, then we need to return it back
 		if(offset.y <= 0.f && globalOffsetY < -getGlobalBounds().height)
-			offset.y = int(config::BLOCK_JUMP_SPEED * deltaTime * 60);
+			offset.y = int(config::BLOCK_JUMP_SPEED);
 
 		// if the block returned back
 		if(globalOffsetY == 0.f) {
 			offset.y = 0;
-			isStartedJumping = false;
+			mIsStartedJumping = false;
 		}
+		if(offset.y > 0.f && globalOffsetY > 0)
+			offset.y = -globalOffsetY;
 	}
+}
+
+bool BlockGameObject::isStartedJumping() const
+{
+	return mIsStartedJumping;
 }

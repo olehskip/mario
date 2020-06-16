@@ -7,8 +7,6 @@ LabelController::LabelController(sf::Vector2f pos, const sf::Font &font, unsigne
 	textObj.setFillColor(color);
 	textObj.setString(text);
 	textObj.setPosition(pos);
-	textObj.setOrigin(textObj.getLocalBounds().left + textObj.getLocalBounds().width / 2.f, 
-					  textObj.getLocalBounds().top + textObj.getLocalBounds().height / 2.f);
 }
 
 void LabelController::setText(const std::string &text)
@@ -41,6 +39,22 @@ void LabelController::toBottomY(float windowHeight)
 	textObj.setPosition(0, windowHeight - textObj.getGlobalBounds().height);
 }
 
+void LabelController::centerOrigin()
+{
+	textObj.setOrigin(textObj.getLocalBounds().left + textObj.getLocalBounds().width / 2.f, 
+		textObj.getLocalBounds().top + textObj.getLocalBounds().height / 2.f);
+}
+
+void LabelController::centerOriginX()
+{
+	textObj.setOrigin(textObj.getLocalBounds().left + textObj.getLocalBounds().width / 2.f, textObj.getOrigin().y);
+}
+
+void LabelController::centerOriginY()
+{
+	textObj.setOrigin(textObj.getOrigin().x, textObj.getLocalBounds().top + textObj.getLocalBounds().height / 2.f);
+}
+
 void LabelController::setPosition(const sf::Vector2f &pos)
 {
 	textObj.setPosition(pos);
@@ -49,6 +63,11 @@ void LabelController::setPosition(const sf::Vector2f &pos)
 sf::Vector2f LabelController::getPosition() const
 {
 	return textObj.getPosition();
+}
+
+sf::FloatRect LabelController::getGlobalBounds() const
+{
+	return textObj.getGlobalBounds();
 }
 
 void LabelController::move(const sf::Vector2f &pos)

@@ -21,6 +21,9 @@ namespace config
 	const float DIE_OXIS_Y = 1500 * config::window::WINDOW_ZOOM;
 	const int BLOCK_JUMP_SPEED = 6.f;
 
+	const unsigned int GAME_OVER_FONT_SIZE = 100;
+	const unsigned int PAUSE_FONT_SIZE = 100;
+
 	namespace player
 	{
 		// ---animations---

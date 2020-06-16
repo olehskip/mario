@@ -7,12 +7,14 @@ GameOverSceneController::GameOverSceneController(const sf::Font &font)
 	background.setFillColor(sf::Color(0, 0, 0, 0));
 	background.setSize(sf::Vector2f(config::window::WINDOW_WIDTH * config::window::WINDOW_ZOOM, config::window::WINDOW_HEIGHT * config::window::WINDOW_ZOOM));
 
-	gameOverLabel = std::make_unique<LabelController>(sf::Vector2f(0, 0), font, 100 * config::window::WINDOW_ZOOM, sf::Color::White, gameOverText);
+	gameOverLabel = std::make_unique<LabelController>(sf::Vector2f(0, 0), font, config::GAME_OVER_FONT_SIZE * config::window::WINDOW_ZOOM, sf::Color::White, gameOverText);
+	gameOverLabel->centerOrigin();
 	gameOverLabel->toCenterX(config::window::WINDOW_WIDTH * config::window::WINDOW_ZOOM);
 	gameOverLabel->toCenterY(config::window::WINDOW_HEIGHT * config::window::WINDOW_ZOOM);
 	gameOverLabel->setText("");
 
 	pressAnyKeyLabel = std::make_unique<LabelController>(sf::Vector2f(0, 0), font, 30 * config::window::WINDOW_ZOOM, sf::Color::White, pressAnyKeyText);
+	pressAnyKeyLabel->centerOrigin();
 	pressAnyKeyLabel->toBottomY(config::window::WINDOW_HEIGHT * config::window::WINDOW_ZOOM);
 	pressAnyKeyLabel->toCenterX(config::window::WINDOW_WIDTH * config::window::WINDOW_ZOOM);
 	pressAnyKeyLabel->setText("");

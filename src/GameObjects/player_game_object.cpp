@@ -29,16 +29,16 @@ void PlayerGameObject::move(Direction directionToMove, float deltaTime)
 			runAnimation = std::make_unique<AnimationController>(runAnimation->newObject());
 			currentAnimation = runAnimation;
 		}
-		direction = directionToMove;
 	}
+	if(offset.x < 0.f)
+		direction = Direction::LEFT;
+	else if(offset.x > 0.f)
+		direction = Direction::RIGHT;
 
 	offset.x += acceleration * deltaTime * 60 * dx;
 
 	if(std::abs(offset.x) > config::player::RUN_MAX_SPEED)
 		offset.x = config::player::RUN_MAX_SPEED * dx;
-
-	if(!isStandingOnAnyBlock && ((direction == Direction::LEFT && offset.x > 0) || (direction == Direction::RIGHT && offset.x < 0)))
-		offset.x = 0.f;
 }
 
 bool PlayerGameObject::jump(float deltaTime)
@@ -123,7 +123,7 @@ void PlayerGameObject::updateMovement(float deltaTime) // override
 		isAllowToJump = true;
  }
 
-void PlayerGameObject::drawWithAnimation(sf::RenderWindow &window, float deltaTime)
+void PlayerGameObject::animate(float deltaTime) // override
 {
 	if(currentAnimation == dieAnimation)
 		currentAnimation->setCurrentFrame(0.f);
@@ -166,7 +166,6 @@ void PlayerGameObject::drawWithAnimation(sf::RenderWindow &window, float deltaTi
 	}
 
 	sprite.setTextureRect(currentAnimation->getSpriteRect(direction));
-	draw(window);
 }
 
 void PlayerGameObject::headTouchedBlock()
@@ -177,8 +176,8 @@ void PlayerGameObject::headTouchedBlock()
 void PlayerGameObject::die()
 {
 	mIsAlive = false;
+	offset = sf::Vector2f(0.f, 10.f);
 	isAllowToJump = true;
-	offset = sf::Vector2f(0.f, 0.f);
 	jump(1.f);
 	currentAnimation = dieAnimation;
 	livesCount -= 1;

@@ -7,7 +7,8 @@
 enum class SoundType
 {
 	MARIO_JUMP,
-	MARIO_DIES
+	MARIO_DIES,
+	MARIO_STOMPS
 };
 
 class AudioController

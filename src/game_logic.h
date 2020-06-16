@@ -1,4 +1,6 @@
 #pragma once
+#include "time.h"
+
 #include "config.h"
 #include "GameObjects/player_game_object.h"
 #include "GameObjects/block_game_object.h"
@@ -11,8 +13,8 @@
 #include "Controllers/points_label_controller.h"
 #include "Controllers/audio_controller.h"
 #include "Controllers/game_over_scene_controller.h"
+#include "Controllers/pause_controller.h"
 
-#include "time.h"
 
 class GameLogic
 {
@@ -20,7 +22,6 @@ public:
 	GameLogic();
 	void updateTime();
 	float getDeltaTime() const;
-	int getStopwatchTime() const;
 
 	void restart();
 	void update();
@@ -31,35 +32,47 @@ public:
 	void keysManager();
 	void keysManager(sf::Keyboard::Key key);
 
-	FontsLoader fontsLoader;
-	TexturesLoader texturesLoader;
-
 	const sf::View &getView() const;
 
 private:
-	std::vector<size_t> horizontalCollisionController(GameObject &gameObject);
-	bool verticalCollisionController(GameObject &gameObject);
+	template<typename T>
+	std::vector<size_t> horizontalCollisionController(T &gameObject);
+	template<typename T>
+	bool verticalCollisionController(T &gameObject);
 	bool isBlockCanJump = true;
 
 	void gameOver();
 	void killer();
+	void onKillEnemy(BotGameObject &botGameObject);
 
 	std::vector<BlockObject_ptr> blocks;
 	// std::vector<BlockObject_ptr> scenery;
 	std::vector<BotObject_ptr> enemies;
 	PlayerObject_ptr player;
-	sf::Clock clock, stopwatch;
+
+	sf::Clock clock;
 	float deltaTime = 0.f;
+	sf::Clock timer;
+	float timerValue = 1000.f;
+	// float timerFinalValue = 100.f;
+	std::string convertNumberToStringWithNulls(int number, size_t nullsCount);
 
 	// at the start there is an animated label with developers contacts
 	std::unique_ptr<AnimatedLabelController> titleAnimatedLabel;
 	std::unique_ptr<TemponaryLabelController> audioMuteLable;
-	std::vector<LabelController> labels; // all labels: time, score, etc
+
+	std::vector<std::shared_ptr<LabelController>> labels; // all labels: time, score, etc
+	std::pair<std::shared_ptr<LabelController>, std::shared_ptr<LabelController>> timeLabels;
+	std::pair<std::shared_ptr<LabelController>, std::shared_ptr<LabelController>> livesLabels;
+	std::pair<std::shared_ptr<LabelController>, std::shared_ptr<LabelController>> scoreLabels;
+	std::pair<std::shared_ptr<LabelController>, std::shared_ptr<LabelController>> coinsLabels;
+
 	std::vector<PointsLabel_ptr> pointsLabels;
 
 	AudioController audioController;
 
 	std::unique_ptr<GameOverSceneController> gameOverSceneController;
+	std::unique_ptr<PauseController> pauseController;
 
 	// ---camera---
 	/*
@@ -96,4 +109,7 @@ private:
 			unsigned int scoreValue = 0;
 			unsigned int streak = 0;
 	} score;
+
+	FontsLoader fontsLoader;
+	TexturesLoader texturesLoader;
 };

@@ -40,11 +40,15 @@ void GameObject::setOffset(sf::Vector2f newOffset)
 
 void GameObject::draw(sf::RenderWindow &window)
 {
-	sprite.move(offset);
 	window.draw(sprite);
 }
 
 bool GameObject::isNeedToRemove() const
 {
 	return mIsNeedToRemove;
+}
+
+void GameObject::finalMove()
+{
+	sprite.move(offset);
 }

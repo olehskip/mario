@@ -28,11 +28,7 @@ public:
 	 */ 
 	void updateMovement(float deltaTime) override;
 
-	/*
-	 * This function decides, which animation should draw
-	 * and control the animation direction of mario
-	 */
-	void drawWithAnimation(sf::RenderWindow &window, float deltaTime);
+	void animate(float deltaTime) override;
 
 	/*
 	 * Stacked means the player is stacked of the left side of screen

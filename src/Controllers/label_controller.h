@@ -20,8 +20,12 @@ public:
 	void toCenterY(float windowHeight);
 	void toTopY();
 	void toBottomY(float windowHeight);
+	void centerOrigin();
+	void centerOriginX();
+	void centerOriginY();
 	void setPosition(const sf::Vector2f &pos);
 	sf::Vector2f getPosition() const;
+	sf::FloatRect getGlobalBounds() const;
 	void move(const sf::Vector2f &pos);
 	
 	void blink(bool blinkState, float delay = 0.f);
@@ -36,3 +40,4 @@ protected:
 	float blinkDelay = 0.f;
 	sf::Clock blinkingClock;
 };
+typedef std::unique_ptr<LabelController> Label_ptr;

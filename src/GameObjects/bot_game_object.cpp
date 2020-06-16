@@ -42,11 +42,10 @@ void BotGameObject::updateMovement(float deltaTime) // override
 		mIsNeedToRemove = true;
 }
 
-void BotGameObject::drawWithAnimation(sf::RenderWindow &window, float deltaTime)
+void BotGameObject::animate(float deltaTime) // override
 {
 	currentAnimation->setCurrentFrame(currentAnimation->getCurrentFrame() + deltaTime * std::abs(offset.x) * currentAnimation->animationSpeed);
 	sprite.setTextureRect(currentAnimation->getSpriteRect(direction));
-	draw(window);
 }
 
 void BotGameObject::changeDirection()

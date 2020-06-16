@@ -17,18 +17,17 @@ public:
 	void setOffset(sf::Vector2f newOffset);
 	
 	void draw(sf::RenderWindow &window);
+	/*
+	 * This function decides, which animation should draw
+	 * and control the animation direction
+	 */
+	virtual void animate(float /* deltaTime */) {};
 	virtual void updateMovement(float deltaTime) = 0;
 
 	bool isStandingOnAnyBlock = false;
 	bool isNeedToRemove() const;
 
-	friend bool operator==(const GameObject& left, const GameObject& right)
-	{
-		return left.getOffset() == right.getOffset() &&
-			left.isNeedToRemove() == right.isNeedToRemove() &&
-			left.getPosition() == right.getPosition() &&
-			left.getGlobalBounds() == right.getGlobalBounds();
-	}
+	virtual void finalMove();
 
 protected:
 	const sf::Texture &texture;
