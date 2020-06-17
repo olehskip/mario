@@ -33,4 +33,5 @@ SoundsLoader::SoundsLoader()
 	allObjects.insert(std::make_pair(SoundsID::MARIO_JUMPS, std::make_unique<SoundObject>("data/audio/sounds/mario_jumps.ogg")));
 	allObjects.insert(std::make_pair(SoundsID::MARIO_DIES, std::make_unique<SoundObject>("data/audio/sounds/mario_dies.ogg")));
 	allObjects.insert(std::make_pair(SoundsID::MARIO_STOMPS, std::make_unique<SoundObject>("data/audio/sounds/mario_stomps.ogg")));
+	allObjects.insert(std::make_pair(SoundsID::COIN, std::make_unique<SoundObject>("data/audio/sounds/coin.ogg")));
 }

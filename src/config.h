@@ -16,10 +16,9 @@ namespace config
 	}
 
 	const float GRAVITY = 1.2f;
-	const float MAX_FALLING_SPEED = 22.f;
+	const float MAX_FALLING_SPEED = 26.f;
 	const unsigned int ANIMATION_SPACE_SIZE = 32;
 	const float DIE_OXIS_Y = 1500 * config::window::WINDOW_ZOOM;
-	const int BLOCK_JUMP_SPEED = 6.f;
 
 	const unsigned int GAME_OVER_FONT_SIZE = 100;
 	const unsigned int PAUSE_FONT_SIZE = 100;
@@ -60,8 +59,19 @@ namespace config
 		const float ANIMATION_SPEED = 10.f;
 	}
 
-	const float COIN_ANIMATION_SPEED = 6.f;
-			
+	namespace coin
+	{
+		const float JUMP_ANIMATION_SPEED = 20.f;
+		const float JUMP_DISTANCE = 25.f * config::window::WINDOW_ZOOM;
+		const float JUMP_SPEED = 10.f;
+		const unsigned int COST = 200;
+	}
+
+	namespace block
+	{
+		const float JUMP_SPEED = 6.f;
+	}
+
 	namespace background 
 	{
 		const unsigned int MOUNTAINS_BACKGROUND_OFFSET_Y = 130;

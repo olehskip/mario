@@ -26,6 +26,7 @@ public:
 
 	bool isStandingOnAnyBlock = false;
 	bool isNeedToRemove() const;
+	void needToRemove();
 
 	virtual void finalMove();
 

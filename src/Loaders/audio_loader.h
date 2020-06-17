@@ -36,7 +36,8 @@ enum class SoundsID
 {
 	MARIO_JUMPS,
 	MARIO_DIES,
-	MARIO_STOMPS
+	MARIO_STOMPS,
+	COIN
 };
 
 class SoundObject: public LoaderObjectInterface<sf::Sound>

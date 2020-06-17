@@ -48,6 +48,11 @@ bool GameObject::isNeedToRemove() const
 	return mIsNeedToRemove;
 }
 
+void GameObject::needToRemove()
+{
+	mIsNeedToRemove = true;
+}
+
 void GameObject::finalMove()
 {
 	sprite.move(offset);

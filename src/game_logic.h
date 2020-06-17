@@ -2,11 +2,12 @@
 #include "time.h"
 
 #include "config.h"
+#include "Loaders/textures_loader.h"
+#include "Loaders/fonts_loader.h"
 #include "GameObjects/player_game_object.h"
 #include "GameObjects/block_game_object.h"
 #include "GameObjects/bot_game_object.h"
-#include "Loaders/textures_loader.h"
-#include "Loaders/fonts_loader.h"
+#include "GameObjects/coin_game_object.h"
 #include "Controllers/background_controller.h"
 #include "Controllers/animated_label_controller.h"
 #include "Controllers/temponary_label_controller.h"
@@ -29,7 +30,7 @@ public:
 	// if a game object over the game scene don't draw it
 	bool isDrawObject(sf::FloatRect globalBounds);
 
-	void keysManager();
+	void keysManager(bool isFocused);
 	void keysManager(sf::Keyboard::Key key);
 
 	const sf::View &getView() const;
@@ -39,16 +40,23 @@ private:
 	std::vector<size_t> horizontalCollisionController(T &gameObject);
 	template<typename T>
 	bool verticalCollisionController(T &gameObject);
+	template<typename T1, typename T2>
+	bool checkVerticalCollision(T1 &firstGameObject, T2 &secondGameObject);
+
 	bool isBlockCanJump = true;
 
 	void gameOver();
 	void killer();
 	void onKillEnemy(BotGameObject &botGameObject);
+	void onCatchCoin(CoinGameObject &coinGameObject);
+	void addPointLabel(sf::Vector2f pos, unsigned int value);
+	void addCoin(sf::Vector2f pos, CoinState coinState);
 
 	std::vector<BlockObject_ptr> blocks;
 	// std::vector<BlockObject_ptr> scenery;
 	std::vector<BotObject_ptr> enemies;
 	PlayerObject_ptr player;
+	std::vector<std::unique_ptr<CoinGameObject>> coins;
 
 	sf::Clock clock;
 	float deltaTime = 0.f;
@@ -104,11 +112,13 @@ private:
 			 */
 			void resetStreak();
 			unsigned int increaseValue();
+			void addValue(unsigned int value);
 
 		private:
 			unsigned int scoreValue = 0;
 			unsigned int streak = 0;
 	} score;
+	unsigned int coinsCount = 0;
 
 	FontsLoader fontsLoader;
 	TexturesLoader texturesLoader;

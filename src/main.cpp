@@ -19,7 +19,7 @@ int main()
 		while(window.pollEvent(event)) {
 			if(event.type == sf::Event::Closed)
 				window.close();
-		if(event.type == sf::Event::KeyPressed)
+			else if(event.type == sf::Event::KeyPressed)
 				gameLogic.keysManager(event.key.code);
 			else if(event.type == sf::Event::GainedFocus)
 				isFocused = true;
@@ -27,8 +27,7 @@ int main()
 				isFocused = false;
 		}
 
-		if(isFocused)
-			gameLogic.keysManager();
+		gameLogic.keysManager(isFocused);
 
 		window.clear(config::window::BACKGROUND_COLOR);
 		gameLogic.update();

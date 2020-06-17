@@ -79,6 +79,8 @@ void LabelController::blink(bool blinkState, float delay)
 {
 	if(blinkState)
 		blinkingClock.restart();
+	else
+		isVisible = true;
 	isBlinking = blinkState;
 	blinkDelay = delay;
 }

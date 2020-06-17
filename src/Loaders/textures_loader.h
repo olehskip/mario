@@ -18,6 +18,7 @@ enum class TexturesID
 	// ---sprites---
 	MARIO_PLAYER_SPRITE,
 	GOMBA_SPRITE,
+	COIN_SPRITE,
 	// ---sprites---
 
 	// ---blocks---
@@ -50,11 +51,6 @@ enum class TexturesID
 	SMALL_TREE1,
 	PLATE,
 	// ---scenery---
-
-	// ---icons---
-	AUDIO_MUTED,
-	AUDIO_UNMUTED
-	// ---icons---
 };
 
 class TextureObject: public LoaderObjectInterface<sf::Texture>

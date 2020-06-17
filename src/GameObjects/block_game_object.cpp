@@ -1,15 +1,17 @@
 #include "block_game_object.h"
 #include "../config.h"
 
-BlockGameObject::BlockGameObject(sf::Vector2f pos, sf::Vector2f scale, const sf::Texture &_texture, bool _isHasCollision, BlockType blockType): 
+BlockGameObject::BlockGameObject(sf::Vector2f pos, sf::Vector2f scale, const sf::Texture &_texture, bool _isHasCollision, 
+	BlockType blockType, unsigned int coinCount): 
 	GameObject(pos, scale, _texture), isHasCollision(_isHasCollision), blockType(blockType)
 {
+	this->coinCount = coinCount;
 }
 
 void BlockGameObject::jumpUp(float deltaTime)
 {
 	if(!mIsStartedJumping)
-		offset.y = int(-config::BLOCK_JUMP_SPEED * deltaTime * 60);
+		offset.y = int(-config::block::JUMP_SPEED * deltaTime * 60);
 
 	mIsStartedJumping = true;
 }
@@ -22,7 +24,7 @@ void BlockGameObject::updateMovement(float /* deltaTime */) // override
 
 		// if the block reached the critical point, then we need to return it back
 		if(offset.y <= 0.f && globalOffsetY < -getGlobalBounds().height)
-			offset.y = int(config::BLOCK_JUMP_SPEED);
+			offset.y = int(config::block::JUMP_SPEED);
 
 		// if the block returned back
 		if(globalOffsetY == 0.f) {
@@ -37,4 +39,14 @@ void BlockGameObject::updateMovement(float /* deltaTime */) // override
 bool BlockGameObject::isStartedJumping() const
 {
 	return mIsStartedJumping;
+}
+
+bool BlockGameObject::getCoin()
+{
+	if(coinCount > 0) {
+		coinCount--;
+		return true;
+	}
+	else
+		return false;
 }

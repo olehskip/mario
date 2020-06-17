@@ -42,9 +42,9 @@ void GameLogic::restart()
 	// spawn for testing
 	blocks.clear();
 
-	for(int x = 3; x < 20; ++x) {
+	for(size_t x = 3; x < 20; ++x) {
 		blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, 14 * 64), sf::Vector2f(1, 1), 
-			texturesLoader.getObject(TexturesID::LUCKY_BOX), true, BlockType::LUCKY_BOX));
+			texturesLoader.getObject(TexturesID::LUCKY_BOX), true, BlockType::LUCKY_BOX, 2));
 	}
 	blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * 2, 13 * 64), sf::Vector2f(1, 1), 
 		texturesLoader.getObject(TexturesID::LUCKY_BOX), true, BlockType::LUCKY_BOX));
@@ -55,8 +55,8 @@ void GameLogic::restart()
 		blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, 19 * 64), sf::Vector2f(1, 1), 
 			texturesLoader.getObject(TexturesID::GRASS_BRICK), true));
 	}
-	for(int y = 20; y < 23; ++y) {
-		for(int x = 0; x < 1000; ++x) {
+	for(size_t y = 20; y < 23; ++y) {
+		for(size_t x = 0; x < 1000; ++x) {
 			blocks.push_back(std::make_unique<BlockGameObject>(sf::Vector2f(64 * x, y * 64), sf::Vector2f(1, 1), 
 				texturesLoader.getObject(TexturesID::BOTTOM_BRICK), true));
 		}
@@ -65,15 +65,22 @@ void GameLogic::restart()
 	enemies.clear();
 	enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(6 * 64, 64 * 10), sf::Vector2f(1, 1), 
 		texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT));
-	enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(8 * 64, 64 * 15), sf::Vector2f(1, 1), 
-		texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::LEFT));
-	for(int x = 10; x < 15; ++x) {
+	// enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(8 * 64, 64 * 15), sf::Vector2f(1, 1), 
+	// 	texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::LEFT));
+	for(size_t x = 10; x < 15; ++x) {
 		enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(x * 100, 64 * 15), sf::Vector2f(1, 1), 
 			texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT));
 	}
 
+	coins.clear();
+	for(size_t x = 10; x < 15; ++x) {
+		for(size_t y = 16; y < 19; ++y)
+			addCoin(sf::Vector2f(x * 64, y * 64), CoinState::STAND);
+	}
+
 	pointsLabels.clear();
 	labels.clear();
+
 	timeLabels.first = std::make_shared<LabelController>(sf::Vector2f(20, 0), fontsLoader.getObject(FontsID::PIXEBOY), 
 		35 * config::window::WINDOW_ZOOM, sf::Color::White, std::string("Time:"));
 	timeLabels.second = std::make_shared<LabelController>(LabelController(sf::Vector2f(timeLabels.first->getGlobalBounds().left + 
@@ -109,7 +116,7 @@ void GameLogic::restart()
 		coinsLabels.first->getGlobalBounds().width - 20, 0));
 	coinsLabels.second = std::make_shared<LabelController>(sf::Vector2f(coinsLabels.first->getGlobalBounds().left + 
 		coinsLabels.first->getGlobalBounds().width / 2.f, timeLabels.second->getPosition().y), 
-	fontsLoader.getObject(FontsID::PIXEBOY), 35 * config::window::WINDOW_ZOOM, sf::Color::White, std::string("0"));
+	fontsLoader.getObject(FontsID::PIXEBOY), 35 * config::window::WINDOW_ZOOM, sf::Color::White, std::string("0000"));
 	coinsLabels.second->centerOriginX();
 	labels.push_back(coinsLabels.first);
 	labels.push_back(coinsLabels.second);
@@ -120,6 +127,7 @@ void GameLogic::restart()
 	pauseController = std::make_unique<PauseController>(fontsLoader.getObject(FontsID::_8_BIT_ARCADE));
 
 	score = Score();
+	coinsCount = 0;
 	timer.restart();
 	timerValue = 999.f;
 	clock.restart();
@@ -157,6 +165,10 @@ void GameLogic::update()
 			blocks[nearestTouchedBlockIndex]->jumpUp(deltaTime);
 			player->headTouchedBlock();
 			isBlockCanJump = false;
+			if(blocks[nearestTouchedBlockIndex]->getCoin()) {
+				const auto blockRect = blocks[nearestTouchedBlockIndex]->getGlobalBounds();
+				addCoin(sf::Vector2f(blockRect.left + blockRect.width / 2.f, blockRect.top), CoinState::JUMP);
+			}
 		}
 		verticalCollisionController(*player);
 		if(player->isStandingOnAnyBlock)
@@ -170,6 +182,12 @@ void GameLogic::update()
 			enemy->changeDirection();
 		enemy->finalMove();
 	}
+	for(auto &coin: coins) {
+		coin->updateMovement(deltaTime);
+		horizontalCollisionController(*coin);
+		coin->finalMove();
+	}
+
 	killer();
 	audioController.update();
 	if(player->isAlive()) {
@@ -181,6 +199,7 @@ void GameLogic::update()
 		timeLabels.second->setText(std::to_string(int(std::round(std::abs(timerValue)))));
 		livesLabels.second->setText(std::to_string(player->getLivesCount()));
 		scoreLabels.second->setText(convertNumberToStringWithNulls(score.getScoreValue(), 6));
+		coinsLabels.second->setText(convertNumberToStringWithNulls(coinsCount, 4));
 	}
 	
 	audioMuteLable->update();
@@ -205,6 +224,12 @@ void GameLogic::draw(sf::RenderWindow &window)
 			enemy->draw(window);
 		}
 	}
+	for(auto &coin: coins) {
+		if(isDrawObject(coin->getGlobalBounds()))
+			coin->animate(deltaTime);
+		coin->draw(window);
+	}
+
 	titleAnimatedLabel->draw(window);
 	audioMuteLable->draw(window);
 	
@@ -227,10 +252,10 @@ bool GameLogic::isDrawObject(sf::FloatRect globalBounds)
 		globalBounds.left + globalBounds.width < view.getCenter().x + config::window::WINDOW_WIDTH / 2 * config::window::WINDOW_ZOOM;
 }
 
-void GameLogic::keysManager()
+void GameLogic::keysManager(bool isFocused)
 {
 	if(pauseController->isPaused()) return;
-	if(player->isAlive()) {
+	if(player->isAlive() && isFocused) {
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 			player->move(Direction::LEFT, deltaTime);
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
@@ -323,23 +348,39 @@ std::vector<size_t> GameLogic::horizontalCollisionController(T &gameObject)
 			// if the the gameObject head touched a block
 			if(gameObject.getOffset().y < 0 && globalBounds.top + gameObject.getOffset().y > blockRect.top  && 
 			   globalBounds.top + gameObject.getOffset().y <= blockRect.top + blockRect.height) {
-				gameObject.setOffset(sf::Vector2f(gameObject.getOffset().x, blockRect.height + blockRect.top - globalBounds.top));
-				output.push_back(std::distance(blocks.begin(), std::find(blocks.begin(), blocks.end(), block)));
+				if constexpr (!std::is_same_v<T, CoinGameObject>) {
+					gameObject.setOffset(sf::Vector2f(gameObject.getOffset().x, blockRect.height + blockRect.top - globalBounds.top));
+					output.push_back(std::distance(blocks.begin(), std::find(blocks.begin(), blocks.end(), block)));
+				}
 			}
 
-			// if the gameObject is stacked to put in the right place
-			// or
-			// if the gameObject is staying on the right edge of a block do not touch him
+			/*
+			 * if the gameObject is stacked to put in the right place
+			 * or
+			 * if the gameObject is staying on the right edge of a block do not touch him
+			 */
 			else if(globalBounds.top + gameObject.getOffset().y < blockRect.top && 
 			   globalBounds.top + globalBounds.height + gameObject.getOffset().y > blockRect.top) {
-				gameObject.setOffset(sf::Vector2f(gameObject.getOffset().x, blockRect.top - (globalBounds.top + globalBounds.height)));
+				
 				gameObject.isStandingOnAnyBlock = true;
 				if constexpr (std::is_same_v<T, BotGameObject>) {
 					if(block->isStartedJumping()) {
-						gameObject.setOffset(sf::Vector2f(0, -5));
+						gameObject.setOffset(sf::Vector2f(0, -10));
 						onKillEnemy(gameObject);
 					}
 				}
+				if constexpr (std::is_same_v<T, CoinGameObject>) {
+					/* 
+					 * if a coin falls and reached the ground, then the player earned it,
+					 * but if the coin stays on the ground - the player need take it
+					 * OR
+					 * if the coin stays on block, and that block was touched by the player head
+					 */
+					if((gameObject.coinState == CoinState::JUMP && gameObject.getOffset().y > 0))
+						onCatchCoin(gameObject);
+				}
+				else
+					gameObject.setOffset(sf::Vector2f(gameObject.getOffset().x, blockRect.top - (globalBounds.top + globalBounds.height)));
 			}
 		}
 	}
@@ -362,20 +403,36 @@ bool GameLogic::verticalCollisionController(T &gameObject)
 		   globalBounds.top + globalBounds.height + gameObject.getOffset().y > blockRect.top) {
 			// from the left to the right
 			if(gameObject.getOffset().x > 0 && globalBounds.left + globalBounds.width + gameObject.getOffset().x > blockRect.left && 
-			   globalBounds.left + globalBounds.width + gameObject.getOffset().x < blockRect.left + blockRect.width) {
-				gameObject.setOffset(sf::Vector2f(blockRect.left - globalBounds.left - globalBounds.width, gameObject.getOffset().y));
-				isCollision = true;
+				globalBounds.left + globalBounds.width + gameObject.getOffset().x < blockRect.left + blockRect.width) {
+					gameObject.setOffset(sf::Vector2f(blockRect.left - globalBounds.left - globalBounds.width, gameObject.getOffset().y));
+					isCollision = true;
 			}
 			// from the right to the left
 			else if(gameObject.getOffset().x < 0 && globalBounds.left + gameObject.getOffset().x < blockRect.left + blockRect.width && 
-				    globalBounds.left + globalBounds.width + gameObject.getOffset().x > blockRect.left + blockRect.width) {
-				gameObject.setOffset(sf::Vector2f(blockRect.left + blockRect.width - globalBounds.left, gameObject.getOffset().y));
-				isCollision = true;
+				globalBounds.left + globalBounds.width + gameObject.getOffset().x > blockRect.left + blockRect.width) {
+					gameObject.setOffset(sf::Vector2f(blockRect.left + blockRect.width - globalBounds.left, gameObject.getOffset().y));
+					isCollision = true;
 			}
 		}
 	}
 
 	return isCollision;
+}
+
+template<typename T1, typename T2>
+bool GameLogic::checkVerticalCollision(T1 &firstGameObject, T2 &secondGameObject)
+{
+	const auto firstGlobalBounds = firstGameObject.getGlobalBounds();
+	const auto secondGlobalBounds = secondGameObject.getGlobalBounds();
+
+	if((firstGlobalBounds.top + player->getOffset().y < secondGlobalBounds.top + secondGlobalBounds.height + secondGameObject.getOffset().y && 
+		firstGlobalBounds.top + firstGlobalBounds.height + player->getOffset().y > secondGlobalBounds.top + secondGameObject.getOffset().y) &&
+		((firstGlobalBounds.left + firstGlobalBounds.width + player->getOffset().x > secondGlobalBounds.left + secondGameObject.getOffset().x && 
+		firstGlobalBounds.left + firstGlobalBounds.width + player->getOffset().x < secondGlobalBounds.left + secondGlobalBounds.width + secondGameObject.getOffset().x) ||
+		(firstGlobalBounds.left + player->getOffset().x < secondGlobalBounds.left + secondGlobalBounds.width + secondGameObject.getOffset().x && 
+		firstGlobalBounds.left + firstGlobalBounds.width + player->getOffset().x > secondGlobalBounds.left + secondGlobalBounds.width + secondGameObject.getOffset().x)))
+			return true;
+	return false;
 }
 
 void GameLogic::gameOver()
@@ -406,6 +463,13 @@ void GameLogic::killer()
 			enemies.erase(std::remove(enemies.begin(), enemies.end(), *it));
 	}
 
+	for(auto it = coins.rbegin(); it != coins.rend(); ++it) {
+		if((it->get()->getPosition().y > config::DIE_OXIS_Y || checkVerticalCollision(*player, *it->get())) && !it->get()->isAlreadyEarned())
+			onCatchCoin(*it->get());
+		if(it->get()->isNeedToRemove())
+			coins.erase(std::remove(coins.begin(), coins.end(), *it));
+	}
+
 	// the player fell too low
 	if(player->isAlive() && player->getPosition().y > config::DIE_OXIS_Y)
 		gameOver();
@@ -416,7 +480,7 @@ void GameLogic::killer()
 			if(!enemy->isAlive()) continue;
 			const auto enemyRect = enemy->getGlobalBounds();
 			if((player->getOffset().y > 0 && globalBounds.top + player->getOffset().y < enemyRect.top && 
-			   globalBounds.top + globalBounds.height + player->getOffset().y  > enemyRect.top - enemyRect.height / 3) &&
+				globalBounds.top + globalBounds.height + player->getOffset().y  > enemyRect.top - enemyRect.height / 3) &&
 				((globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left && 
 				globalBounds.left + globalBounds.width + player->getOffset().x < enemyRect.left + enemyRect.width) ||
 				(globalBounds.left + player->getOffset().x < enemyRect.left + enemyRect.width && 
@@ -424,12 +488,7 @@ void GameLogic::killer()
 					onKillEnemy(*enemy);
 	
 			// the player encountered with an enemy
-			else if((globalBounds.top + player->getOffset().y < enemyRect.top + enemyRect.height && 
-				globalBounds.top + globalBounds.height + player->getOffset().y > enemyRect.top) &&
-				((globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left && 
-				globalBounds.left + globalBounds.width + player->getOffset().x < enemyRect.left + enemyRect.width) ||
-				(globalBounds.left + player->getOffset().x < enemyRect.left + enemyRect.width && 
-				globalBounds.left + globalBounds.width + player->getOffset().x > enemyRect.left + enemyRect.width)))
+			else if(checkVerticalCollision(*player, *enemy))
 					gameOver();
 		}
 	}
@@ -439,11 +498,34 @@ void GameLogic::onKillEnemy(BotGameObject &botGameObject)
 {
 	if(!botGameObject.isAlive()) return;
 	player->setOffset(sf::Vector2f(player->getOffset().x, -10));
-	pointsLabels.push_back(std::make_unique<PointsLabelController>(sf::Vector2f(botGameObject.getGlobalBounds().left, 
-		botGameObject.getGlobalBounds().top),fontsLoader.getObject(FontsID::PIXEBOY), 30 * config::window::WINDOW_ZOOM, 
-		sf::Color::White, score.increaseValue(), 1));
+	addPointLabel(sf::Vector2f(botGameObject.getGlobalBounds().left, botGameObject.getGlobalBounds().top), score.increaseValue());
 	audioController.playSound(SoundsID::MARIO_STOMPS);
 	botGameObject.die();
+}
+
+void GameLogic::onCatchCoin(CoinGameObject &coinGameObject)
+{
+	if(coinGameObject.isAlreadyEarned() || coinGameObject.isNeedToRemove()) return;
+	coinsCount++;
+	coinGameObject.earn();
+	coinGameObject.needToRemove();
+	addPointLabel(sf::Vector2f(coinGameObject.getGlobalBounds().left + coinGameObject.getGlobalBounds().width / 2.f, 
+		coinGameObject.getGlobalBounds().top), config::coin::COST);
+	score.addValue(config::coin::COST);
+	audioController.playSound(SoundsID::COIN);
+}
+
+void GameLogic::addPointLabel(sf::Vector2f pos, unsigned int value)
+{
+	pointsLabels.push_back(std::make_unique<PointsLabelController>(pos, fontsLoader.getObject(FontsID::PIXEBOY), 
+		30 * config::window::WINDOW_ZOOM, sf::Color::White, value, 1));
+}
+
+void GameLogic::addCoin(sf::Vector2f pos, CoinState coinState)
+{
+	coins.push_back(std::make_unique<CoinGameObject>(pos, sf::Vector2f(1.3, 1.3), texturesLoader.getObject(TexturesID::COIN_SPRITE), coinState));
+	if(coinState == CoinState::JUMP)
+		coins.back()->jumpUp(deltaTime);
 }
 
 unsigned int GameLogic::Score::getScoreValue() const
@@ -492,4 +574,9 @@ unsigned int GameLogic::Score::increaseValue()
 	}
 	scoreValue += scoreIncrease;
 	return scoreIncrease;
+}
+
+void GameLogic::Score::addValue(unsigned int value)
+{
+	scoreValue += value;
 }

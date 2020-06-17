@@ -20,6 +20,7 @@ TexturesLoader::TexturesLoader()
 	// ---sprites---
 	allObjects.insert(std::make_pair(TexturesID::MARIO_PLAYER_SPRITE, std::make_unique<TextureObject>("data/textures/sprites/mario_sprite.png")));
 	allObjects.insert(std::make_pair(TexturesID::GOMBA_SPRITE, std::make_unique<TextureObject>("data/textures/sprites/goomba_sprite.png")));
+	allObjects.insert(std::make_pair(TexturesID::COIN_SPRITE, std::make_unique<TextureObject>("data/textures/sprites/coin_sprite.png")));
 	// ---sprites---
 
 	// ---blocks---
@@ -52,10 +53,4 @@ TexturesLoader::TexturesLoader()
 	allObjects.insert(std::make_pair(TexturesID::SMALL_TREE1, std::make_unique<TextureObject>("data/textures/scenery/small_tree1.png")));
 	allObjects.insert(std::make_pair(TexturesID::PLATE, std::make_unique<TextureObject>("data/textures/scenery/plate.png")));
 	// ---scenery---
-
-	// ---icons---
-	allObjects.insert(std::make_pair(TexturesID::AUDIO_MUTED, std::make_unique<TextureObject>("data/icons/audio_muted.png")));
-	allObjects.insert(std::make_pair(TexturesID::AUDIO_UNMUTED, std::make_unique<TextureObject>("data/icons/audio_unmuted.png")));
-	// --icons--
-
 }
