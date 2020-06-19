@@ -10,12 +10,12 @@ enum class BlockType
 class BlockGameObject: public GameObject
 {
 public:
-	BlockGameObject(sf::Vector2f pos, sf::Vector2f scale, const sf::Texture &_texture, bool _isHasCollision, 
+	BlockGameObject(sf::Vector2f pos, sf::Vector2f scale, const sf::Texture &_texture, bool hasCollision, 
 		BlockType blockType = BlockType::DEFAULT, unsigned int coinCount = 0);
 
 	void jumpUp(float deltaTime);
 	void updateMovement(float /* deltaTime */) override;
-	const bool isHasCollision;
+	
 	const BlockType blockType;
 	bool isStartedJumping() const;
 

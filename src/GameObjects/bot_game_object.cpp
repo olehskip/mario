@@ -6,11 +6,13 @@ BotGameObject::BotGameObject(sf::Vector2f pos, sf::Vector2f scale, sf::Texture &
 	runAnimation = std::make_shared<AnimationController>(0, 18, 10, sf::Vector2f(60, 72), 32, true);
 	dieAnimation = std::make_shared<AnimationController>(1, 1, 0, sf::Vector2f(60, 72), 32, true);
 	currentAnimation = runAnimation;
+	sprite.setTextureRect(currentAnimation->getSpriteRect(direction));
 	direction = spawnDirection;
 }
 
 void BotGameObject::updateMovement(float deltaTime) // override
 {
+	mIsChangedDirection = false;
 	const int dx = getDX(direction);
 	if(mIsAlive) {
 		if(isStandingOnAnyBlock) {
@@ -38,7 +40,7 @@ void BotGameObject::updateMovement(float deltaTime) // override
 	if(offset.y > config::MAX_FALLING_SPEED)
 		offset.y = config::MAX_FALLING_SPEED;
 
-	if(!mIsAlive && dieStopwatch.getElapsedTime().asSeconds() > 0.5f)
+	if(!mIsAlive && dieStopwatch.getElapsedTime().asSeconds() > config::goomba::DEATH_TIME)
 		mIsNeedToRemove = true;
 }
 
@@ -50,11 +52,17 @@ void BotGameObject::animate(float deltaTime) // override
 
 void BotGameObject::changeDirection()
 {
-	if(!mIsAlive) return;
+	if(!mIsAlive || mIsChangedDirection) return;
+	mIsChangedDirection = true;
 	if(direction == Direction::LEFT)
 		direction = Direction::RIGHT;
 	else
 		direction = Direction::LEFT;
+}
+
+bool BotGameObject::isChangedDirection() const
+{
+	return mIsChangedDirection;
 }
 
 bool BotGameObject::isAlive() const

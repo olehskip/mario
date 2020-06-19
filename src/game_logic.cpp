@@ -65,9 +65,9 @@ void GameLogic::restart()
 	enemies.clear();
 	enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(6 * 64, 64 * 10), sf::Vector2f(1, 1), 
 		texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT));
-	// enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(8 * 64, 64 * 15), sf::Vector2f(1, 1), 
-	// 	texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::LEFT));
-	for(size_t x = 10; x < 15; ++x) {
+	enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(10 * 64, 64 * 10), sf::Vector2f(1, 1), 
+		texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::LEFT));
+	for(size_t x = 10; x < 16; ++x) {
 		enemies.push_back(std::make_unique<BotGameObject>(sf::Vector2f(x * 100, 64 * 15), sf::Vector2f(1, 1), 
 			texturesLoader.getObject(TexturesID::GOMBA_SPRITE), Direction::RIGHT));
 	}
@@ -170,7 +170,7 @@ void GameLogic::update()
 				addCoin(sf::Vector2f(blockRect.left + blockRect.width / 2.f, blockRect.top), CoinState::JUMP);
 			}
 		}
-		verticalCollisionController(*player);
+		verticalCollisionWithBlocks(*player);
 		if(player->isStandingOnAnyBlock)
 			score.resetStreak();
 	}
@@ -178,10 +178,33 @@ void GameLogic::update()
 	for(auto &enemy: enemies) {
 		enemy->updateMovement(deltaTime);
 		horizontalCollisionController(*enemy);
-		if(verticalCollisionController(*enemy) && enemy->getOffset().y == 0)
+		if(verticalCollisionWithBlocks(*enemy) && enemy->getOffset().y == 0)
 			enemy->changeDirection();
 		enemy->finalMove();
 	}
+
+	if(enemies.size() > 1) {
+		for(size_t i = 1; i < enemies.size(); ++i) {
+			if(!enemies[0]->isAlive()) break;
+			if(!enemies[i]->isAlive() || (enemies[0]->isChangedDirection() && enemies[i]->isChangedDirection())) continue;
+			if(verticalCollisionController(*enemies[0], *enemies[i], IsChangeOffset::FIRST_AND_SECOND)) {
+				enemies[0]->changeDirection();
+				enemies[i]->changeDirection();
+			}
+		}
+
+		for(size_t i = 1; i < size_t(enemies.size() / 2); ++i) {
+			if(!enemies[i]->isAlive()) continue;
+			for(size_t j = size_t(enemies.size() / 2); j < enemies.size(); ++j) {
+				if(!enemies[j]->isAlive() || (enemies[i]->isChangedDirection() && enemies[j]->isChangedDirection())) continue;
+				if(verticalCollisionController(*enemies[i], *enemies[j], IsChangeOffset::FIRST_AND_SECOND)) {
+					enemies[i]->changeDirection();
+					enemies[j]->changeDirection();
+				}
+			}
+		}
+	}
+
 	for(auto &coin: coins) {
 		coin->updateMovement(deltaTime);
 		horizontalCollisionController(*coin);
@@ -342,7 +365,7 @@ std::vector<size_t> GameLogic::horizontalCollisionController(T &gameObject)
 	gameObject.isStandingOnAnyBlock = false;
 	// check for horizontal collision
 	for(auto &block: blocks) {
-		if(!block->isHasCollision) continue;
+		if(!block->hasCollision) continue;
 		const auto blockRect = block->getGlobalBounds();
 		if(globalBounds.left < blockRect.left + blockRect.width && globalBounds.left + globalBounds.width > blockRect.left) { // x
 			// if the the gameObject head touched a block
@@ -388,51 +411,63 @@ std::vector<size_t> GameLogic::horizontalCollisionController(T &gameObject)
 	return output;
 }
 
-template<typename T>
-bool GameLogic::verticalCollisionController(T &gameObject)
+template<typename T1, typename T2>
+bool GameLogic::verticalCollisionController(T1 &firstGameObject, T2 &secondGameObject, IsChangeOffset isChangeOffset)
 {
-	const auto globalBounds = gameObject.getGlobalBounds();
+	if(!firstGameObject.hasCollision || !secondGameObject.hasCollision) return false;
+	const auto firstGlobalBounds = firstGameObject.getGlobalBounds();
+	const auto secondGlobalBounds = secondGameObject.getGlobalBounds();
 	bool isCollision = false;
 	
 	// check for vertical collision
-	for(auto &block: blocks) {
-		if(!block->isHasCollision) continue;
-		const auto blockRect = block->getGlobalBounds();
 
-		if(globalBounds.top + gameObject.getOffset().y < blockRect.top + blockRect.height && 
-		   globalBounds.top + globalBounds.height + gameObject.getOffset().y > blockRect.top) {
-			// from the left to the right
-			if(gameObject.getOffset().x > 0 && globalBounds.left + globalBounds.width + gameObject.getOffset().x > blockRect.left && 
-				globalBounds.left + globalBounds.width + gameObject.getOffset().x < blockRect.left + blockRect.width) {
-					gameObject.setOffset(sf::Vector2f(blockRect.left - globalBounds.left - globalBounds.width, gameObject.getOffset().y));
-					isCollision = true;
-			}
-			// from the right to the left
-			else if(gameObject.getOffset().x < 0 && globalBounds.left + gameObject.getOffset().x < blockRect.left + blockRect.width && 
-				globalBounds.left + globalBounds.width + gameObject.getOffset().x > blockRect.left + blockRect.width) {
-					gameObject.setOffset(sf::Vector2f(blockRect.left + blockRect.width - globalBounds.left, gameObject.getOffset().y));
-					isCollision = true;
-			}
+	if(firstGlobalBounds.top + firstGameObject.getOffset().y < secondGlobalBounds.top + secondGlobalBounds.height && 
+		firstGlobalBounds.top + firstGlobalBounds.height + firstGameObject.getOffset().y > secondGlobalBounds.top) {
+		// from the left to the right
+		if(firstGlobalBounds.left + firstGlobalBounds.width + firstGameObject.getOffset().x > secondGlobalBounds.left && 
+		    firstGlobalBounds.left + firstGlobalBounds.width + firstGameObject.getOffset().x < secondGlobalBounds.left + secondGlobalBounds.width) {
+				if(isChangeOffset == IsChangeOffset::FIRST)
+					firstGameObject.setOffset(sf::Vector2f(secondGlobalBounds.left - firstGlobalBounds.left - firstGlobalBounds.width, 
+						firstGameObject.getOffset().y));
+				else if(isChangeOffset == IsChangeOffset::FIRST_AND_SECOND) {
+					const auto tempOffset = secondGlobalBounds.left - firstGlobalBounds.left - firstGlobalBounds.width;
+					firstGameObject.setOffset(sf::Vector2f(tempOffset / 2, 
+						firstGameObject.getOffset().y));
+					secondGameObject.setOffset(sf::Vector2f(-tempOffset / 2, 
+						secondGameObject.getOffset().y));	
+				}
+				isCollision = true;
+		}
+		// from the right to the left
+		else if(firstGlobalBounds.left + firstGameObject.getOffset().x < secondGlobalBounds.left + secondGlobalBounds.width && 
+		    firstGlobalBounds.left + firstGlobalBounds.width + firstGameObject.getOffset().x > secondGlobalBounds.left + secondGlobalBounds.width) {
+				if(isChangeOffset == IsChangeOffset::FIRST)
+					firstGameObject.setOffset(sf::Vector2f(secondGlobalBounds.left + secondGlobalBounds.width - firstGlobalBounds.left, 
+						firstGameObject.getOffset().y));
+				else if(isChangeOffset == IsChangeOffset::FIRST_AND_SECOND) {
+					const auto tempOffset = secondGlobalBounds.left + secondGlobalBounds.width - firstGlobalBounds.left;
+					firstGameObject.setOffset(sf::Vector2f(tempOffset / 2, 
+						firstGameObject.getOffset().y));
+					secondGameObject.setOffset(sf::Vector2f(-tempOffset / 2, 
+						secondGameObject.getOffset().y));
+				}
+				
+				isCollision = true;
 		}
 	}
 
 	return isCollision;
 }
 
-template<typename T1, typename T2>
-bool GameLogic::checkVerticalCollision(T1 &firstGameObject, T2 &secondGameObject)
+template<typename T1>
+bool GameLogic::verticalCollisionWithBlocks(T1 &gameObject)
 {
-	const auto firstGlobalBounds = firstGameObject.getGlobalBounds();
-	const auto secondGlobalBounds = secondGameObject.getGlobalBounds();
-
-	if((firstGlobalBounds.top + player->getOffset().y < secondGlobalBounds.top + secondGlobalBounds.height + secondGameObject.getOffset().y && 
-		firstGlobalBounds.top + firstGlobalBounds.height + player->getOffset().y > secondGlobalBounds.top + secondGameObject.getOffset().y) &&
-		((firstGlobalBounds.left + firstGlobalBounds.width + player->getOffset().x > secondGlobalBounds.left + secondGameObject.getOffset().x && 
-		firstGlobalBounds.left + firstGlobalBounds.width + player->getOffset().x < secondGlobalBounds.left + secondGlobalBounds.width + secondGameObject.getOffset().x) ||
-		(firstGlobalBounds.left + player->getOffset().x < secondGlobalBounds.left + secondGlobalBounds.width + secondGameObject.getOffset().x && 
-		firstGlobalBounds.left + firstGlobalBounds.width + player->getOffset().x > secondGlobalBounds.left + secondGlobalBounds.width + secondGameObject.getOffset().x)))
-			return true;
-	return false;
+	bool output = false;
+	for(auto &block: blocks) {
+		if(verticalCollisionController(gameObject, *block, IsChangeOffset::FIRST))
+			output = true;
+	}
+	return output;
 }
 
 void GameLogic::gameOver()
@@ -464,7 +499,7 @@ void GameLogic::killer()
 	}
 
 	for(auto it = coins.rbegin(); it != coins.rend(); ++it) {
-		if((it->get()->getPosition().y > config::DIE_OXIS_Y || checkVerticalCollision(*player, *it->get())) && !it->get()->isAlreadyEarned())
+		if((it->get()->getPosition().y > config::DIE_OXIS_Y || verticalCollisionController(*player, *it->get())) && !it->get()->isAlreadyEarned())
 			onCatchCoin(*it->get());
 		if(it->get()->isNeedToRemove())
 			coins.erase(std::remove(coins.begin(), coins.end(), *it));
@@ -488,8 +523,8 @@ void GameLogic::killer()
 					onKillEnemy(*enemy);
 	
 			// the player encountered with an enemy
-			else if(checkVerticalCollision(*player, *enemy))
-					gameOver();
+			else if(verticalCollisionController(*player, *enemy))
+				gameOver();
 		}
 	}
 }

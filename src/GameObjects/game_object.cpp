@@ -1,7 +1,7 @@
 #include "game_object.h"
 
-GameObject::GameObject(sf::Vector2f pos, sf::Vector2f scale, const sf::Texture &_texture):
-	texture(_texture)
+GameObject::GameObject(sf::Vector2f pos, sf::Vector2f scale, const sf::Texture &_texture, bool _hasCollision):
+	hasCollision(_hasCollision), texture(_texture)
 {	
 	sprite.setTexture(texture);
 	sprite.setPosition(pos.x, pos.y);

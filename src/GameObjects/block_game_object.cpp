@@ -1,9 +1,9 @@
 #include "block_game_object.h"
 #include "../config.h"
 
-BlockGameObject::BlockGameObject(sf::Vector2f pos, sf::Vector2f scale, const sf::Texture &_texture, bool _isHasCollision, 
+BlockGameObject::BlockGameObject(sf::Vector2f pos, sf::Vector2f scale, const sf::Texture &_texture, bool hasCollision, 
 	BlockType blockType, unsigned int coinCount): 
-	GameObject(pos, scale, _texture), isHasCollision(_isHasCollision), blockType(blockType)
+	GameObject(pos, scale, _texture, hasCollision), blockType(blockType)
 {
 	this->coinCount = coinCount;
 }

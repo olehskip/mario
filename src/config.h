@@ -38,9 +38,9 @@ namespace config
 			// ---jump animation---
 		// ---animations---
 
-		// ---jumping---
+		// ---jump---
 		const float JUMPING_ACCELERATION = 4.5f;
-		const float JUMPING_MAX_SPEED = 23.f; 
+		const float JUMPING_MAX_SPEED = 230.f; 
 		// ---jumping---
 
 		// ---RUN---
@@ -57,6 +57,7 @@ namespace config
 		const float DECELERATION_IN_JUMP = 0.1f;
 
 		const float ANIMATION_SPEED = 10.f;
+		const float DEATH_TIME = 0.6f;
 	}
 
 	namespace coin

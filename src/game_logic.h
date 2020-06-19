@@ -1,6 +1,4 @@
 #pragma once
-#include "time.h"
-
 #include "config.h"
 #include "Loaders/textures_loader.h"
 #include "Loaders/fonts_loader.h"
@@ -16,6 +14,15 @@
 #include "Controllers/game_over_scene_controller.h"
 #include "Controllers/pause_controller.h"
 
+#include <iterator>
+#include "time.h"
+
+enum class IsChangeOffset
+{
+	NO, 
+	FIRST,
+	FIRST_AND_SECOND
+};
 
 class GameLogic
 {
@@ -38,10 +45,10 @@ public:
 private:
 	template<typename T>
 	std::vector<size_t> horizontalCollisionController(T &gameObject);
-	template<typename T>
-	bool verticalCollisionController(T &gameObject);
 	template<typename T1, typename T2>
-	bool checkVerticalCollision(T1 &firstGameObject, T2 &secondGameObject);
+	bool verticalCollisionController(T1 &firstGameObject, T2 &secondGameObject, IsChangeOffset isChangeOffset = IsChangeOffset::NO);
+	template<typename T1>
+	bool verticalCollisionWithBlocks(T1 &gameObject);
 
 	bool isBlockCanJump = true;
 

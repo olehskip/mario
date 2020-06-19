@@ -15,11 +15,13 @@ public:
 	void animate(float deltaTime) override;
 
 	void changeDirection();
+	bool isChangedDirection() const;
 
 	bool isAlive() const;
 	void die();
 
 private:
+	bool mIsChangedDirection = false;
 	bool mIsAlive = true;
 	sf::Clock dieStopwatch;
 	std::shared_ptr<AnimationController> currentAnimation;
