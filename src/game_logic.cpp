@@ -29,7 +29,7 @@ float GameLogic::getDeltaTime() const
 {
 	return clock.getElapsedTime().asSeconds();
 }
-
+#include <iostream>
 void GameLogic::restart()
 {
 	view.setCenter(config::window::WINDOW_WIDTH / 2 * config::window::WINDOW_ZOOM, 
@@ -126,13 +126,17 @@ void GameLogic::restart()
 	gameOverSceneController = std::make_unique<GameOverSceneController>(fontsLoader.getObject(FontsID::_8_BIT_ARCADE));
 	pauseController = std::make_unique<PauseController>(fontsLoader.getObject(FontsID::_8_BIT_ARCADE));
 
+	FPSLabel = std::make_unique<LabelController>(sf::Vector2f(0, 0), fontsLoader.getObject(FontsID::PIXEBOY),
+		35 * config::window::WINDOW_ZOOM, sf::Color::White, std::string("0000000000000000"));
+	FPSLabel->setPosition(sf::Vector2f(0, config::window::WINDOW_HEIGHT * config::window::WINDOW_ZOOM - 
+		FPSLabel->getGlobalBounds().height * 2 - 5));
 	score = Score();
 	coinsCount = 0;
 	timer.restart();
 	timerValue = 999.f;
 	clock.restart();
 }
-
+#include <iostream>
 void GameLogic::update()
 {
 	if(pauseController->isPaused()) return;
@@ -226,6 +230,9 @@ void GameLogic::update()
 	}
 	
 	audioMuteLable->update();
+	fps.update();
+	FPSLabel->setText(std::to_string(fps.getFPS()));
+	// std::cout << fps.getFPS() << std::endl;
 }
 
 void GameLogic::draw(sf::RenderWindow &window)
@@ -263,6 +270,8 @@ void GameLogic::draw(sf::RenderWindow &window)
 	pauseController->draw(window);
 	for(auto &label: labels)
 		label->draw(window);
+
+	FPSLabel->draw(window, fps.getColor());
 	
 	const auto cameraPosition = cameraController();
 	view.move(cameraPosition);
@@ -354,6 +363,7 @@ void GameLogic::scrollBackground(sf::Vector2f offset)
 		pointsLabel->moveX(offset.x);
 	for(auto &label: labels)
 		label->move(offset);
+	FPSLabel->move(offset);
 }
 
 template<typename T>

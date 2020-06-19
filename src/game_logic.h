@@ -13,9 +13,10 @@
 #include "Controllers/audio_controller.h"
 #include "Controllers/game_over_scene_controller.h"
 #include "Controllers/pause_controller.h"
+#include "fps.h"
 
 #include <iterator>
-#include "time.h"
+#include <time.h>
 
 enum class IsChangeOffset
 {
@@ -23,6 +24,7 @@ enum class IsChangeOffset
 	FIRST,
 	FIRST_AND_SECOND
 };
+
 
 class GameLogic
 {
@@ -71,6 +73,9 @@ private:
 	float timerValue = 1000.f;
 	// float timerFinalValue = 100.f;
 	std::string convertNumberToStringWithNulls(int number, size_t nullsCount);
+
+	FPS fps;
+	std::unique_ptr<LabelController> FPSLabel;
 
 	// at the start there is an animated label with developers contacts
 	std::unique_ptr<AnimatedLabelController> titleAnimatedLabel;

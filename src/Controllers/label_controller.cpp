@@ -99,3 +99,9 @@ void LabelController::draw(sf::RenderWindow &window)
 	if(isVisible)
 		window.draw(textObj);
 }
+
+void LabelController::draw(sf::RenderWindow &window, sf::Color color)
+{
+	textObj.setFillColor(color);
+	draw(window);
+}

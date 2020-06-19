@@ -20,6 +20,9 @@ public:
 	void toCenterY(float windowHeight);
 	void toTopY();
 	void toBottomY(float windowHeight);
+	float getOrigin() {
+		return textObj.getOrigin().y;
+	}
 	void centerOrigin();
 	void centerOriginX();
 	void centerOriginY();
@@ -31,6 +34,7 @@ public:
 	void blink(bool blinkState, float delay = 0.f);
 
 	virtual void draw(sf::RenderWindow &window);
+	void draw(sf::RenderWindow &window, sf::Color color);
 
 protected:
 	sf::Text textObj;

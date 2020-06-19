@@ -40,7 +40,7 @@ namespace config
 
 		// ---jump---
 		const float JUMPING_ACCELERATION = 4.5f;
-		const float JUMPING_MAX_SPEED = 230.f; 
+		const float JUMPING_MAX_SPEED = 23.f; 
 		// ---jumping---
 
 		// ---RUN---
